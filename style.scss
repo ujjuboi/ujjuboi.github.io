@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&family=Raleway:wght@800&display=swap');
+
+//color pallete
+$blue: #4A4BC7;
+$yellow: #FFD23B;
+$white: #F9F3EF;
+$greyish_white: #DFDCCE;
+$grey: #88857E;
+$pink: #EE9BE4;
+$reddish_pink: #FF8F79;
+
+//fonts
+$headings: 'Raleway', sans-serif;
+$poppins: 'Poppins', sans-serif;
+
+:root{
+  font-size: 16px;
+}
+
+body{
+  padding: 1%;
+  font-size: 130%;
+  font-family: $poppins;
+  display: grid;
+  grid-template-rows: 15vh 60vh 28vh;
+  overflow: hidden;
+  background-color: $blue;
+}
+
+header{
+  .logo{
+    width: 3rem;
+    height: 3rem;
+    border: 0.2rem solid $yellow;
+    border-radius: 60%;
+  }
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 1%;
+  border: 0.3rem solid black;
+  box-shadow: 0.5rem 0.5rem $yellow;
+  nav{
+    width: 70%;
+    ul{
+      display: flex;
+      justify-content: space-around;
+      list-style: none;
+      li{
+        padding: 10%;
+        border: none;
+        :hover{
+          padding: 10%;
+          border: 0.15rem dashed $yellow;
+          border-radius: 20%;
+          transition: all ease-in-out .2s;
+        }
+        a{
+          font-family: $poppins;
+          text-decoration: none;
+          color: $yellow;
+        }
+      }
+    }
+  }
+}
+.active{
+  padding: 10%;
+  border: 0.15rem solid $yellow;
+  border-radius: 20%;
+}
+
+section{
+  margin: 1%;
+  #hero{
+    position: absolute;
+    left: 45%;
+    top: 45%;
+    transform: translate(-45%, -45%);
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 20% 60% 20.5%;
+    margin-top: 2%;
+    width: 90%;
+    height: 60%;
+    p{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+    span{
+      font-size: 125%;
+    }
+    #name{
+      color: $yellow;
+      font-size: 350%;
+      font-family: $headings;
+    }
+  }
+  .context{
+    color: $reddish_pink;
+    text-align: center;
+    box-shadow: 0.5rem 0.5rem $yellow;
+    border: 0.3rem solid black;
+    h2{
+      text-decoration: underline;
+    }
+    ul{
+      height: 60%;
+      display: flex;
+      justify-content: space-evenly;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}
+
+footer{
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  text-align: center;
+  #footer_nav{
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    list-style: none;
+    li{
+      .footer_links{
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+      a{
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+#brand{
+  font-family: $headings;
+  color: $yellow;
+}

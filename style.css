@@ -1,0 +1,193 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins&family=Raleway:wght@800&display=swap");
+:root {
+  font-size: 16px;
+}
+
+body {
+  padding: 1%;
+  font-size: 130%;
+  font-family: "Poppins", sans-serif;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-rows: 15vh 60vh 28vh;
+      grid-template-rows: 15vh 60vh 28vh;
+  overflow: hidden;
+  background-color: #4A4BC7;
+}
+
+header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  padding: 1%;
+  border: 0.3rem solid black;
+  -webkit-box-shadow: 0.5rem 0.5rem #FFD23B;
+          box-shadow: 0.5rem 0.5rem #FFD23B;
+}
+
+header .logo {
+  width: 3rem;
+  height: 3rem;
+  border: 0.2rem solid #FFD23B;
+  border-radius: 60%;
+}
+
+header nav {
+  width: 70%;
+}
+
+header nav ul {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  list-style: none;
+}
+
+header nav ul li {
+  padding: 10%;
+  border: none;
+}
+
+header nav ul li :hover {
+  padding: 10%;
+  border: 0.15rem dashed #FFD23B;
+  border-radius: 20%;
+  -webkit-transition: all ease-in-out .2s;
+  transition: all ease-in-out .2s;
+}
+
+header nav ul li a {
+  font-family: "Poppins", sans-serif;
+  text-decoration: none;
+  color: #FFD23B;
+}
+
+.active {
+  padding: 10%;
+  border: 0.15rem solid #FFD23B;
+  border-radius: 20%;
+}
+
+section {
+  margin: 1%;
+}
+
+section #hero {
+  position: absolute;
+  left: 45%;
+  top: 45%;
+  -webkit-transform: translate(-45%, -45%);
+          transform: translate(-45%, -45%);
+  padding: 10px;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 20% 60% 20.5%;
+      grid-template-columns: 20% 60% 20.5%;
+  margin-top: 2%;
+  width: 90%;
+  height: 60%;
+}
+
+section #hero p {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+
+section #hero span {
+  font-size: 125%;
+}
+
+section #hero #name {
+  color: #FFD23B;
+  font-size: 350%;
+  font-family: "Raleway", sans-serif;
+}
+
+section .context {
+  color: #FF8F79;
+  text-align: center;
+  -webkit-box-shadow: 0.5rem 0.5rem #FFD23B;
+          box-shadow: 0.5rem 0.5rem #FFD23B;
+  border: 0.3rem solid black;
+}
+
+section .context h2 {
+  text-decoration: underline;
+}
+
+section .context ul {
+  height: 60%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+}
+
+footer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  text-align: center;
+}
+
+footer #footer_nav {
+  width: 50%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  list-style: none;
+}
+
+footer #footer_nav li .footer_links {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+footer #footer_nav li a {
+  text-decoration: none;
+}
+
+#brand {
+  font-family: "Raleway", sans-serif;
+  color: #FFD23B;
+}
+/*# sourceMappingURL=style.css.map */
