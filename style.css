@@ -50,11 +50,6 @@ header nav ul {
   list-style: none;
 }
 
-header nav ul li {
-  padding: 10%;
-  border: none;
-}
-
 header nav ul li :hover {
   padding: 10%;
   border: 0.15rem dashed #FFD23B;
