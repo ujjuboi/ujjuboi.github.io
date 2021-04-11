@@ -48,10 +48,8 @@ header{
       list-style: none;
       li{
         :hover{
-          padding: 10%;
-          border: 0.15rem dashed $yellow;
-          border-radius: 20%;
-          transition: all ease-in-out .2s;
+          border-bottom: 0.2rem solid $yellow;
+          transition: border ease-in-out .1s;
         }
         a{
           font-family: $poppins;
@@ -139,5 +137,5 @@ footer{
 
 #brand{
   font-family: $headings;
-  color: $yellow;
+  color: black;
 }

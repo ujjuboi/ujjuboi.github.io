@@ -51,11 +51,9 @@ header nav ul {
 }
 
 header nav ul li :hover {
-  padding: 10%;
-  border: 0.15rem dashed #FFD23B;
-  border-radius: 20%;
-  -webkit-transition: all ease-in-out .2s;
-  transition: all ease-in-out .2s;
+  border-bottom: 0.2rem solid #FFD23B;
+  -webkit-transition: border ease-in-out .1s;
+  transition: border ease-in-out .1s;
 }
 
 header nav ul li a {
@@ -183,6 +181,6 @@ footer #footer_nav li a {
 
 #brand {
   font-family: "Raleway", sans-serif;
-  color: #FFD23B;
+  color: black;
 }
 /*# sourceMappingURL=style.css.map */
