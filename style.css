@@ -11,7 +11,6 @@ body {
   display: grid;
   -ms-grid-rows: 15vh 60vh 28vh;
       grid-template-rows: 15vh 60vh 28vh;
-  overflow: hidden;
   background-color: #4A4BC7;
 }
 
@@ -182,5 +181,77 @@ footer #footer_nav li a {
 #brand {
   font-family: "Raleway", sans-serif;
   color: black;
+}
+
+#themeSelect {
+  font-size: 110%;
+  background-color: #FF8F79;
+  color: #4A4BC7;
+  position: absolute;
+  width: 10%;
+  bottom: 5.5%;
+  right: 4%;
+  border: 0.2rem solid black;
+  border-radius: 5%;
+  padding: 0.5%;
+  -webkit-box-shadow: 0.2rem 0.2rem #FFD23B;
+          box-shadow: 0.2rem 0.2rem #FFD23B;
+}
+
+#themeSelect:hover #menu {
+  position: relative;
+  opacity: 1;
+  visibility: visible;
+}
+
+#themeSelect:hover #arrow {
+  -webkit-transform: rotate(90deg);
+          transform: rotate(90deg);
+  -webkit-transition: -webkit-transform .2s linear;
+  transition: -webkit-transform .2s linear;
+  transition: transform .2s linear;
+  transition: transform .2s linear, -webkit-transform .2s linear;
+}
+
+#themeSelect #selectedTheme {
+  width: 100%;
+  cursor: pointer;
+  font-family: "Raleway", sans-serif;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+}
+
+#themeSelect #menu {
+  position: absolute;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  margin-bottom: 5%;
+  -webkit-transition: opacity .2s linear, position .2s linear, visibility .2s linear;
+  transition: opacity .2s linear, position .2s linear, visibility .2s linear;
+  visibility: hidden;
+  opacity: 0;
+}
+
+#themeSelect #menu .menuItem {
+  cursor: pointer;
+  padding: 1%;
 }
 /*# sourceMappingURL=style.css.map */

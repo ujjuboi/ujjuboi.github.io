@@ -3,11 +3,12 @@
 //color pallete
 $backgroundColor: #4A4BC7;
 $shadowColor: #FFD23B;
-$white: #F9F3EF;
+$whiteTheme: #F9F3EF;
 $reddish_pink: #FF8F79;
 $FirstScheme: #A1AC25;
 $SecondScheme: #E34F33;
 $ThirdScheme: #94BBD6;
+$darkTheme: #182733;
 
 //fonts
 $headings: 'Raleway', sans-serif;
@@ -23,7 +24,6 @@ body{
   font-family: $poppins;
   display: grid;
   grid-template-rows: 15vh 60vh 28vh;
-  overflow: hidden;
   background-color: $backgroundColor;
 }
 
@@ -138,4 +138,50 @@ footer{
 #brand{
   font-family: $headings;
   color: black;
+}
+
+#themeSelect{
+  font-size: 110%;
+  background-color: $reddish_pink;
+  color: $backgroundColor;
+  position: absolute;
+  width: 10%;
+  bottom: 5.5%;
+  right: 4%;
+  border: 0.2rem solid black;
+  border-radius: 5%;
+  padding: 0.5%;
+  box-shadow: 0.2rem 0.2rem $shadowColor;
+  :hover #menu{
+    position: relative;
+    opacity: 1;
+    visibility: visible;
+  }
+  :hover #arrow{
+    transform:rotate(90deg);
+    transition: transform .2s linear;
+  }
+  #selectedTheme{
+    width: 100%;
+    cursor: pointer;
+    font-family: $headings;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  #menu{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-bottom: 5%;
+    transition: opacity .2s linear, position .2s linear, visibility .2s linear;
+    visibility: hidden;
+    opacity: 0;
+    .menuItem{
+      cursor: pointer;
+      padding: 1%;
+    }
+  }
 }
