@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins&family=Raleway:wght@800&display=swap');
 
 //color pallete
-$blue: #4A4BC7;
-$yellow: #FFD23B;
+$backgroundColor: #4A4BC7;
+$shadowColor: #FFD23B;
 $white: #F9F3EF;
-$greyish_white: #DFDCCE;
-$grey: #88857E;
-$pink: #EE9BE4;
 $reddish_pink: #FF8F79;
+$FirstScheme: #A1AC25;
+$SecondScheme: #E34F33;
+$ThirdScheme: #94BBD6;
 
 //fonts
 $headings: 'Raleway', sans-serif;
@@ -24,14 +24,14 @@ body{
   display: grid;
   grid-template-rows: 15vh 60vh 28vh;
   overflow: hidden;
-  background-color: $blue;
+  background-color: $backgroundColor;
 }
 
 header{
   .logo{
     width: 3rem;
     height: 3rem;
-    border: 0.2rem solid $yellow;
+    border: 0.2rem solid $shadowColor;
     border-radius: 60%;
   }
   display: flex;
@@ -39,7 +39,7 @@ header{
   justify-content: space-around;
   padding: 1%;
   border: 0.3rem solid black;
-  box-shadow: 0.5rem 0.5rem $yellow;
+  box-shadow: 0.5rem 0.5rem $shadowColor;
   nav{
     width: 70%;
     ul{
@@ -48,13 +48,13 @@ header{
       list-style: none;
       li{
         :hover{
-          border-bottom: 0.2rem solid $yellow;
+          border-bottom: 0.2rem solid $shadowColor;
           transition: border ease-in-out .1s;
         }
         a{
           font-family: $poppins;
           text-decoration: none;
-          color: $yellow;
+          color: $shadowColor;
         }
       }
     }
@@ -62,7 +62,7 @@ header{
 }
 .active{
   padding: 10%;
-  border: 0.15rem solid $yellow;
+  border: 0.15rem solid $shadowColor;
   border-radius: 20%;
 }
 
@@ -89,7 +89,7 @@ section{
       font-size: 125%;
     }
     #name{
-      color: $yellow;
+      color: $shadowColor;
       font-size: 350%;
       font-family: $headings;
     }
@@ -97,7 +97,7 @@ section{
   .context{
     color: $reddish_pink;
     text-align: center;
-    box-shadow: 0.5rem 0.5rem $yellow;
+    box-shadow: 0.5rem 0.5rem $shadowColor;
     border: 0.3rem solid black;
     h2{
       text-decoration: underline;
