@@ -77,18 +77,79 @@
   </footer>
   <div id="themeSelect">
     <div id="menu">
-      <span class="menuItem">Palpatine.</span>
-      <span class="menuItem">Skywalker.</span>
+      <span class="menuItem" id="darkTheme" onclick="darkTheme()">Palpatine.</span>
+      <span class="menuItem" id="whiteTheme" onclick="lightTheme()">Skywalker.</span>
     </div>
     <div id="selectedTheme">
-      <span id="select">Celebrate!</span>
+      <span class="menuItem" id="colorTheme" onclick="colorTheme()">Celebrate!</span>
       <span id="arrow">&lt</span>
     </div>
   </div>
 </body>
 <script>
+  class WhiteTheme{
+    bg  = "#F9F3EF";
+    content = "#BE3D3D";
+    shadow = "#09382F";
+  }
+
+  class ColorTheme{
+    bg  = "#4A4BC7";
+    content = "#FF8F79";
+    shadow = "#FFD23B";
+  }
+
+  class DarkTheme{
+    bg  = "#182733";
+    content = "#A1AC25";
+    shadow = "#FFFFFF";
+  }
+  
+  var root = document.querySelector(":root");
+  var menu = document.getElementById("menu");
+  var selectedTheme = document.getElementById("selectedTheme");
+  var white = document.getElementById("whiteTheme");
+  var dark = document.getElementById("darkTheme");
+  var color = document.getElementById("colorTheme");
+
   function notice(){
     alert("Under Development!");
   };
+
+  /*function darkTheme(){
+    if(selectedTheme.firstChild == white){
+      menu.replaceChild(white, dark);
+      selectedTheme.appendChild(dark);
+    }
+    else{
+      menu.replaceChild(color, dark);
+      selectedTheme.appendChild(dark);
+    }
+    let darkObj = new DarkTheme;
+    document.getElementById("name").style.color = darkObj.shadow;
+    root.style.setProperty('--backgroundColor', darkObj.bg);
+    root.style.setProperty('--shadowColor', darkObj.shadow);
+    root.style.setProperty('--contentColor', darkObj.content);
+  }*/
+
+  function colorTheme(){
+    menu.replaceChild(white, color);
+    selectedTheme.appendChild(color);
+    let colorObj = new ColorTheme;
+    document.getElementById("name").style.color = colorObj.shadow;
+    root.style.setProperty('--backgroundColor', colorObj.bg);
+    root.style.setProperty('--shadowColor', colorObj.shadow);
+    root.style.setProperty('--contentColor', colorObj.content);
+  }
+
+  function lightTheme(){
+    menu.replaceChild(color, white);
+    selectedTheme.appendChild(white);
+    let whiteObj = new WhiteTheme;
+    document.getElementById("name").style.color = whiteObj.content;
+    root.style.setProperty('--backgroundColor', whiteObj.bg);
+    root.style.setProperty('--shadowColor', whiteObj.shadow);
+    root.style.setProperty('--contentColor', whiteObj.content);
+  }
 </script>
 </html>

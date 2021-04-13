@@ -1,6 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins&family=Raleway:wght@800&display=swap");
 :root {
   font-size: 16px;
+
+  --backgroundColor: #4A4BC7;
+  --shadowColor: #FFD23B;
+  --contentColor: #FF8F79;
+  --firstScheme: "#A1AC25";
+  --secondScheme:"#E34F33";
+  --thirdScheme:"#94BBD6";
+
+  --headings: 'Raleway', sans-serif;
+  --poppins: 'Poppins', sans-serif;
 }
 
 body {
@@ -11,7 +21,7 @@ body {
   display: grid;
   -ms-grid-rows: 15vh 60vh 28vh;
       grid-template-rows: 15vh 60vh 28vh;
-  background-color: #4A4BC7;
+  background-color: var(--backgroundColor);
 }
 
 header {
@@ -25,14 +35,14 @@ header {
       justify-content: space-around;
   padding: 1%;
   border: 0.3rem solid black;
-  -webkit-box-shadow: 0.5rem 0.5rem #FFD23B;
-          box-shadow: 0.5rem 0.5rem #FFD23B;
+  -webkit-box-shadow: 0.5rem 0.5rem var(--shadowColor);
+          box-shadow: 0.5rem 0.5rem var(--shadowColor);
 }
 
 header .logo {
   width: 3rem;
   height: 3rem;
-  border: 0.2rem solid #FFD23B;
+  border: 0.2rem solid var(--shadowColor);
   border-radius: 60%;
 }
 
@@ -50,7 +60,7 @@ header nav ul {
 }
 
 header nav ul li :hover {
-  border-bottom: 0.2rem solid #FFD23B;
+  border-bottom: 0.2rem solid var(--shadowColor);
   -webkit-transition: border ease-in-out .1s;
   transition: border ease-in-out .1s;
 }
@@ -58,12 +68,12 @@ header nav ul li :hover {
 header nav ul li a {
   font-family: "Poppins", sans-serif;
   text-decoration: none;
-  color: #FFD23B;
+  color: var(--shadowColor);
 }
 
 .active {
   padding: 10%;
-  border: 0.15rem solid #FFD23B;
+  border: 0.15rem solid var(--shadowColor);
   border-radius: 20%;
 }
 
@@ -108,16 +118,16 @@ section #hero span {
 }
 
 section #hero #name {
-  color: #FFD23B;
+  color: var(--shadowColor);
   font-size: 350%;
   font-family: "Raleway", sans-serif;
 }
 
 section .context {
-  color: #FF8F79;
+  color: var(--contentColor);
   text-align: center;
-  -webkit-box-shadow: 0.5rem 0.5rem #FFD23B;
-          box-shadow: 0.5rem 0.5rem #FFD23B;
+  -webkit-box-shadow: 0.5rem 0.5rem var(--shadowColor);
+          box-shadow: 0.5rem 0.5rem var(--shadowColor);
   border: 0.3rem solid black;
 }
 
@@ -185,8 +195,8 @@ footer #footer_nav li a {
 
 #themeSelect {
   font-size: 110%;
-  background-color: #FF8F79;
-  color: #4A4BC7;
+  background-color: var(--contentColor);
+  color: var(--backgroundColor);
   position: absolute;
   width: 10%;
   bottom: 5.5%;
@@ -194,8 +204,8 @@ footer #footer_nav li a {
   border: 0.2rem solid black;
   border-radius: 5%;
   padding: 0.5%;
-  -webkit-box-shadow: 0.2rem 0.2rem #FFD23B;
-          box-shadow: 0.2rem 0.2rem #FFD23B;
+  -webkit-box-shadow: 0.2rem 0.2rem var(--shadowColor);
+          box-shadow: 0.2rem 0.2rem var(--shadowColor);
 }
 
 #themeSelect:hover #menu {
