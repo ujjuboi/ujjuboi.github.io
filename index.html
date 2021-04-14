@@ -88,23 +88,30 @@
 </body>
 <script>
   class WhiteTheme{
+    border = "#000000";
     bg  = "#F9F3EF";
     content = "#BE3D3D";
     shadow = "#09382F";
   }
 
   class ColorTheme{
+    border = "#000000";
     bg  = "#4A4BC7";
     content = "#FF8F79";
     shadow = "#FFD23B";
   }
 
   class DarkTheme{
+    border = "#49D742";
     bg  = "#182733";
     content = "#A1AC25";
-    shadow = "#FFFFFF";
+    shadow = "#C99910";
   }
-  
+
+  function notice(){
+    alert("Under Development!");
+  };  
+
   var root = document.querySelector(":root");
   var menu = document.getElementById("menu");
   var selectedTheme = document.getElementById("selectedTheme");
@@ -112,44 +119,51 @@
   var dark = document.getElementById("darkTheme");
   var color = document.getElementById("colorTheme");
 
-  function notice(){
-    alert("Under Development!");
+  function replace(){
+    var insideTheme = null;
+    for(var i = 0; i<selectedTheme.childNodes.length; i++){
+      if(selectedTheme.childNodes[i].className == "menuItem"){
+        insideTheme = selectedTheme.childNodes[i];
+        break;
+      }
+    }
+    return insideTheme;
   };
 
-  /*function darkTheme(){
-    if(selectedTheme.firstChild == white){
-      menu.replaceChild(white, dark);
-      selectedTheme.appendChild(dark);
-    }
-    else{
-      menu.replaceChild(color, dark);
-      selectedTheme.appendChild(dark);
-    }
+  function darkTheme(){
+    menu.replaceChild(replace(), dark);
+    selectedTheme.appendChild(dark);
     let darkObj = new DarkTheme;
-    document.getElementById("name").style.color = darkObj.shadow;
+    document.querySelector('body').style.color = darkObj.border;
+    root.style.setProperty('--borderColor', darkObj.border);
     root.style.setProperty('--backgroundColor', darkObj.bg);
     root.style.setProperty('--shadowColor', darkObj.shadow);
     root.style.setProperty('--contentColor', darkObj.content);
-  }*/
+  }
 
   function colorTheme(){
-    menu.replaceChild(white, color);
+    
+    menu.replaceChild(replace(), color);
     selectedTheme.appendChild(color);
     let colorObj = new ColorTheme;
-    document.getElementById("name").style.color = colorObj.shadow;
+    document.querySelector('body').style.color = colorObj.border;
+    root.style.setProperty('--borderColor', colorObj.border);
     root.style.setProperty('--backgroundColor', colorObj.bg);
     root.style.setProperty('--shadowColor', colorObj.shadow);
     root.style.setProperty('--contentColor', colorObj.content);
   }
 
   function lightTheme(){
-    menu.replaceChild(color, white);
+    
+    menu.replaceChild(replace(), white);
     selectedTheme.appendChild(white);
     let whiteObj = new WhiteTheme;
-    document.getElementById("name").style.color = whiteObj.content;
+    document.querySelector('body').style.color = whiteObj.border;
+    root.style.setProperty('--borderColor', whiteObj.border);
     root.style.setProperty('--backgroundColor', whiteObj.bg);
     root.style.setProperty('--shadowColor', whiteObj.shadow);
     root.style.setProperty('--contentColor', whiteObj.content);
   }
+
 </script>
 </html>

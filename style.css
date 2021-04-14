@@ -2,6 +2,7 @@
 :root {
   font-size: 16px;
 
+  --borderColor: #000000;
   --backgroundColor: #4A4BC7;
   --shadowColor: #FFD23B;
   --contentColor: #FF8F79;
@@ -22,6 +23,7 @@ body {
   -ms-grid-rows: 15vh 60vh 28vh;
       grid-template-rows: 15vh 60vh 28vh;
   background-color: var(--backgroundColor);
+  overflow: hidden;
 }
 
 header {
@@ -34,16 +36,14 @@ header {
   -ms-flex-pack: distribute;
       justify-content: space-around;
   padding: 1%;
-  border: 0.3rem solid black;
+  border: 0.3rem solid var(--borderColor);
   -webkit-box-shadow: 0.5rem 0.5rem var(--shadowColor);
           box-shadow: 0.5rem 0.5rem var(--shadowColor);
 }
 
-header .logo {
-  width: 3rem;
-  height: 3rem;
-  border: 0.2rem solid var(--shadowColor);
+header #brand {
   border-radius: 60%;
+  color: var(--borderColor);
 }
 
 header nav {
@@ -128,7 +128,7 @@ section .context {
   text-align: center;
   -webkit-box-shadow: 0.5rem 0.5rem var(--shadowColor);
           box-shadow: 0.5rem 0.5rem var(--shadowColor);
-  border: 0.3rem solid black;
+  border: 0.3rem solid var(--borderColor);
 }
 
 section .context h2 {
@@ -201,7 +201,7 @@ footer #footer_nav li a {
   width: 10%;
   bottom: 5.5%;
   right: 4%;
-  border: 0.2rem solid black;
+  border: 0.2rem solid var(--borderColor);
   border-radius: 5%;
   padding: 0.5%;
   -webkit-box-shadow: 0.2rem 0.2rem var(--shadowColor);
