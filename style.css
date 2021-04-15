@@ -32,13 +32,13 @@ body {
   display: none;
   position: absolute;
 }
-
 #menuIcon rect{
-  fill: var(--backgroundColor);
+  stroke: none;
 }
 
-#menuIcon rect .bar{
-  fill: var(--shadowColor);
+#menuIcon .bar{
+  fill: var(--backgroundColor);
+  stroke: var(--borderColor);
 }
 
 header {
