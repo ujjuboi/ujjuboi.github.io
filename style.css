@@ -333,7 +333,7 @@ body{
 
 #menuIcon .bar{
   stroke: var(--borderColor);
-  fill: var(--contentColor);
+  fill: var(--backgroundColor);
 }
 
 #hero{
