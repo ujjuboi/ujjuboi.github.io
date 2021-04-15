@@ -1,11 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins&family=Raleway:wght@800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap');
+
 :root {
   font-size: 16px;
 
   --borderColor: #000000;
   --backgroundColor: #4A4BC7;
   --shadowColor: #FFD23B;
-  --contentColor: #FF8F79;
+  --contentColor: #FEE5A5;
   --firstScheme: "#A1AC25";
   --secondScheme:"#E34F33";
   --thirdScheme:"#94BBD6";
@@ -117,10 +119,18 @@ section #hero span {
   font-size: 125%;
 }
 
-section #hero #name {
-  color: var(--shadowColor);
-  font-size: 350%;
-  font-family: "Raleway", sans-serif;
+section #hero #signature{
+  fill: var(--backgroundColor);
+  height: 60%;
+  width: 60%;
+}
+
+section #hero #signature path{
+  stroke: var(--shadowColor);
+  stroke-dasharray: 527;
+  stroke-dashoffset: 527;
+  animation: sign 4s ease;
+  animation-fill-mode: forwards;
 }
 
 section .context {
@@ -152,6 +162,11 @@ section .context ul {
           align-items: flex-start;
 }
 
+section .context ul li:hover{
+  font-size: 110%;
+  transition: font-size .2s ease-in-out;
+}
+
 footer {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -179,9 +194,23 @@ footer #footer_nav {
   list-style: none;
 }
 
-footer #footer_nav li .footer_links {
-  width: 2.5rem;
-  height: 2.5rem;
+footer #footer_nav li svg {
+  width: 130%;
+  height: 130%;
+  transition: all .2s linear;
+}
+
+footer #footer_nav li:hover svg{
+  width: 150%;
+  height: 150%;
+}
+
+footer #footer_nav li svg rect{
+  fill: var(--backgroundColor);
+}
+
+footer #footer_nav li svg path{
+  fill: var(--borderColor);
 }
 
 footer #footer_nav li a {
@@ -189,7 +218,7 @@ footer #footer_nav li a {
 }
 
 #brand {
-  font-family: "Raleway", sans-serif;
+  font-family: var(--headings);
   color: black;
 }
 
@@ -226,7 +255,7 @@ footer #footer_nav li a {
 #themeSelect #selectedTheme {
   width: 100%;
   cursor: pointer;
-  font-family: "Raleway", sans-serif;
+  font-family: var(--headings);
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -263,5 +292,11 @@ footer #footer_nav li a {
 #themeSelect #menu .menuItem {
   cursor: pointer;
   padding: 1%;
+}
+
+@keyframes sign{
+  to{
+    stroke-dashoffset: 0;
+  }
 }
 /*# sourceMappingURL=style.css.map */
