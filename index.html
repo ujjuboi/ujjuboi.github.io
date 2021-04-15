@@ -181,24 +181,26 @@
   var dark = document.getElementById("darkTheme");
   var color = document.getElementById("colorTheme");
 
-  themeSelect.addEventListener('click', () => {
-    menu.style.position =  "relative";
-    menu.style.opacity = "1";
-    menu.style.visibility = "visible";
-  });
+  if(window.innerWidth <= 720){
+    themeSelect.addEventListener('click', () => {
+      menu.style.position =  "relative";
+      menu.style.opacity = "1";
+      menu.style.visibility = "visible";
+    });
 
-  menuIcon.addEventListener('click', () => {
-    header.style.display = "flex";
-    hero.style.display = "none";
-  });
+    menuIcon.addEventListener('click', () => {
+      header.style.display = "flex";
+      hero.style.display = "none";
+    });
 
-  footer.addEventListener('click', () => {
-    header.style.display = "none";
-    hero.style.display = "flex";
-    menu.style.position =  "absolute";
-    menu.style.opacity = "0";
-    menu.style.visibility = "hidden";
-  });
+    footer.addEventListener('click', () => {
+      header.style.display = "none";
+      hero.style.display = "flex";
+      menu.style.position =  "absolute";
+      menu.style.opacity = "0";
+      menu.style.visibility = "hidden";
+    });
+  }
 
   function replace(){
     var insideTheme = null;

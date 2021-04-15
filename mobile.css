@@ -13,6 +13,7 @@ body{
   right: 4%;
   width: 10%;
   height: 10%;
+  stroke: var(--borderColor);
 }
 
 #hero{

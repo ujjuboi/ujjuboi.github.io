@@ -331,6 +331,11 @@ body{
   height: 10%;
 }
 
+#menuIcon .bar{
+  stroke: var(--borderColor);
+  fill: var(--contentColor);
+}
+
 #hero{
   display: flex;
   height: 80vh;
