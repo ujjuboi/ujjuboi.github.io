@@ -1,0 +1,146 @@
+@import url("./style.css");
+
+body{
+  display: block;
+  overflow: hidden;
+}
+
+#menuIcon{
+  cursor: pointer;
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 4%;
+  width: 10%;
+  height: 10%;
+}
+
+#hero{
+  display: flex;
+  height: 80vh;
+  width: 100vw;
+  border: 0.4rem solid var(--borderColor);
+  box-shadow: 0.4rem 0.4rem var(--shadowColor);
+}
+
+#hero p{
+  width: 92vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+#hero p span{
+  font-size: 200%;
+}
+
+.context{
+  position: absolute;
+  display: none;
+}
+
+header {
+  padding-top: 15%;
+  text-align: center;
+  flex-direction: column;
+  justify-content: space-around;
+  background-color: var(--contentColor);
+  display: none;
+  position: absolute;
+  right: 3%;
+  height: 69vh;
+  width: 92vw;
+}
+
+header nav {
+  height: 80%;
+  width: 100%;
+}
+
+header nav ul{
+  height: 80%;
+  width: 90%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.active{
+  border-color: var(--backgroundColor);
+}
+
+header nav ul li :hover {
+  border-bottom: 0.2rem solid var(--backgroundColor);
+}
+
+header nav ul li a{
+  color: var(--backgroundColor);
+  font-size: 150%;
+}
+
+footer{
+  height: 18vh;
+  width: 100%;
+  position: absolute;
+  bottom: 4%;
+}
+
+#themeSelect{
+  width: 25%;
+  bottom: 1%;
+  right: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#themeSelect:hover #arrow {
+  -webkit-transform: rotate(90deg);
+          transform: rotate(90deg);
+  -webkit-transition: -webkit-transform .2s linear;
+  transition: -webkit-transform .2s linear;
+  transition: transform .2s linear;
+  transition: transform .2s linear, -webkit-transform .2s linear;
+}
+
+#themeSelect #selectedTheme {
+  width: 100%;
+  cursor: pointer;
+  font-family: var(--headings);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+}
+
+#themeSelect #menu {
+  position: absolute;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  margin-bottom: 5%;
+  -webkit-transition: opacity .2s linear, position .2s linear, visibility .2s linear;
+  transition: opacity .2s linear, position .2s linear, visibility .2s linear;
+  visibility: hidden;
+  opacity: 0;
+}
+
+#themeSelect #menu .menuItem {
+  cursor: pointer;
+  padding: 1%;
+}
+/*# sourceMappingURL=mobile.css.map */
