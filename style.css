@@ -37,8 +37,9 @@ body {
 }
 
 #menuIcon .bar{
-  fill: var(--backgroundColor);
+  fill: #F9F3EF;
   stroke: var(--borderColor);
+  stroke-width: 0.1rem;
 }
 
 header {
@@ -327,8 +328,8 @@ footer #footer_nav li a {
     position: absolute;
     top: 0;
     right: 4%;
-    width: 10%;
-    height: 10%;
+    width: 15%;
+    height: 15%;
     stroke: var(--borderColor);
   }
   
@@ -465,6 +466,16 @@ footer #footer_nav li a {
   #themeSelect #menu .menuItem {
     cursor: pointer;
     padding: 1%;
+  }
+
+  footer #footer_nav li svg{
+    width: 100%;
+    height: 100%;
+  }
+  
+  footer #footer_nav li:hover svg{
+    width: 130%;
+    height: 130%;
   }
   /*# sourceMappingURL=mobile.css.map */
 }
