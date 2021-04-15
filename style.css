@@ -171,6 +171,7 @@ footer {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  width: 90%;
   -webkit-box-pack: space-evenly;
       -ms-flex-pack: space-evenly;
           justify-content: space-evenly;
@@ -181,7 +182,7 @@ footer {
 }
 
 footer #footer_nav {
-  width: 50%;
+  width: 60%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -227,7 +228,7 @@ footer #footer_nav li a {
   background-color: var(--contentColor);
   color: var(--backgroundColor);
   position: absolute;
-  width: 10%;
+  width: 12%;
   bottom: 5.5%;
   right: 4%;
   border: 0.2rem solid var(--borderColor);
