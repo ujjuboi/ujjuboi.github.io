@@ -342,14 +342,14 @@ footer #footer_nav li a {
   }
   
   #hero p{
-    width: 100%;
+    width: 41rem;
     display: flex;
     align-items: center;
     justify-content: space-evenly;
   }
   
   #hero p span{
-    font-size: 2rem;
+    font-size: 125%;
     text-align: center;
   }
   
@@ -470,8 +470,8 @@ footer #footer_nav li a {
   }
 
   footer #footer_nav li svg{
-    width: 100%;
-    height: 100%;
+    width: 2rem;
+    height: 2rem;
   }
   
   footer #footer_nav li:hover svg{
