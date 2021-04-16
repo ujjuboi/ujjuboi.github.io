@@ -188,6 +188,12 @@
       menu.style.visibility = "visible";
     });
 
+    hero.addEventListener('click', () =>{
+      menu.style.position =  "absolute";
+      menu.style.opacity = "0";
+      menu.style.visibility = "hidden";
+    });
+    
     menuIcon.addEventListener('click', () => {
       header.style.display = "flex";
       hero.style.display = "none";
