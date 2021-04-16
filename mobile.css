@@ -139,7 +139,7 @@ footer h1{
   -webkit-box-pack: space-evenly;
       -ms-flex-pack: space-evenly;
           justify-content: space-evenly;
-  margin-bottom: 5%;
+  margin-bottom: 1.5rem;
   -webkit-transition: opacity .2s linear, position .2s linear, visibility .2s linear;
   transition: opacity .2s linear, position .2s linear, visibility .2s linear;
   visibility: hidden;
@@ -148,6 +148,6 @@ footer h1{
 
 #themeSelect #menu .menuItem {
   cursor: pointer;
-  padding: 1%;
+  padding: 1rem;
 }
 /*# sourceMappingURL=mobile.css.map */
