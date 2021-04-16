@@ -335,21 +335,21 @@ footer #footer_nav li a {
   
   #hero{
     display: flex;
-    height: 30rem;
+    height: 80vh;
     width: 100vw;
     border: 0.4rem solid var(--borderColor);
     box-shadow: 0.4rem 0.4rem var(--shadowColor);
   }
   
   #hero p{
-    width: 100%;
+    width: 92vw;
     display: flex;
     align-items: center;
     justify-content: space-evenly;
   }
   
   #hero p span{
-    font-size: 2rem;
+    font-size: 180%;
     text-align: center;
   }
   
@@ -359,7 +359,7 @@ footer #footer_nav li a {
   }
   
   header {
-    padding-top: 1.5rem;
+    padding-top: 15%;
     text-align: center;
     flex-direction: column;
     justify-content: space-around;
@@ -367,18 +367,18 @@ footer #footer_nav li a {
     display: none;
     position: absolute;
     right: 3%;
-    height: 45rem;
-    width: 41rem;
+    height: 69vh;
+    width: 92vw;
   }
   
   header nav {
-    height: 100%;
+    height: 80%;
     width: 100%;
   }
   
   header nav ul{
-    height: 100%;
-    width: 90%;
+    height: 80%;
+    width: 80%;
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
@@ -394,24 +394,23 @@ footer #footer_nav li a {
   
   header nav ul li a{
     color: var(--backgroundColor);
-    font-size: 2rem;
+    font-size: 150%;
   }
   
   footer{
-    font-size: 0.8rem;
+    font-size: 50%;
     height: 18vh;
-    width: 100vw;
+    width: 100%;
     position: absolute;
     bottom: 4%;
   }
   
   footer h1{
-    text-align: left;
-    width: 5rem;
+    width: 10%;
   }
   
   #themeSelect{
-    width: 15rem;
+    width: 50%;
     bottom: 1%;
     right: 50%;
     left: 50%;
@@ -457,7 +456,7 @@ footer #footer_nav li a {
     -webkit-box-pack: space-evenly;
         -ms-flex-pack: space-evenly;
             justify-content: space-evenly;
-    margin-bottom: 0.5rem;
+    margin-bottom: 5%;
     -webkit-transition: opacity .2s linear, position .2s linear, visibility .2s linear;
     transition: opacity .2s linear, position .2s linear, visibility .2s linear;
     visibility: hidden;
@@ -466,7 +465,7 @@ footer #footer_nav li a {
   
   #themeSelect #menu .menuItem {
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 1%;
   }
 
   footer #footer_nav li svg{
@@ -475,8 +474,8 @@ footer #footer_nav li a {
   }
   
   footer #footer_nav li:hover svg{
-    width: 1.8rem;
-    height: 1.8rem;
+    width: 130%;
+    height: 130%;
   }
   /*# sourceMappingURL=mobile.css.map */
 }
