@@ -301,12 +301,17 @@ footer #footer_nav li a {
 
   body{
     display: block;
+    overflow: hidden;
+  }
+  
+  section #hero #signature{
+    fill: var(--backgroundColor);
+    height: 15rem;
+    width: 15rem;
   }
   
   #hero{
     display: flex;
-    height: 80vh;
-    width: 100vw;
     border: 0.4rem solid var(--borderColor);
     box-shadow: 0.4rem 0.4rem var(--shadowColor);
   }
@@ -320,7 +325,7 @@ footer #footer_nav li a {
   
   #hero p span{
     text-align: justify;
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     text-align: center;
   }
   
