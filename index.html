@@ -8,24 +8,7 @@
   <title>Ujjwal Verma</title>
 </head>
 <body>
-  <svg id="menuIcon" width="36" height="36" viewBox="0 0 36 36"  xmlns="http://www.w3.org/2000/svg">
-    <rect width="36" height="36" fill="none"/>
-    <g filter="url(#filter0_d)">
-    <rect class="bar" x="2.5" y="4.5" width="31" height="4" />
-    <rect class="bar" x="2.5" y="16.5" width="31" height="4" />
-    <rect class="bar" x="2.5" y="28.5" width="31" height="4"/>
-    </g>
-    <defs>
-    <filter id="filter0_d" x="2" y="4" width="33" height="30" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-    <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-    <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
-    <feOffset dx="1" dy="1"/>
-    <feColorMatrix type="matrix" values="0 0 0 0 0.788235 0 0 0 0 0.6 0 0 0 0 0.0627451 0 0 0 1 0"/>
-    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
-    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
-    </filter>
-    </defs>
-    </svg>        
+  <span id="menuIcon">&lt;</span>      
   <header>
     <h1 id="brand">Ujjwal Verma</h1>
     <nav>
@@ -39,7 +22,7 @@
         <li>
           <a onclick="notice()" href="#">Blog</a>
         </li>
-        <li>
+        <li>  
           <a onclick="notice()" href="#">Portfolio</a> 
         </li>
       </ul>
@@ -47,19 +30,9 @@
     </header>  
     <section> 
       <div id="hero">
-        <div class="context">
-          <h2>Interests.</h2>
-          <ul>
-            <li>Internet of Things</li>
-            <li>Web Development</li>
-            <li>Graphic Designing</li>
-            <li>Video Editing</li>
-            <li>Cyber Security</li>
-            <li>Cloud Computing</li>
-          </ul>
-        </div>
+        <img id="myImage" src="./Images/MyImage.jpg" alt="My Image.">
         <p>
-          <span>Hello! My name is</span> 
+          <span>Hello! My name is Ujjwal Verma. I am a Cyber Security enthusiast with interest in Web Development & Video Editing. I am currently studying Computer Science with specialisation in Internet of Things. Here is my cool trick with my signature (hover/click on it!): </span> 
           <svg id="signature" width="279" height="176" viewBox="0 0 279 176" xmlns="http://www.w3.org/2000/svg">
             <g opacity="0.85">
             <rect width="279" height="176" />
@@ -70,19 +43,8 @@
             <path d="M148.036 55.9237C149.84 59.195 158.311 76.0214 155.674 60.9902C154.54 54.5293 152.794 50.8571 148.036 50.8571" stroke="#FFD23B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             </g>
             </svg>                      
-          <span>I am a Software Developer.</span>
+          <span>I have worked on technologies like Arduino Microprocessers, Sensor Deployment, AWS Cloud Services, Django Channels, WebSocket & MQTT Protocols and many more! You can find more about me below: </span>
         </p>
-        <div class="context">
-          <h2>Languages.</h2>
-          <ul>
-            <li>C++</li>
-            <li>Python</li>
-            <li>Java</li>
-            <li>TypeScript</li>
-            <li>PHP</li>
-            <li>HTML/CSS/JS</li>
-          </ul>
-      </div>
     </div>
   </section>
   <footer>
@@ -195,16 +157,24 @@
     });
     
     menuIcon.addEventListener('click', () => {
-      header.style.display = "flex";
+      menuIcon.style.display = "none";
+      header.style.display = "block";
       hero.style.display = "none";
+      footer.style.height = "10vh";
+      footer.style.bottom = "1%";
+      themeSelect.style.display = "none";
     });
 
     footer.addEventListener('click', () => {
+      menuIcon.style.display = "block";
+      footer.style.height = "18vh";
+      footer.style.bottom = "4%";
       header.style.display = "none";
       hero.style.display = "flex";
-      menu.style.position =  "absolute";
+      menu.style.position = "absolute";
       menu.style.opacity = "0";
       menu.style.visibility = "hidden";
+      themeSelect.style.display = "block";
     });
   }
 

@@ -29,20 +29,14 @@ body {
 }
 
 #menuIcon{
-  display: none;
+  font-size: 4rem;
   position: absolute;
-}
-#menuIcon rect{
-  stroke: none;
-}
-
-#menuIcon .bar{
-  fill: #F9F3EF;
-  stroke: var(--borderColor);
-  stroke-width: 0.1rem;
+  visibility: hidden;
 }
 
 header {
+  animation: fadeIn ease 1s;
+  animation-fill-mode: both;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -106,11 +100,11 @@ section #hero {
   padding: 10px;
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 20% 60% 20.5%;
-      grid-template-columns: 20% 60% 20.5%;
+  -ms-grid-columns: 30% 70%;
+      grid-template-columns: 30% 70%;
   margin-top: 2%;
-  width: 90%;
-  height: 60%;
+  width: 80vw;
+  height: 60vh;
 }
 
 section #hero p {
@@ -129,59 +123,38 @@ section #hero p {
           justify-content: space-between;
 }
 
-section #hero span {
-  font-size: 125%;
+section #hero p {
+  text-align: justify;
+  font-size: 1rem;
 }
 
 section #hero #signature{
   fill: var(--backgroundColor);
-  height: 60%;
-  width: 60%;
+  height: 18rem;
+  width: 18rem;
 }
 
 section #hero #signature path{
   stroke: var(--shadowColor);
+}
+
+section #hero #signature:hover path{
   stroke-dasharray: 527;
   stroke-dashoffset: 527;
-  animation: sign 4s ease;
+  animation: sign 2.5s ease;
   animation-fill-mode: forwards;
 }
 
-section .context {
-  color: var(--contentColor);
+section #myImage {
   text-align: center;
   -webkit-box-shadow: 0.5rem 0.5rem var(--shadowColor);
           box-shadow: 0.5rem 0.5rem var(--shadowColor);
   border: 0.3rem solid var(--borderColor);
 }
 
-section .context h2 {
-  text-decoration: underline;
-}
-
-section .context ul {
-  height: 60%;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: space-evenly;
-      -ms-flex-pack: space-evenly;
-          justify-content: space-evenly;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
-}
-
-section .context ul li:hover{
-  font-size: 110%;
-  transition: font-size .2s ease-in-out;
-}
-
 footer {
+  animation: fadeIn ease 2s;
+  animation-fill-mode: forwards;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -315,22 +288,19 @@ footer #footer_nav li a {
   }
 }
 
+@keyframes fadeIn{
+  from{
+    opacity: 0;
+  }
+  to{
+    opacity: 1;
+  }
+}
+
 @media (max-width: 720px) {
 
   body{
     display: block;
-    overflow: hidden;
-  }
-  
-  #menuIcon{
-    cursor: pointer;
-    display: block;
-    position: absolute;
-    top: 0;
-    right: 4%;
-    width: 15%;
-    height: 15%;
-    stroke: var(--borderColor);
   }
   
   #hero{
@@ -342,33 +312,34 @@ footer #footer_nav li a {
   }
   
   #hero p{
-    width: 92vw;
+    width: 80vw;
     display: flex;
     align-items: center;
     justify-content: space-evenly;
   }
   
   #hero p span{
-    font-size: 180%;
+    text-align: justify;
+    font-size: 0.7rem;
     text-align: center;
   }
   
-  .context{
+  #myImage{
     position: absolute;
     display: none;
   }
   
   header {
+    animation-fill-mode: backwards;
+    display: none;
     padding-top: 15%;
     text-align: center;
     flex-direction: column;
     justify-content: space-around;
     background-color: var(--contentColor);
-    display: none;
-    position: absolute;
     right: 3%;
-    height: 69vh;
-    width: 92vw;
+    height: 75vh;
+    width: 91vw;
   }
   
   header nav {
@@ -384,6 +355,15 @@ footer #footer_nav li a {
     justify-content: space-evenly;
   }
   
+  #menuIcon{
+    top: 0%;
+    right: 4%;
+    cursor: pointer;
+    visibility: visible;
+    position: absolute;
+    color: var(--shadowColor);
+  }
+
   .active{
     border-color: var(--backgroundColor);
   }
@@ -394,11 +374,13 @@ footer #footer_nav li a {
   
   header nav ul li a{
     color: var(--backgroundColor);
-    font-size: 150%;
+    font-size: 1.2rem;
   }
   
   footer{
-    font-size: 50%;
+    transition: height .2s linear, bottom .2s linear;
+    text-align: left;
+    font-size: 0.7rem;
     height: 18vh;
     width: 100%;
     position: absolute;
@@ -406,10 +388,12 @@ footer #footer_nav li a {
   }
   
   footer h1{
-    width: 10%;
+    width: 1rem;
   }
   
   #themeSelect{
+    transition: display 1s linear;
+    font-size: 1.3rem;
     width: 50%;
     bottom: 1%;
     right: 50%;
