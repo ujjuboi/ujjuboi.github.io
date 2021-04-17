@@ -146,6 +146,8 @@ section #hero #signature:hover path{
 }
 
 section #myImage {
+  animation: fadeIn ease 2s;
+  animation-fill-mode: forwards;
   text-align: center;
   -webkit-box-shadow: 0.5rem 0.5rem var(--shadowColor);
           box-shadow: 0.5rem 0.5rem var(--shadowColor);
