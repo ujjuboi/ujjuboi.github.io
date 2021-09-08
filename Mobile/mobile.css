@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&family=Song+Myung&display=swap');
+
+:root{
+  /* Primary colors */
+  --white: #FFFFEB;
+  --black: #180023;
+  --orange: #E7BA63;
+  /*Secondary*/
+  --red: #CA3939;
+  --accent: #570080;
+  --banner: 'Song Myung', serif;
+  --poppins: 'Poppins', sans-serif;
+}
+
+body{
+  padding: 2.5%;
+  margin: 0%;
+  overflow-x: hidden;
+  font-family: var(--poppins);
+}
+
+section{
+  position: relative;
+  height: 85vh;
+  margin-bottom: 2.5%;
+  background-color: var(--white);
+}
+
+h1{
+  font-size: 300%;
+}
+
+h2{
+  font-size: 200%;
+}
+
+#Banner{
+  text-align: center;
+  font-family: var(--banner);
+  color: var(--black);
+}
+
+#Banner div{
+  width: 100%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#Banner div h2{
+  font-size: 125%;
+}
+
+span{
+  color: var(--accent);
+}
+
+#Portfolio{
+  padding: 2.5%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+#Portfolio h2{
+  height: 10%;
+  margin: 2.5%;
+}
+
+#Portfolio div{
+  font-size: 75%;
+  height: 16.5%;
+  margin: 2.5%;
+}
+
+.ProjectOne{
+  background-color: var(--black);
+  color: var(--white);
+}
+
+.ProjectOne span{
+  color: var(--red);
+}
+
+.ProjectTwo{
+  background-color: var(--red);
+  color: var(--black);
+}
+
+.ProjectTwo span{
+  color: var(--white);
+}
+
+.ProjectThree{
+  background-color: var(--orange);
+  color: var(--black);
+}
+
+.ProjectThree span{
+  color: var(--white);
+}
