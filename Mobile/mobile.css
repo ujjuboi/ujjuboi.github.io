@@ -83,36 +83,50 @@ span{
   margin: 2.5%;
 }
 
-#Portfolio div{
-  font-size: 75%;
-  height: 16.5%;
+.Project{
+  padding: 2.5%;
+  height: 32vh;
   margin: 2.5%;
+  display: grid;
+  grid-template-columns: 50% 47.5%;
 }
 
-.ProjectOne{
+.illustration{
+  margin-top: 45%;
+}
+
+.description p{
+  font-size: 50%;
+}
+
+.description h3{
+  font-size: 70%;
+}
+
+#One{
   background-color: var(--black);
   color: var(--white);
 }
 
-.ProjectOne span{
+#One span{
   color: var(--red);
 }
 
-.ProjectTwo{
+#Two{
   background-color: var(--red);
   color: var(--black);
 }
 
-.ProjectTwo span{
+#Two span{
   color: var(--white);
 }
 
-.ProjectThree{
+#Three{
   background-color: var(--orange);
   color: var(--black);
 }
 
-.ProjectThree span{
+#Three span{
   color: var(--white);
 }
 
