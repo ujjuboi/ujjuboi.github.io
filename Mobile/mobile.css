@@ -104,8 +104,8 @@ span{
 }
 
 #One{
-  background-color: var(--black);
-  color: var(--white);
+  background-color: var(--orange);
+  color: var(--black);
 }
 
 #One span{
@@ -122,8 +122,8 @@ span{
 }
 
 #Three{
-  background-color: var(--orange);
-  color: var(--black);
+  background-color: var(--black);
+  color: var(--white);
 }
 
 #Three span{
