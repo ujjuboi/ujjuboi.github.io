@@ -92,7 +92,12 @@ span{
 }
 
 .illustration{
+  width: 90%;
   margin-top: 45%;
+}
+
+.illustration img{
+  width: 90%;
 }
 
 .description p{
