@@ -89,6 +89,7 @@ span{
   margin: 2.5%;
   display: grid;
   grid-template-columns: 50% 47.5%;
+  overflow-y: hidden;
 }
 
 .illustration{
@@ -101,7 +102,9 @@ span{
 }
 
 .description p{
-  font-size: 50%;
+  font-size: 51%;
+  text-align: justify;
+  text-justify: inter-character;
 }
 
 .description h3{
@@ -173,4 +176,16 @@ span{
   scroll-snap-type: y mandatory;
   overflow-y: scroll;
   height: 100vh;
+}
+
+@media screen and (min-height: 640px) {
+  .description p{
+    font-size: 55%;
+  }
+}
+
+@media screen and (min-height: 750px){
+  .description p{
+    font-size: 58%;
+  }
 }
