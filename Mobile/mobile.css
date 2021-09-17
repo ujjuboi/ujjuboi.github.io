@@ -59,9 +59,9 @@ h2{
 
 #Graphic2{
   position: absolute;
-  top: 80%;
+  top: 77%;
   left: 25%;
-  transform: translate(-15%, -35%);
+  transform: translate(-15%, -30%);
 }
 
 #Banner div h2{
@@ -88,17 +88,24 @@ span{
   height: 32vh;
   margin: 2.5%;
   display: grid;
-  grid-template-columns: 50% 47.5%;
-  overflow-y: hidden;
+  grid-template-rows: 80% 47.5%;
+  overflow-y: scroll;
 }
 
 .illustration{
-  width: 90%;
-  margin-top: 45%;
+  margin-top: 1%;
+}
+
+.illustration svg{
+  padding: 2.5%;
+  height: 97.5%;
+  width: 97.5%;
 }
 
 .illustration img{
-  width: 90%;
+  padding: 2.5%;
+  height: 97.5%;
+  width: 97.5%;
 }
 
 .description p{
@@ -108,7 +115,7 @@ span{
 }
 
 .description h3{
-  font-size: 70%;
+  font-size: 90%;
 }
 
 #One{
