@@ -52,16 +52,16 @@ h2{
 
 #Graphic1{
   position: absolute;
-  top: 25%;
-  left: 60%;
-  transform: translate(-50%, -50%);
+  width: 65%;
+  left: 20%;
+  top: 5%;
 }
 
 #Graphic2{
   position: absolute;
   top: 80%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 25%;
+  transform: translate(-15%, -35%);
 }
 
 #Banner div h2{
@@ -178,7 +178,7 @@ span{
   height: 100vh;
 }
 
-@media screen and (min-height: 640px) {
+@media screen and (min-height: 664px) {
   .description p{
     font-size: 55%;
   }
@@ -187,5 +187,11 @@ span{
 @media screen and (min-height: 750px){
   .description p{
     font-size: 58%;
+  }
+}
+
+@media screen and (min-height: 800px){
+  .description h3{
+    font-size: 100%;
   }
 }
