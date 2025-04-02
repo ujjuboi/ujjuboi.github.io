@@ -1,169 +1,472 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins&family=Raleway:wght@800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap');
+
 :root {
   font-size: 16px;
+
+  --borderColor: #000000;
+  --backgroundColor: #4A4BC7;
+  --shadowColor: #FFD23B;
+  --contentColor: #FEE5A5;
+  --firstScheme: "#A1AC25";
+  --secondScheme:"#E34F33";
+  --thirdScheme:"#94BBD6";
+
+  --headings: 'Raleway', sans-serif;
+  --poppins: 'Poppins', sans-serif;
 }
 
 body {
   padding: 1%;
   font-size: 130%;
   font-family: "Poppins", sans-serif;
+  display: -ms-grid;
   display: grid;
-  grid-template-rows: 15vh 60vh 28vh;
-  background-color: #4A4BC7;
+  -ms-grid-rows: 15vh 60vh 28vh;
+      grid-template-rows: 15vh 60vh 28vh;
+  background-color: var(--backgroundColor);
+  overflow: hidden;
+}
+
+#menuIcon{
+  font-size: 4rem;
+  position: absolute;
+  visibility: hidden;
 }
 
 header {
+  animation: fadeIn ease 1s;
+  animation-fill-mode: both;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  align-items: center;
-  justify-content: space-around;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
   padding: 1%;
-  border: 0.3rem solid black;
-  box-shadow: 0.5rem 0.5rem #FFD23B;
+  border: 0.3rem solid var(--borderColor);
+  -webkit-box-shadow: 0.5rem 0.5rem var(--shadowColor);
+          box-shadow: 0.5rem 0.5rem var(--shadowColor);
 }
-header .logo {
-  width: 3rem;
-  height: 3rem;
-  border: 0.2rem solid #FFD23B;
+
+header #brand {
   border-radius: 60%;
+  color: var(--borderColor);
 }
+
 header nav {
   width: 70%;
 }
+
 header nav ul {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  justify-content: space-around;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
   list-style: none;
 }
+
 header nav ul li :hover {
-  border-bottom: 0.2rem solid #FFD23B;
-  transition: border ease-in-out 0.1s;
+  border-bottom: 0.2rem solid var(--shadowColor);
+  -webkit-transition: border ease-in-out .1s;
+  transition: border ease-in-out .1s;
 }
+
 header nav ul li a {
   font-family: "Poppins", sans-serif;
   text-decoration: none;
-  color: #FFD23B;
+  color: var(--shadowColor);
 }
 
 .active {
   padding: 10%;
-  border: 0.15rem solid #FFD23B;
+  border: 0.15rem solid var(--shadowColor);
   border-radius: 20%;
 }
 
 section {
   margin: 1%;
 }
+
 section #hero {
   position: absolute;
   left: 45%;
   top: 45%;
-  transform: translate(-45%, -45%);
+  -webkit-transform: translate(-45%, -45%);
+          transform: translate(-45%, -45%);
   padding: 10px;
+  display: -ms-grid;
   display: grid;
-  grid-template-columns: 20% 60% 20.5%;
+  -ms-grid-columns: 30% 70%;
+      grid-template-columns: 30% 70%;
   margin-top: 2%;
-  width: 90%;
-  height: 60%;
+  width: 80vw;
+  height: 60vh;
 }
+
 section #hero p {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
 }
-section #hero span {
-  font-size: 125%;
+
+section #hero p {
+  text-align: justify;
+  font-size: 1rem;
 }
-section #hero #name {
-  color: #FFD23B;
-  font-size: 350%;
-  font-family: "Raleway", sans-serif;
+
+section #hero #signature{
+  fill: var(--backgroundColor);
+  height: 18rem;
+  width: 18rem;
 }
-section .context {
-  color: #FF8F79;
+
+section #hero #signature path{
+  stroke: var(--shadowColor);
+}
+
+section #hero #signature:hover path{
+  stroke-dasharray: 527;
+  stroke-dashoffset: 527;
+  animation: sign 2.5s ease;
+  animation-fill-mode: forwards;
+}
+
+section #myImage {
+  animation: fadeIn ease 2s;
+  animation-fill-mode: forwards;
   text-align: center;
-  box-shadow: 0.5rem 0.5rem #FFD23B;
-  border: 0.3rem solid black;
-}
-section .context h2 {
-  text-decoration: underline;
-}
-section .context ul {
-  height: 60%;
-  display: flex;
-  justify-content: space-evenly;
-  flex-direction: column;
-  align-items: flex-start;
+  -webkit-box-shadow: 0.5rem 0.5rem var(--shadowColor);
+          box-shadow: 0.5rem 0.5rem var(--shadowColor);
+  border: 0.3rem solid var(--borderColor);
 }
 
 footer {
+  animation: fadeIn ease 2s;
+  animation-fill-mode: forwards;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  justify-content: space-evenly;
-  align-items: center;
+  width: 90%;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
   text-align: center;
 }
+
 footer #footer_nav {
-  width: 50%;
+  width: 60%;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  align-items: center;
-  justify-content: space-evenly;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
   list-style: none;
 }
-footer #footer_nav li .footer_links {
-  width: 2.5rem;
-  height: 2.5rem;
+
+footer #footer_nav li svg {
+  width: 130%;
+  height: 130%;
+  transition: all .2s linear;
 }
+
+footer #footer_nav li:hover svg{
+  width: 150%;
+  height: 150%;
+}
+
+footer #footer_nav li svg rect{
+  fill: var(--backgroundColor);
+}
+
+footer #footer_nav li svg path{
+  fill: var(--borderColor);
+}
+
 footer #footer_nav li a {
   text-decoration: none;
 }
 
 #brand {
-  font-family: "Raleway", sans-serif;
+  font-family: var(--headings);
   color: black;
 }
 
 #themeSelect {
   font-size: 110%;
-  background-color: #FF8F79;
-  color: #4A4BC7;
+  background-color: var(--contentColor);
+  color: var(--backgroundColor);
   position: absolute;
-  width: 10%;
+  width: 12%;
   bottom: 5.5%;
   right: 4%;
-  border: 0.2rem solid black;
+  border: 0.2rem solid var(--borderColor);
   border-radius: 5%;
   padding: 0.5%;
-  box-shadow: 0.2rem 0.2rem #FFD23B;
+  -webkit-box-shadow: 0.2rem 0.2rem var(--shadowColor);
+          box-shadow: 0.2rem 0.2rem var(--shadowColor);
 }
-#themeSelect :hover #menu {
+
+#themeSelect:hover #menu {
   position: relative;
   opacity: 1;
   visibility: visible;
 }
-#themeSelect :hover #arrow {
-  transform: rotate(90deg);
-  transition: transform 0.2s linear;
+
+#themeSelect:hover #arrow {
+  -webkit-transform: rotate(90deg);
+          transform: rotate(90deg);
+  -webkit-transition: -webkit-transform .2s linear;
+  transition: -webkit-transform .2s linear;
+  transition: transform .2s linear;
+  transition: transform .2s linear, -webkit-transform .2s linear;
 }
+
 #themeSelect #selectedTheme {
   width: 100%;
   cursor: pointer;
-  font-family: "Raleway", sans-serif;
+  font-family: var(--headings);
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  align-items: center;
-  justify-content: space-evenly;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
 }
+
 #themeSelect #menu {
   position: absolute;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-evenly;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
   margin-bottom: 5%;
-  transition: opacity 0.2s linear, position 0.2s linear, visibility 0.2s linear;
+  -webkit-transition: opacity .2s linear, position .2s linear, visibility .2s linear;
+  transition: opacity .2s linear, position .2s linear, visibility .2s linear;
   visibility: hidden;
   opacity: 0;
 }
+
 #themeSelect #menu .menuItem {
   cursor: pointer;
   padding: 1%;
-}/*# sourceMappingURL=style.css.map */
+}
+
+@keyframes sign{
+  to{
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeIn{
+  from{
+    opacity: 0;
+  }
+  to{
+    opacity: 1;
+  }
+}
+
+@media (max-width: 720px) {
+
+  body{
+    display: block;
+    overflow: hidden;
+  }
+  
+  section #hero #signature{
+    fill: var(--backgroundColor);
+    height: 15rem;
+    width: 15rem;
+  }
+  
+  #hero{
+    display: flex;
+    border: 0.4rem solid var(--borderColor);
+    box-shadow: 0.4rem 0.4rem var(--shadowColor);
+  }
+  
+  #hero p{
+    width: 80vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  
+  #hero p span{
+    text-align: justify;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  
+  #myImage{
+    position: absolute;
+    display: none;
+  }
+  
+  header {
+    animation-fill-mode: backwards;
+    display: none;
+    padding-top: 15%;
+    text-align: center;
+    flex-direction: column;
+    justify-content: space-around;
+    background-color: var(--contentColor);
+    right: 3%;
+    height: 75vh;
+    width: 91vw;
+  }
+  
+  header nav {
+    height: 80%;
+    width: 100%;
+  }
+  
+  header nav ul{
+    height: 80%;
+    width: 80%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  
+  #menuIcon{
+    top: 0%;
+    right: 4%;
+    cursor: pointer;
+    visibility: visible;
+    position: absolute;
+    color: var(--shadowColor);
+  }
+
+  .active{
+    border-color: var(--backgroundColor);
+  }
+  
+  header nav ul li :hover {
+    border-bottom: 0.2rem solid var(--backgroundColor);
+  }
+  
+  header nav ul li a{
+    color: var(--backgroundColor);
+    font-size: 1.2rem;
+  }
+  
+  footer{
+    transition: height .2s linear, bottom .2s linear;
+    text-align: left;
+    font-size: 0.7rem;
+    height: 18vh;
+    width: 100%;
+    position: absolute;
+    bottom: 4%;
+  }
+  
+  footer h1{
+    width: 1rem;
+  }
+  
+  #themeSelect{
+    transition: display 1s linear;
+    font-size: 1.3rem;
+    width: 50%;
+    bottom: 1%;
+    right: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  #themeSelect:hover #arrow {
+    -webkit-transform: rotate(90deg);
+            transform: rotate(90deg);
+    -webkit-transition: -webkit-transform .2s linear;
+    transition: -webkit-transform .2s linear;
+    transition: transform .2s linear;
+    transition: transform .2s linear, -webkit-transform .2s linear;
+  }
+  
+  #themeSelect #selectedTheme {
+    width: 100%;
+    cursor: pointer;
+    font-family: var(--headings);
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    -webkit-box-pack: space-evenly;
+        -ms-flex-pack: space-evenly;
+            justify-content: space-evenly;
+  }
+  
+  #themeSelect #menu {
+    position: absolute;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    -webkit-box-pack: space-evenly;
+        -ms-flex-pack: space-evenly;
+            justify-content: space-evenly;
+    margin-bottom: 5%;
+    -webkit-transition: opacity .2s linear, position .2s linear, visibility .2s linear;
+    transition: opacity .2s linear, position .2s linear, visibility .2s linear;
+    visibility: hidden;
+    opacity: 0;
+  }
+  
+  #themeSelect #menu .menuItem {
+    cursor: pointer;
+    padding: 1%;
+  }
+
+  footer #footer_nav li svg{
+    width: 100%;
+    height: 100%;
+  }
+  
+  footer #footer_nav li:hover svg{
+    width: 130%;
+    height: 130%;
+  }
+  /*# sourceMappingURL=mobile.css.map */
+}
