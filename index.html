@@ -32,7 +32,7 @@
       <div id="hero">
         <img id="myImage" src="./Images/MyImage.jpg" alt="My Image.">
         <p>
-          <span>Hello! My name is Ujjwal Verma. I am a Cyber Security enthusiast with interest in Web Development & Video Editing. I am currently studying Computer Science with specialisation in Internet of Things. Here is a cool trick with my signature (hover/click on it!): </span> 
+          <span id="info"><span id="salutation"></span> My name is Ujjwal Verma. I am a <span id="jobTitle">Associate Software Engineer at Deloitte</span>. Web Development is my forte and cyber identity is my domain. Currently I am on a journey to build whatever comes to my mind; cool, bad, ugly but most importantly reliable! If you are here, stay for a bit and explore all the things that I have to offer, start by hovering over my signature below: </span> 
           <svg id="signature" width="279" height="176" viewBox="0 0 279 176" xmlns="http://www.w3.org/2000/svg">
             <g opacity="0.85">
             <rect width="279" height="176" />
@@ -42,8 +42,7 @@
             <path d="M123.607 48.3991C124.673 54.9943 125.179 60.0578 130.207 64.1746C133.622 66.9718 133.692 62.8854 133.748 59.6929C133.842 54.3294 134.208 46.7857 127.953 46.7857" stroke="#FFD23B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M148.036 55.9237C149.84 59.195 158.311 76.0214 155.674 60.9902C154.54 54.5293 152.794 50.8571 148.036 50.8571" stroke="#FFD23B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
             </g>
-            </svg>                      
-          <span>I have worked on technologies like Arduino Microprocessers, Sensor Deployment, AWS Cloud Services, Django Channels, WebSocket & MQTT Protocols and many more! You can find more about me below: </span>
+            </svg> 
         </p>
     </div>
   </section>
@@ -106,6 +105,23 @@
   </div>
 </body>
 <script>
+  const dateObj = new Date();
+  const hour = dateObj.getHours();
+
+  function setGreet() {
+    if (6 <= hour && hour < 12) {
+      return "Good Morning!"
+    } else if (12 <= hour && hour < 17) {
+      return "Good Afternoon!"
+    } else if (17 <= hour && hour < 22) {
+      return "Good Evening!"
+    } else if (22 <= hour) {
+      return "Good Evening, You should be in bed by now!"
+    }
+  }
+
+  document.getElementById("salutation").innerHTML = setGreet();
+
   if (screen.width <= 500){
     document.location = "./Mobile/mobile.html";
     console.log("in Loop");
@@ -196,7 +212,7 @@
 
   function darkTheme(){
     menu.replaceChild(replace(), dark);
-    selectedTheme.appendChild(dark);
+    selectedTheme.insertBefore(dark, selectedTheme.children[0]);
     let darkObj = new DarkTheme;
     document.querySelector('body').style.color = darkObj.border;
     root.style.setProperty('--borderColor', darkObj.border);
@@ -206,9 +222,8 @@
   }
 
   function colorTheme(){
-    
     menu.replaceChild(replace(), color);
-    selectedTheme.appendChild(color);
+    selectedTheme.insertBefore(color, selectedTheme.children[0]);
     let colorObj = new ColorTheme;
     document.querySelector('body').style.color = colorObj.border;
     root.style.setProperty('--borderColor', colorObj.border);
@@ -218,9 +233,8 @@
   }
 
   function lightTheme(){
-    
     menu.replaceChild(replace(), white);
-    selectedTheme.appendChild(white);
+    selectedTheme.insertBefore(white, selectedTheme.children[0]);
     let whiteObj = new WhiteTheme;
     document.querySelector('body').style.color = whiteObj.border;
     root.style.setProperty('--borderColor', whiteObj.border);
