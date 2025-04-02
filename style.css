@@ -128,10 +128,20 @@ section #hero p {
   font-size: 1rem;
 }
 
+section #info {
+  text-align: left;
+  font-size: 1.5rem;
+}
+
+section #jobTitle {
+  color: var(--shadowColor);
+}
+
 section #hero #signature{
+  text-align: center;
   fill: var(--backgroundColor);
-  height: 18rem;
-  width: 18rem;
+  height: 20rem;
+  width: 28rem;
 }
 
 section #hero #signature path{
