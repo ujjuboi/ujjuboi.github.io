@@ -14,10 +14,10 @@
     <nav>
       <ul>
         <li>
-          <a class="active" href="#">Home</a>
+          <a class="active" href="" target="_self">Home</a>
         </li>
         <li>
-          <a href="./Resume.pdf" target="_blank">Resume</a>
+          <a href="./Resume.html" target="_self">Resume</a>
         </li>
         <li>
           <a onclick="notice()" href="#">Blog</a>
@@ -93,16 +93,6 @@
       </li>
     </ul>
   </footer>
-  <div id="themeSelect">
-    <div id="menu">
-      <span class="menuItem" id="darkTheme" onclick="darkTheme()">dark_theme</span>
-      <span class="menuItem" id="whiteTheme" onclick="lightTheme()">light_theme</span>
-    </div>
-    <div id="selectedTheme">
-      <span class="menuItem" id="colorTheme" onclick="colorTheme()">color_theme</span>
-      <span id="arrow">&lt</span>
-    </div>
-  </div>
 </body>
 <script>
   const dateObj = new Date();
@@ -125,27 +115,6 @@
   if (screen.width <= 500){
     document.location = "./Mobile/mobile.html";
     console.log("in Loop");
-  }
-
-  class WhiteTheme{
-    border = "#000000";
-    bg  = "#F9F3EF";
-    content = "#BE3D3D";
-    shadow = "#09382F";
-  }
-
-  class ColorTheme{
-    border = "#000000";
-    bg  = "#4A4BC7";
-    content = "#FEE5A5";
-    shadow = "#FFD23B";
-  }
-
-  class DarkTheme{
-    border = "#49D742";
-    bg  = "#182733";
-    content = "#A1AC25";
-    shadow = "#C99910";
   }
 
   function notice(){

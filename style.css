@@ -5,12 +5,12 @@
   font-size: 16px;
 
   --borderColor: #000000;
-  --backgroundColor: #4A4BC7;
-  --shadowColor: #FFD23B;
-  --contentColor: #FEE5A5;
-  --firstScheme: "#A1AC25";
-  --secondScheme:"#E34F33";
-  --thirdScheme:"#94BBD6";
+  --backgroundColor: #F9F3EF;
+  --shadowColor: #09382F;
+  --contentColor: #F6DBDB;
+  --contrastText: #09382F;
+  --linkColor: #09382F;
+  --linkHover: #000000;
 
   --headings: 'Raleway', sans-serif;
   --poppins: 'Poppins', sans-serif;
@@ -28,7 +28,7 @@ body {
   overflow: hidden;
 }
 
-#menuIcon{
+#menuIcon {
   font-size: 4rem;
   position: absolute;
   visibility: hidden;
@@ -222,77 +222,7 @@ footer #footer_nav li a {
   color: black;
 }
 
-#themeSelect {
-  font-size: 110%;
-  background-color: var(--contentColor);
-  color: var(--backgroundColor);
-  position: absolute;
-  width: 12%;
-  bottom: 5.5%;
-  right: 4%;
-  border: 0.2rem solid var(--borderColor);
-  border-radius: 5%;
-  padding: 0.5%;
-  -webkit-box-shadow: 0.2rem 0.2rem var(--shadowColor);
-          box-shadow: 0.2rem 0.2rem var(--shadowColor);
-}
 
-#themeSelect:hover #menu {
-  position: relative;
-  opacity: 1;
-  visibility: visible;
-}
-
-#themeSelect:hover #arrow {
-  -webkit-transform: rotate(90deg);
-          transform: rotate(90deg);
-  -webkit-transition: -webkit-transform .2s linear;
-  transition: -webkit-transform .2s linear;
-  transition: transform .2s linear;
-  transition: transform .2s linear, -webkit-transform .2s linear;
-}
-
-#themeSelect #selectedTheme {
-  width: 100%;
-  cursor: pointer;
-  font-family: var(--headings);
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: space-evenly;
-      -ms-flex-pack: space-evenly;
-          justify-content: space-evenly;
-}
-
-#themeSelect #menu {
-  position: absolute;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-box-pack: space-evenly;
-      -ms-flex-pack: space-evenly;
-          justify-content: space-evenly;
-  margin-bottom: 5%;
-  -webkit-transition: opacity .2s linear, position .2s linear, visibility .2s linear;
-  transition: opacity .2s linear, position .2s linear, visibility .2s linear;
-  visibility: hidden;
-  opacity: 0;
-}
-
-#themeSelect #menu .menuItem {
-  cursor: pointer;
-  padding: 1%;
-}
 
 @keyframes sign{
   to{
@@ -382,15 +312,15 @@ footer #footer_nav li a {
   }
 
   .active{
-    border-color: var(--backgroundColor);
+    border-color: var(--shadowColor);
   }
   
   header nav ul li :hover {
-    border-bottom: 0.2rem solid var(--backgroundColor);
+    border-bottom: 0.2rem solid var(--shadowColor);
   }
   
   header nav ul li a{
-    color: var(--backgroundColor);
+    color: var(--borderColor);
     font-size: 1.2rem;
   }
   
@@ -408,66 +338,6 @@ footer #footer_nav li a {
     width: 1rem;
   }
   
-  #themeSelect{
-    transition: display 1s linear;
-    font-size: 1.3rem;
-    width: 50%;
-    bottom: 1%;
-    right: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-  
-  #themeSelect:hover #arrow {
-    -webkit-transform: rotate(90deg);
-            transform: rotate(90deg);
-    -webkit-transition: -webkit-transform .2s linear;
-    transition: -webkit-transform .2s linear;
-    transition: transform .2s linear;
-    transition: transform .2s linear, -webkit-transform .2s linear;
-  }
-  
-  #themeSelect #selectedTheme {
-    width: 100%;
-    cursor: pointer;
-    font-family: var(--headings);
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
-    -webkit-box-pack: space-evenly;
-        -ms-flex-pack: space-evenly;
-            justify-content: space-evenly;
-  }
-  
-  #themeSelect #menu {
-    position: absolute;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
-    -webkit-box-pack: space-evenly;
-        -ms-flex-pack: space-evenly;
-            justify-content: space-evenly;
-    margin-bottom: 5%;
-    -webkit-transition: opacity .2s linear, position .2s linear, visibility .2s linear;
-    transition: opacity .2s linear, position .2s linear, visibility .2s linear;
-    visibility: hidden;
-    opacity: 0;
-  }
-  
-  #themeSelect #menu .menuItem {
-    cursor: pointer;
-    padding: 1%;
-  }
 
   footer #footer_nav li svg{
     width: 100%;
