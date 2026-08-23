@@ -23,10 +23,6 @@ Making my own dynamic blogging website!
 ├── Resume.css        Resume-specific styles (720px breakpoint)
 ├── cv.md             CV content in Markdown (source of truth for Resume.html text)
 ├── Images/           Shared assets (see below)
-├── Mobile/           LEGACY standalone mobile site (do not extend)
-│   ├── mobile.html   Self-contained mobile home page (~12k lines, inline SVGs)
-│   ├── mobile.css    Mobile-only styles
-│   └── Graphics/     Assets used ONLY by Mobile/
 └── plan/
     └── plan_blog.md  Approved plan for upcoming Blog feature (Blog.html + Blog.css)
 ```
