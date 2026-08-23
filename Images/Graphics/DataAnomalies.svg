@@ -3,6 +3,12 @@
 
   <!-- TRANSPARENT BACKGROUND -->
 
+  <!-- Use case icons: Font Awesome Free "Classic Solid"
+       (fontawesome.com) — CC BY 4.0.
+       Orphan Groups: user-group + xmark ·
+       Inactive Service Accounts: user-gear + clock ·
+       Stale Users: user + clock -->
+
   <defs>
     <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
       <feDropShadow dx="0" dy="8" stdDeviation="10"
@@ -10,41 +16,23 @@
     </filter>
   </defs>
 
-  <!-- ORPHAN GROUP -->
+  <!-- Orphan Groups -->
 
-  <g transform="translate(100 90)">
+    <g transform="translate(250 90)">
 
     <circle cx="150" cy="180" r="125"
             fill="#FEE2E2" filter="url(#shadow)"/>
 
-    <!-- Group -->
-    <circle cx="115" cy="165" r="18" fill="#DC2626"/>
-    <circle cx="170" cy="165" r="18" fill="#DC2626"/>
-
-    <path d="M80 220 C80 180 150 180 150 220"
-          fill="none" stroke="#DC2626"
-          stroke-width="12" stroke-linecap="round"/>
-
-    <path d="M145 220 C145 180 215 180 215 220"
-          fill="none" stroke="#DC2626"
-          stroke-width="12" stroke-linecap="round"/>
-
-    <!-- Broken ownership link -->
-    <path d="M205 150 L255 110"
-          stroke="#DC2626"
-          stroke-width="9"
-          stroke-dasharray="13 12"
-          stroke-linecap="round"/>
-
-    <circle cx="270" cy="98" r="25"
-            fill="#FFFFFF"
-            stroke="#DC2626"
-            stroke-width="7"/>
-
-    <path d="M259 87 L281 109 M281 87 L259 109"
-          stroke="#DC2626"
-          stroke-width="6"
-          stroke-linecap="round"/>
+      <path transform="translate(27.88 63) scale(0.3477)"
+              d="M64 128a112 112 0 1 1 224 0 112 112 0 1 1 -224 0zM0 464c0-97.2 78.8-176 176-176s176 78.8 176 176l0 6c0 23.2-18.8 42-42 42L42 512c-23.2 0-42-18.8-42-42l0-6zM432 64a96 96 0 1 1 0 192 96 96 0 1 1 0-192zm0 240c79.5 0 144 64.5 144 144l0 22.4c0 23-18.6 41.6-41.6 41.6l-144.8 0c6.6-12.5 10.4-26.8 10.4-42l0-6c0-51.5-17.4-98.9-46.5-136.7 22.6-14.7 49.6-23.3 78.5-23.3z"
+              fill="#DC2626"/>
+      <circle cx="230" cy="100" r="44"
+              fill="#FFFFFF"
+              stroke="#DC2626"
+              stroke-width="9"/>
+      <path transform="translate(212.75 77) scale(0.0898)"
+              d="M55.1 73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L147.2 256 9.9 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192.5 301.3 329.9 438.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.8 256 375.1 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192.5 210.7 55.1 73.4z"
+              fill="#DC2626"/>
 
     <text x="150" y="355"
           text-anchor="middle"
@@ -56,56 +44,23 @@
     </text>
   </g>
 
+  <!-- Inactive Service Accounts -->
 
-  <!-- INACTIVE SERVICE ACCOUNT -->
-
-  <g transform="translate(500 90)">
+    <g transform="translate(650 90)">
 
     <circle cx="150" cy="180" r="125"
             fill="#FEF3C7" filter="url(#shadow)"/>
 
-    <!-- Service account -->
-    <circle cx="125" cy="165" r="22"
-            fill="#D97706"/>
-
-    <path d="M88 220 C88 185 162 185 162 220"
-          fill="none"
-          stroke="#D97706"
-          stroke-width="12"
-          stroke-linecap="round"/>
-
-    <!-- Gear -->
-    <circle cx="175" cy="190" r="27"
-            fill="#FFFFFF"
-            stroke="#D97706"
-            stroke-width="7"/>
-
-    <circle cx="175" cy="190" r="9"
-            fill="#D97706"/>
-
-    <path d="M175 155 V145
-             M175 235 V225
-             M140 190 H130
-             M220 190 H210
-             M151 166 L144 159
-             M206 221 L199 214
-             M199 166 L206 159
-             M144 221 L151 214"
-          stroke="#D97706"
-          stroke-width="7"
-          stroke-linecap="round"/>
-
-    <!-- Clock -->
-    <circle cx="230" cy="105" r="38"
-            fill="#FFFFFF"
-            stroke="#B45309"
-            stroke-width="7"/>
-
-    <path d="M230 105 V82
-             M230 105 L246 116"
-          stroke="#B45309"
-          stroke-width="6"
-          stroke-linecap="round"/>
+      <path transform="translate(14.75 63) scale(0.3477)"
+              d="M256.5 8a120 120 0 1 1 0 240 120 120 0 1 1 0-240zM226.7 304l59.4 0 1.5 0c-12.9 26.8-7.8 58.2 11.5 79.5-20.2 22.3-24.8 55.8-9.4 83.4l22.5 40.4c.9 1.6 1.9 3.2 2.9 4.7l-237 0c-16.4 0-29.7-13.3-29.7-29.7 0-98.5 79.8-178.3 178.3-178.3zm205.9-56.4c0-13.3 10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 6.1c0 18.9 24.1 32.8 40.5 23.4l5-2.9c11.6-6.7 26.5-2.6 33 9.1l22.4 40.2c6.2 11.2 2.6 25.2-8.2 32l-4.7 2.9c-16.2 10.1-16.2 39.9 0 50.1l4.6 2.9c10.8 6.8 14.5 20.8 8.3 32L607 483.8c-6.5 11.7-21.4 15.9-33 9.1l-4.9-2.9c-16.4-9.5-40.5 4.5-40.5 23.4l0 6.1c0 13.3-10.7 24-24 24l-48 0c-13.3 0-24-10.7-24-24l0-5.9c0-19-24.2-33-40.7-23.5l-4.8 2.8c-11.6 6.7-26.4 2.6-33-9.1l-22.6-40.4c-6.2-11.2-2.6-25.3 8.3-32.1l4.4-2.7c16.3-10.1 16.3-40.1 0-50.2l-4.5-2.8c-10.9-6.8-14.5-20.9-8.3-32.1l22.5-40.3c6.5-11.7 21.4-15.8 32.9-9.1l4.8 2.8c16.5 9.5 40.7-4.5 40.7-23.5l0-5.9zm99.9 136.2a52 52 0 1 0 -104 0 52 52 0 1 0 104 0z"
+              fill="#D97706"/>
+      <circle cx="232" cy="98" r="42"
+              fill="#FFFFFF"
+              stroke="#B45309"
+              stroke-width="8"/>
+      <path transform="translate(209 75) scale(0.0898)"
+              d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+              fill="#B45309"/>
 
     <text x="150" y="355"
           text-anchor="middle"
@@ -117,54 +72,26 @@
     </text>
   </g>
 
+  <!-- Stale Users -->
 
-  <!-- STALE USER -->
-
-  <g transform="translate(900 90)">
+    <g transform="translate(1050 90)">
 
     <circle cx="150" cy="180" r="125"
             fill="#DBEAFE" filter="url(#shadow)"/>
 
-    <!-- User -->
-    <circle cx="150" cy="145" r="28"
-            fill="#2563EB"/>
-
-    <path d="M105 215 C105 170 195 170 195 215"
-          fill="none"
-          stroke="#2563EB"
-          stroke-width="13"
-          stroke-linecap="round"/>
-
-    <!-- Fading trail -->
-    <path d="M105 245 H195"
-          stroke="#5B8DEF"
-          stroke-width="10"
-          stroke-linecap="round"
-          opacity=".65"/>
-
-    <path d="M120 270 H180"
-          stroke="#8FB1F5"
-          stroke-width="9"
-          stroke-linecap="round"
-          opacity=".4"/>
-
-    <path d="M137 292 H163"
-          stroke="#B7CDF8"
-          stroke-width="8"
-          stroke-linecap="round"
-          opacity=".25"/>
-
-    <!-- Clock -->
-    <circle cx="225" cy="105" r="37"
-            fill="#FFFFFF"
-            stroke="#2563EB"
-            stroke-width="7"/>
-
-    <path d="M225 105 V84
-             M225 105 L241 115"
-          stroke="#2563EB"
-          stroke-width="6"
-          stroke-linecap="round"/>
+      <path transform="translate(53 60) scale(0.3438)"
+              d="M224 248a120 120 0 1 0 0-240 120 120 0 1 0 0 240zm-29.7 56C95.8 304 16 383.8 16 482.3 16 498.7 29.3 512 45.7 512l356.6 0c16.4 0 29.7-13.3 29.7-29.7 0-98.5-79.8-178.3-178.3-178.3l-59.4 0z"
+              fill="#2563EB"/>
+      <rect x="72" y="248" width="120" height="12" rx="6" fill="#2563EB" fill-opacity=".65"/>
+      <rect x="90" y="268" width="84" height="12" rx="6" fill="#2563EB" fill-opacity=".4"/>
+      <rect x="106" y="288" width="52" height="12" rx="6" fill="#2563EB" fill-opacity=".25"/>
+      <circle cx="234" cy="96" r="42"
+              fill="#FFFFFF"
+              stroke="#2563EB"
+              stroke-width="8"/>
+      <path transform="translate(211 73) scale(0.0898)"
+              d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+              fill="#2563EB"/>
 
     <text x="150" y="355"
           text-anchor="middle"
@@ -173,54 +100,6 @@
           font-weight="700"
           fill="#17324D">
       Stale Users
-    </text>
-  </g>
-
-
-  <!-- GROUP RELATIONSHIP ANOMALY -->
-
-  <g transform="translate(1300 90)">
-
-    <circle cx="150" cy="180" r="125"
-            fill="#EDE9FE" filter="url(#shadow)"/>
-
-    <!-- Nested groups -->
-    <rect x="75" y="135"
-          width="115" height="85"
-          rx="15"
-          fill="#C4B5FD"
-          stroke="#7C3AED"
-          stroke-width="8"/>
-
-    <rect x="115" y="175"
-          width="115" height="85"
-          rx="15"
-          fill="#FFFFFF"
-          stroke="#7C3AED"
-          stroke-width="8"/>
-
-    <!-- Circular dependency -->
-    <path d="M205 105
-             C260 110 280 165 260 210"
-          fill="none"
-          stroke="#7C3AED"
-          stroke-width="9"
-          stroke-linecap="round"/>
-
-    <path d="M260 210 L262 180 L235 192"
-          fill="none"
-          stroke="#7C3AED"
-          stroke-width="9"
-          stroke-linecap="round"
-          stroke-linejoin="round"/>
-
-    <text x="150" y="355"
-          text-anchor="middle"
-          font-family="Arial, Helvetica, sans-serif"
-          font-size="25"
-          font-weight="700"
-          fill="#17324D">
-      Group Relationship Anomalies
     </text>
   </g>
 
