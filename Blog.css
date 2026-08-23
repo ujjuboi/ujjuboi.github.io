@@ -103,7 +103,6 @@ section {
   display: block;
   width: 100%;
   max-height: 400px;
-  object-fit: cover;
   border: 0.2rem solid var(--borderColor);
   border-radius: 0.4rem;
   box-shadow: 0.3rem 0.3rem var(--shadowColor);
@@ -168,10 +167,6 @@ section {
 
   #post-title {
     font-size: 1.5rem;
-  }
-
-  #post-banner {
-    max-height: 220px;
   }
 
   .post-paragraph {
