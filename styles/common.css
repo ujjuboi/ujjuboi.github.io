@@ -4,15 +4,15 @@
 }
 
 body.sub-page {
-  display: block;
+  display: grid;
+  grid-template-rows: 15vh auto auto;
+  min-height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 body.sub-page section {
   position: relative;
-  height: auto;
-  min-height: 70vh;
   padding: 3% 0;
   display: block;
 }
@@ -123,7 +123,7 @@ body.sub-page section {
 
   body.sub-page section {
     min-height: auto;
-    padding: 10% 2% 30%;
+    padding: 10% 2% 3%;
   }
 
   .page-container {
@@ -164,12 +164,9 @@ body.sub-page section {
   }
 
   footer {
-    transition: height 0.2s linear, bottom 0.2s linear;
+    position: relative;
     text-align: left;
     font-size: 0.7rem;
-    height: 18vh;
     width: 100%;
-    position: absolute;
-    bottom: 4%;
   }
 }
