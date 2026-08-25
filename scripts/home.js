@@ -8,7 +8,7 @@ function setGreet() {
     return "Good Afternoon!"
   } else if (17 <= hour && hour < 22) {
     return "Good Evening!"
-  } else if (22 <= hour) {
+  } else {
     return "Good Evening, You should be in bed by now!"
   }
 }
