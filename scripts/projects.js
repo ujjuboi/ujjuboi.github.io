@@ -115,26 +115,30 @@ async function fetchLeetCodeStats() {
   }
 }
 
-const latestPost = {
-  title: "Scaling Identity Data Ingestion: MongoDB at Enterprise Scale",
-  date: "August 22, 2026",
-  excerpt: "How we optimized a data ingestion pipeline to process 18M group memberships in 4 hours — from 10 to 1,500 records/sec.",
-  banner: "../../Images/Graphics/MongoDB.svg",
-  link: "../Blog/Blog.html"
-};
-
-function renderResearch() {
-  document.getElementById('research-banner').src = latestPost.banner;
-  document.getElementById('research-banner').alt = latestPost.title;
-  document.getElementById('research-title').textContent = latestPost.title;
-  document.getElementById('research-date').textContent = latestPost.date;
-  document.getElementById('research-excerpt').textContent = latestPost.excerpt;
-  document.getElementById('research-link').href = latestPost.link;
-  document.getElementById('research-card').style.display = 'block';
+async function loadLatestPost() {
+  try {
+    const res = await fetch('../Blog/Blog.html');
+    if (!res.ok) throw new Error('Failed to fetch Blog.html');
+    const text = await res.text();
+    const match = text.match(/const posts\s*=\s*\[([\s\S]*?)\];/);
+    if (!match) return;
+    const postsArray = eval('[' + match[1] + ']');
+    if (postsArray.length === 0) return;
+    const latest = postsArray[0];
+    document.getElementById('research-banner').src = latest.banner;
+    document.getElementById('research-banner').alt = latest.title;
+    document.getElementById('research-title').textContent = latest.title;
+    document.getElementById('research-date').textContent = latest.date;
+    document.getElementById('research-excerpt').textContent = latest.excerpt;
+    document.getElementById('research-link').href = '../Blog/Blog.html#post-0';
+    document.getElementById('research-card').style.display = 'block';
+  } catch (e) {
+    console.error('Failed to load latest post:', e);
+  }
 }
 
 fetchGitHubStats();
 fetchRecentActivity();
 fetchLeetCodeStats();
-renderResearch();
+loadLatestPost();
 initMenuToggle('#projects-container');

@@ -16,7 +16,7 @@ function toggleSection(header) {
 async function loadCV() {
   const resumeContainer = document.getElementById('resume-container');
   try {
-    const res = await fetch('../../cv.md');
+    const res = await fetch('../../src/cv.md');
     if (!res.ok) throw new Error('Failed to fetch CV');
     const text = await res.text();
     const data = parseCV(text);
