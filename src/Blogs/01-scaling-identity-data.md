@@ -2,7 +2,7 @@
 
 ## Date: August 22, 2026
 
-## Exceprt: How we optimized a data ingestion pipeline to process 18M group memberships in 4 hours — from 10 to 1,500 records/sec.
+## Excerpt: How we optimized a data ingestion pipeline to process 18M group memberships in 4 hours — from 10 to 1,500 records/sec.
 
 ## Banner: ../../Images/Graphics/MongoDB.svg
 

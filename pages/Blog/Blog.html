@@ -83,29 +83,5 @@
 
   <script src="../../scripts/shared.js"></script>
   <script src="../../scripts/blog.js"></script>
-  <script>
-    const posts = [
-      { file: "01-scaling-identity-data.md", title: "Scaling Identity Data Ingestion: MongoDB at Enterprise Scale", date: "August 22, 2026", excerpt: "How we optimized a data ingestion pipeline to process 18M group memberships in 4 hours — from 10 to 1,500 records/sec.", banner: "../../Images/Graphics/MongoDB.svg", category: "Deloitte" },
-      { file: "02-teaching-machines-to-read.md", title: "Teaching Machines to Read Legal Documents", date: "August 10, 2026", excerpt: "Building an NLP pipeline that turns PDFs, DOCs, and DOCX legal files into structured JSON — section extraction with SpaCy, multi-format parsing, and the dataset problem that stalled our custom NER model.", banner: "../../Images/Graphics/LegalDocuments.svg", category: "Personal Projects" },
-      { file: "03-teaching-ci-to-think.md", title: "Teaching CI to Think: Agentic Workflows on GitHub Actions", date: "June 30, 2026", excerpt: "How we turned a modular monolith migration plan, code review, linting, PR descriptions, documentation, and regression tests into autonomous AI-powered GitHub Actions workflows.", banner: "../../Images/Graphics/GithubActions.svg", category: "Deloitte" },
-      { file: "04-getting-into-ai-ml-agents.md", title: "Getting into AI/ML Agents", date: "February 17, 2026", excerpt: "My journey from writing scripts to building autonomous AI agents — the tools, frameworks, and lessons learned along the way.", banner: "../../Images/Graphics/Mind.svg", category: "Research" },
-      { file: "05-side-projects.md", title: "Side Projects & Building for Fun", date: "December 14, 2025", excerpt: "Why I build side projects, the tools I love, and a technical deep dive into building a CLI movie ticket booking system in C++ and other solo projects.", banner: "../../Images/Graphics/Movie.svg", category: "Personal Projects" },
-      { file: "06-real-time-sensor-dashboards.md", title: "Real-time Sensor Dashboards w/ MQTT & WebSockets", date: "November 8, 2025", excerpt: "Building a real-time monitoring system with 0.3ms downtime using MQTT, Pub/Sub, and WebSockets for remote sensor data streaming.", banner: "../../Images/Graphics/SensorData.svg", category: "Personal Projects" },
-      { file: "07-directory-data-analytics.md", title: "Directory Data Analytics and Identity Correlation at Scale", date: "April 18, 2025", excerpt: "Building visual graph-based analytics to find security vulnerabilities in identity data across Active Directory, AWS IAM, and Microsoft Entra ID.", banner: "../../Images/Graphics/ActiveDirectory.svg", category: "Deloitte" },
-      { file: "08-legacy-stacks.md", title: "Legacy Stacks vs Modern Frameworks", date: "October 3, 2024", excerpt: "How my first PHP project — a Rock Paper Scissors game — taught me fundamentals that still shape how I build with Next.js and modern frameworks today.", banner: "../../Images/Graphics/php.png", category: "Research" }
-    ];
-    loadPosts().then(() => {
-      renderBlogList();
-      initMenuToggle('#blog-container');
-
-      var hash = window.location.hash;
-      if (hash && hash.startsWith('#post-')) {
-        var idx = parseInt(hash.replace('#post-', ''), 10);
-        if (!isNaN(idx) && idx >= 0 && idx < posts.length) {
-          showPost(idx);
-        }
-      }
-    });
-    </script>
 </body>
 </html>

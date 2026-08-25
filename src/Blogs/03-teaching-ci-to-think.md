@@ -2,7 +2,7 @@
 
 ## Date: June 30, 2026
 
-## Exceprt: How we turned a modular monolith migration plan, code review, linting, PR descriptions, documentation, and regression tests into autonomous AI-powered GitHub Actions workflows.
+## Excerpt: How we turned a modular monolith migration plan, code review, linting, PR descriptions, documentation, and regression tests into autonomous AI-powered GitHub Actions workflows.
 
 ## Banner: ../../Images/Graphics/GithubActions.svg
 

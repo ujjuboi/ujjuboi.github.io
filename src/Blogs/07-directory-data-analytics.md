@@ -2,7 +2,7 @@
 
 ## Date: April 18, 2025
 
-## Exceprt: Building visual graph-based analytics to find security vulnerabilities in identity data across Active Directory, AWS IAM, and Microsoft Entra ID.
+## Excerpt: Building visual graph-based analytics to find security vulnerabilities in identity data across Active Directory, AWS IAM, and Microsoft Entra ID.
 
 ## Banner: ../../Images/Graphics/ActiveDirectory.svg
 

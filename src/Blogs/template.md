@@ -2,7 +2,7 @@
 
 ## Date: date of the post
 
-## Exceprt: excerpt of the post
+## Excerpt: excerpt of the post
 
 ## Banner: ../../Images/Graphics/<>.svg
 

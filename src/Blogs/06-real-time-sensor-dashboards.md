@@ -2,7 +2,7 @@
 
 ## Date: November 8, 2025
 
-## Exceprt: Building a real-time monitoring system with 0.3ms downtime using MQTT, Pub/Sub, and WebSockets for remote sensor data streaming.
+## Excerpt: Building a real-time monitoring system with 0.3ms downtime using MQTT, Pub/Sub, and WebSockets for remote sensor data streaming.
 
 ## Banner: ../../Images/Graphics/SensorData.svg
 

@@ -2,7 +2,7 @@
 
 ## Date: December 14, 2025
 
-## Exceprt: Why I build side projects, the tools I love, and a technical deep dive into building a CLI movie ticket booking system in C++ and other solo projects.
+## Excerpt: Why I build side projects, the tools I love, and a technical deep dive into building a CLI movie ticket booking system in C++ and other solo projects.
 
 ## Banner: ../../Images/Graphics/Movie.svg
 

@@ -2,7 +2,7 @@
 
 ## Date: February 17, 2026
 
-## Exceprt: My journey from writing scripts to building autonomous AI agents — the tools, frameworks, and lessons learned along the way.
+## Excerpt: My journey from writing scripts to building autonomous AI agents — the tools, frameworks, and lessons learned along the way.
 
 ## Banner: ../../Images/Graphics/Mind.svg
 

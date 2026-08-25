@@ -2,7 +2,7 @@
 
 ## Date: August 10, 2026
 
-## Exceprt: Building an NLP pipeline that turns PDFs, DOCs, and DOCX legal files into structured JSON — section extraction with SpaCy, multi-format parsing, and the dataset problem that stalled our custom NER model.
+## Excerpt: Building an NLP pipeline that turns PDFs, DOCs, and DOCX legal files into structured JSON — section extraction with SpaCy, multi-format parsing, and the dataset problem that stalled our custom NER model.
 
 ## Banner: ../../Images/Graphics/LegalDocuments.svg
 

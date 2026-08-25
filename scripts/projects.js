@@ -117,19 +117,26 @@ async function fetchLeetCodeStats() {
 
 async function loadLatestPost() {
   try {
-    const res = await fetch('../Blog/Blog.html');
-    if (!res.ok) throw new Error('Failed to fetch Blog.html');
-    const text = await res.text();
-    const match = text.match(/const posts\s*=\s*\[([\s\S]*?)\];/);
-    if (!match) return;
-    const postsArray = eval('[' + match[1] + ']');
-    if (postsArray.length === 0) return;
-    const latest = postsArray[0];
-    document.getElementById('research-banner').src = latest.banner;
-    document.getElementById('research-banner').alt = latest.title;
-    document.getElementById('research-title').textContent = latest.title;
-    document.getElementById('research-date').textContent = latest.date;
-    document.getElementById('research-excerpt').textContent = latest.excerpt;
+    const manifestRes = await fetch('../../src/Blogs/posts.json');
+    if (!manifestRes.ok) throw new Error('Failed to fetch posts.json');
+    const filenames = await manifestRes.json();
+    if (filenames.length === 0) return;
+
+    const mdRes = await fetch('../../src/Blogs/' + filenames[0]);
+    if (!mdRes.ok) throw new Error('Failed to fetch ' + filenames[0]);
+    const text = await mdRes.text();
+    const meta = {};
+    for (const line of text.split('\n')) {
+      if (line.startsWith('## Paragraphs')) break;
+      const match = line.match(/^## (\w+):\s*(.+)/);
+      if (match) meta[match[1].toLowerCase()] = match[2].trim();
+    }
+
+    document.getElementById('research-banner').src = meta.banner || '';
+    document.getElementById('research-banner').alt = meta.title || '';
+    document.getElementById('research-title').textContent = meta.title || '';
+    document.getElementById('research-date').textContent = meta.date || '';
+    document.getElementById('research-excerpt').textContent = meta.excerpt || '';
     document.getElementById('research-link').href = '../Blog/Blog.html#post-0';
     document.getElementById('research-card').style.display = 'block';
   } catch (e) {

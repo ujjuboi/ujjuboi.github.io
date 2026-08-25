@@ -2,7 +2,7 @@
 
 ## Date: October 3, 2024
 
-## Exceprt: How my first PHP project — a Rock Paper Scissors game — taught me fundamentals that still shape how I build with Next.js and modern frameworks today.
+## Excerpt: How my first PHP project — a Rock Paper Scissors game — taught me fundamentals that still shape how I build with Next.js and modern frameworks today.
 
 ## Banner: ../../Images/Graphics/php.png
 

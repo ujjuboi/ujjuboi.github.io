@@ -124,3 +124,15 @@ function showBlogList() {
   history.replaceState(null, '', window.location.pathname);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+loadPosts().then(() => {
+  renderBlogList();
+
+  var hash = window.location.hash;
+  if (hash && hash.startsWith('#post-')) {
+    var idx = parseInt(hash.replace('#post-', ''), 10);
+    if (!isNaN(idx) && idx >= 0 && idx < posts.length) {
+      showPost(idx);
+    }
+  }
+});
