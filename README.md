@@ -40,9 +40,12 @@ Making my own dynamic blogging website!
 │   ├── Resume/
 │   │   ├── Resume.html           Resume page
 │   │   └── Resume.css            Resume-specific styles (720px breakpoint)
-│   └── Blog/
-│       ├── Blog.html             Blog page (posts + view-swap)
-│       └── Blog.css              Blog-specific styles (720px breakpoint)
+    ├── Blog/
+    │   ├── Blog.html             Blog page (posts + view-swap)
+    │   └── Blog.css              Blog-specific styles (720px breakpoint)
+    └── Projects/
+        ├── Projects.html         Projects page (GitHub stats, activity, LeetCode)
+        └── Projects.css          Projects-specific styles (720px breakpoint)
 └── plan/
     ├── plan_blog.md              Approved plan for Blog feature
     ├── plan_project_professional.md  Approved plan for Projects page
@@ -56,6 +59,7 @@ Making my own dynamic blogging website!
 | `index.html` | `style.css` | Time-based greeting into `#salutation`; redirects to `Mobile/mobile.html` when `screen.width <= 500`; `notice()` alert for unbuilt nav links (Projects); menu-icon logic |
 | `pages/Resume/Resume.html` | `style.css` + `Resume.css` | `toggleSection()` collapsible sections (+/- icons); `notice()` alerts; menu-icon logic |
 | `pages/Blog/Blog.html` | `style.css` + `Blog.css` | Hardcoded `posts[]` array; `renderBlogList()` grouped by category; `showPost()`/`showBlogList()` view-swap; theme-select + menu-icon logic |
+| `pages/Projects/Projects.html` | `style.css` + `Projects.css` | GitHub stats + recent activity; LeetCode stats (graceful degradation); latest blog post; menu-icon logic |
 
 ## Key details / conventions
 
@@ -64,7 +68,7 @@ Making my own dynamic blogging website!
 - **Layout**: `body` is a CSS grid (`15vh / 60vh / 28vh`) with `overflow: hidden` on desktop pages. Pages that need scrolling must override this (e.g., planned `Blog.css` sets `body { display:block; overflow-y:auto }`). Resume.css uses a `720px` breakpoint — match it for new responsive work.
 - **Visual language**: Beige background, black borders, offset solid box-shadows (`--shadowColor`), rounded corners. Reuse existing patterns (`.skill-item` styling) rather than inventing new ones.
 - **Assets**: `Images/` holds shared assets: `MyImage.jpg` (hero photo) plus social/menu/signature SVGs. Footer social icons are inline SVGs in the HTML, not `<img>` tags. `Mobile/Graphics/*` belongs exclusively to the legacy mobile site — don't reference it from desktop pages and don't reuse it for new features.
-- **Unbuilt routes**: Projects nav link currently calls `notice()` ("Under Development!"). Blog is built per `plan/plan_blog.md`: single-file `Blog.html` + `Blog.css`, same header/footer, hardcoded posts array, view-swap navigation, banners from existing SVG assets. Projects page is planned per `plan/plan_project_professional.md`.
+- **Unbuilt routes**: Projects is built per `plan/plan_project_professional.md`: Professional page with GitHub stats and LeetCode, plus mySpace nav link that calls `notice()` ("Under Development!"). Blog is built per `plan/plan_blog.md`: single-file `Blog.html` + `Blog.css`, same header/footer, hardcoded posts array, view-swap navigation, banners from existing SVG assets.
 - **Content source**: `cv.md` is the canonical CV text; `Resume.html` renders a subset of it. Update both when resume content changes.
 - **Git**: Default branch is `main`; deploys straight from repo root to GitHub Pages. Keep everything relative-pathed (`./style.css`, not absolute paths).
 

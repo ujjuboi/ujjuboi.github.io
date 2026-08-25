@@ -109,6 +109,7 @@ Replace the Projects `<li>` with a dropdown:
       │    └─ #lc-recent                             │
       │         ├─ "Last active: X days"             │
       │         └─ "Ranking: X"                      │
+      │  → link to https://leetcode.com/ujjuboi/    │
       │  #lc-fallback (hidden, shown on error)       │
       └──────────────────────────────────────────────┘
 
