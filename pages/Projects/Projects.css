@@ -60,9 +60,6 @@ section {
 }
 
 .section-content {
-  background-color: var(--contentColor);
-  border: 0.2rem solid var(--borderColor);
-  border-radius: 0.4rem;
   animation: fadeIn ease 0.5s;
   transition: all 0.3s ease;
 }
@@ -287,43 +284,6 @@ section {
   border-bottom-color: var(--linkHover);
 }
 
-.nav-dropdown {
-  position: relative;
-}
-
-.dropdown {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  min-width: 140px;
-  background-color: var(--backgroundColor);
-  border: 0.2rem solid var(--borderColor);
-  border-radius: 0.3rem;
-  box-shadow: 0.3rem 0.3rem var(--shadowColor);
-  list-style: none;
-  padding: 0.5rem 0;
-  margin: 0;
-  z-index: 100;
-}
-
-.nav-dropdown:hover .dropdown {
-  display: block;
-}
-
-.dropdown li a {
-  display: block;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  color: var(--shadowColor);
-  text-decoration: none;
-  transition: background-color 0.15s ease;
-}
-
-.dropdown li a:hover {
-  background-color: var(--contentColor);
-  border-bottom: none;
-}
 
 @media (max-width: 720px) {
   body {
@@ -354,20 +314,6 @@ section {
 
   #github-repos-grid {
     grid-template-columns: 1fr;
-  }
-
-  .dropdown {
-    position: static;
-    display: block;
-    border: none;
-    box-shadow: none;
-    padding: 0 0 0 1.5rem;
-    margin: 0.3rem 0;
-  }
-
-  .dropdown li a {
-    font-size: 1rem;
-    padding: 0.3rem 0;
   }
 
   header {
