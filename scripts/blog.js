@@ -56,6 +56,7 @@ function parsePostBody(text) {
 function renderBlogList() {
   const container = document.getElementById('blog-list');
   container.innerHTML = '';
+  let sectionIndex = 0;
   let delayIndex = 0;
   categories.forEach(category => {
     const grouped = posts
@@ -67,9 +68,14 @@ function renderBlogList() {
     section.className = 'blog-section';
 
     const heading = document.createElement('h2');
-    heading.className = 'section-heading';
-    heading.textContent = category;
+    heading.className = 'section-heading' + (sectionIndex === 0 ? ' active' : '');
+    heading.setAttribute('onclick', 'toggleBlogSection(this)');
+    heading.innerHTML = `<span class="title-text">${category}</span><span class="toggle-icon">-</span>`;
     section.appendChild(heading);
+
+    const content = document.createElement('div');
+    content.className = 'section-content';
+    content.style.display = 'block';
 
     const grid = document.createElement('div');
     grid.className = 'post-grid';
@@ -84,14 +90,30 @@ function renderBlogList() {
         <h3 class="card-title">${post.title}</h3>
         <p class="card-date">${post.date}</p>
         <p class="card-excerpt">${post.excerpt}</p>
+        <a class="card-link" href="#post-${index}" target="_self" onclick="event.stopPropagation(); showPost(${index})">Read more →</a>
       `;
       grid.appendChild(card);
       delayIndex++;
     });
 
-    section.appendChild(grid);
+    section.appendChild(content);
+    content.appendChild(grid);
     container.appendChild(section);
+    sectionIndex++;
   });
+}
+
+function toggleBlogSection(header) {
+  const content = header.nextElementSibling;
+  const icon = header.querySelector('.toggle-icon');
+  if (content.style.display === 'none') {
+    content.style.display = '';
+    icon.textContent = '-';
+  } else {
+    content.style.display = 'none';
+    icon.textContent = '+';
+  }
+  header.classList.toggle('active');
 }
 
 function showPost(index) {

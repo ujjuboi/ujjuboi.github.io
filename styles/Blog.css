@@ -1,7 +1,7 @@
 #blog-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .blog-section {
@@ -10,7 +10,7 @@
 
 .post-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.25rem;
 }
 
@@ -20,6 +20,10 @@
   animation-fill-mode: both;
   display: flex;
   flex-direction: column;
+}
+
+.post-card .card-link {
+  margin-top: auto;
 }
 
 .post-card:nth-child(1) { animation-delay: 0.05s; }
@@ -112,13 +116,12 @@
     font-size: 1.4rem;
   }
 
-  .post-card {
-    padding: 1rem;
+  .post-grid {
+    grid-template-columns: 1fr;
   }
 
-  #blog-list {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+  .post-card {
+    padding: 1rem;
   }
 
   .card-title {
