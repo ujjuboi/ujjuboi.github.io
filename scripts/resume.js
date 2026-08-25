@@ -185,7 +185,7 @@ function renderSection(title, contentEl, active) {
   }
 
   const h2 = document.createElement('h2');
-  h2.className = 'section-title' + (active ? ' active' : '');
+  h2.className = 'section-heading' + (active ? ' active' : '');
   h2.onclick = function() { toggleSection(this); };
 
   const titleText = document.createElement('span');
