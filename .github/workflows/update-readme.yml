@@ -56,16 +56,21 @@ jobs:
             }
 
             function getLatestPost() {
-              var blogPath = 'pages/Blog/Blog.html';
-              if (!fs.existsSync(blogPath)) return null;
-              var content = fs.readFileSync(blogPath, 'utf8');
-              var match = content.match(/const posts\s*=\s*\[([\s\S]*?)\];/);
-              if (!match) return null;
+              var manifestPath = 'src/Blogs/posts.json';
+              if (!fs.existsSync(manifestPath)) return null;
               try {
-                var postsArray = eval('[' + match[1] + ']');
-                if (postsArray.length > 0) {
-                  return { title: postsArray[0].title, category: postsArray[0].category };
+                var filenames = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+                if (filenames.length === 0) return null;
+                var mdPath = 'src/Blogs/' + filenames[0];
+                if (!fs.existsSync(mdPath)) return null;
+                var lines = fs.readFileSync(mdPath, 'utf8').split('\n');
+                var meta = {};
+                for (var li = 0; li < lines.length; li++) {
+                  if (lines[li].startsWith('## Paragraphs')) break;
+                  var m = lines[li].match(/^## (\w+):\s*(.+)/);
+                  if (m) meta[m[1].toLowerCase()] = m[2].trim();
                 }
+                if (meta.title) return { title: meta.title, category: meta.category || '' };
               } catch (e) {}
               return null;
             }
@@ -134,7 +139,7 @@ jobs:
                 scripts.push('`toggleSection()` collapsible sections (+/- icons)');
               }
               if (content.includes('renderBlogList') || content.includes('showPost')) {
-                scripts.push('Hardcoded `posts[]` array; `renderBlogList()` grouped by category; `showPost()`/`showBlogList()` view-swap');
+                scripts.push('Posts from `posts.json` manifest; `renderBlogList()` grouped by category; `showPost()`/`showBlogList()` view-swap');
               }
               if (content.includes('leetcode') || content.includes('LeetCode')) {
                 scripts.push('LeetCode stats via third-party API');

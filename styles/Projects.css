@@ -1,0 +1,180 @@
+.stat-card {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-family: var(--headings);
+  font-size: 2.5rem;
+  color: var(--shadowColor);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--borderColor);
+  opacity: 0.8;
+}
+
+#github-repos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.loading-placeholder {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  font-size: 1rem;
+  color: var(--shadowColor);
+  opacity: 0.7;
+}
+
+.dot {
+  opacity: 0;
+  animation: dotPulse 1.4s infinite;
+}
+
+.dot1 { animation-delay: 0s; }
+.dot2 { animation-delay: 0.2s; }
+.dot3 { animation-delay: 0.4s; }
+
+@keyframes dotPulse {
+  0%, 20% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.repo-card {
+  padding: 1.2rem;
+  text-decoration: none;
+  display: block;
+}
+
+.repo-card:hover {
+  border-bottom: 0.2rem solid var(--borderColor);
+}
+
+.repo-card-name {
+  font-family: var(--headings);
+  color: var(--shadowColor);
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.repo-card-desc {
+  font-size: 0.85rem;
+  color: var(--borderColor);
+  line-height: 1.5;
+  margin: 0 0 0.6rem 0;
+  opacity: 0.9;
+}
+
+.repo-card-lang {
+  font-size: 0.75rem;
+  color: var(--linkColor);
+  font-family: var(--headings);
+  opacity: 0.8;
+}
+
+.section-content {
+  transition: all 0.3s ease;
+}
+
+#activity-card {
+  display: none;
+}
+
+#research-card {
+  transition: all 0.2s ease;
+  display: none;
+}
+
+#research-banner {
+  width: 100%;
+  max-height: 300px;
+  border: 0.15rem solid var(--borderColor);
+  border-radius: 0.3rem;
+  margin-bottom: 1rem;
+}
+
+#research-title {
+  font-family: var(--headings);
+  color: var(--shadowColor);
+  font-size: 1.4rem;
+  margin: 0 0 0.5rem 0;
+}
+
+#research-date {
+  color: var(--shadowColor);
+  font-size: 0.9rem;
+  margin: 0 0 0.8rem 0;
+  opacity: 0.85;
+}
+
+#research-excerpt {
+  font-size: 1rem;
+  color: var(--borderColor);
+  line-height: 1.6;
+  margin: 0;
+}
+
+#research-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--linkColor);
+  text-decoration: none;
+  border-bottom: 0.1rem solid var(--linkColor);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+#research-link:hover {
+  color: var(--linkHover);
+  border-bottom-color: var(--linkHover);
+}
+
+.leetcode-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+#lc-recent {
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--shadowColor);
+}
+
+#lc-recent p {
+  margin: 0.3rem 0;
+}
+
+#lc-fallback {
+  display: none;
+  text-align: center;
+  color: var(--shadowColor);
+  font-style: italic;
+}
+
+@media (max-width: 720px) {
+  .section-heading {
+    font-size: 1.2rem;
+    padding: 2% 3%;
+  }
+
+  .stat-number {
+    font-size: 1.8rem;
+  }
+
+  .leetcode-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #github-repos-grid {
+    grid-template-columns: 1fr;
+  }
+}

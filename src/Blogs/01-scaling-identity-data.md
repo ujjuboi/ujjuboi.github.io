@@ -1,0 +1,20 @@
+## Title: Scaling Identity Data Ingestion: MongoDB at Enterprise Scale
+
+## Date: August 22, 2026
+
+## Excerpt: How we optimized a data ingestion pipeline to process 18M group memberships in 4 hours — from 10 to 1,500 records/sec.
+
+## Banner: ../../Images/Graphics/MongoDB.svg
+
+## Category: Deloitte
+
+## Paragraphs
+
+- <p>When I joined DI App Factory at Deloitte as Software Engineer, our team was tasked with building a data ingestion pipeline capable of handling millions of records across multiple identity sources — Active Directory, SailPoint, Okta, PingFederate, and AWS IAM. The scale was staggering: seventeen million group membership records, MongoDB ingest rates stuck at ten records per second, and client datasets containing hundreds of millions of records. The challenge wasn't just storage — it was throughput.</p>
+- <p>The first breakthrough came from profiling the ingestion pipeline. Initial profiling revealed that our write pattern was the bottleneck, not CPU or memory. We were performing too many individual <code>findOneAndUpdate</code> operations, each requiring separate network round-trips, locks, and index updates. The solution required replacing individual operations with bulk write operations, implementing new indexing strategies to reduce fragmentation, and optimizing batch sizes to align with MongoDB's internal buffer configurations. Combined, these improvements increased ingestion rates from ten to fifteen hundred records per second — a 150x improvement.</p>
+- <p>The implications were dramatic. What previously would have taken days of continuous processing could now be completed in three to four hours — a 90% reduction in processing time. Bulk import throughput improved from 100K to 400K records per batch (500% increase), enabling us to ingest 18 million group membership records within standard maintenance windows.</p>
+- <p>Another bottleneck emerged from network latency: the EC2 instance running the application and the MongoDB server were in different network locations, adding milliseconds per operation that compounded into hours over millions of records. The fix was straightforward — move the database server to the same location as the application server — but it highlighted a key lesson: every optimization creates new constraints that must be managed.</p>
+- <p>Architecturally, we led a design study comparing DDX's S3 + MongoDB GridFS approach against Service Center's methodology. DDX's architecture leverageaged S3 for object storage with GridFS for chunked file handling while maintaining MongoDB's native query capabilities. However, after weighing AWS compliance overhead (data residency, encryption key management, access logging) against performance needs, we determined that optimizing existing MongoDB operations was the more practical solution for our client scenarios.</p>
+- <p>On the data modeling side, I redesigned how group memberships were stored. Instead of embedding group references within user documents, I created a dedicated group membership collection that stores object references between groups, users, and applications. This normalized schema allows complex membership hierarchies — including nested groups — to be resolved efficiently with proper indexing, critical for datasets with millions of users across thousands of groups.</p>
+- <p>We also migrated DDX's data classification and use cases features into App Factory, creating a cross-platform capability that identified orphan groups, inactive service accounts, and permission patterns across any identity source — not just directory data. The ingestion error tracking we built served as a quality gate: custom business rulesets verified schema, referential integrity, and anomaly detection before data touched the database, with ruleset deployment managed through configuration rather than code.</p>
+- <p>The overarching lesson: at enterprise scale, the difference between a good system and a great one isn't measured in features — it's in hundreds of records per second, hours of processing time saved, and the confidence that data quality checks caught problems before they caused harm.</p>

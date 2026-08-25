@@ -69,7 +69,7 @@ A `<script>` block inside `Resume.html` that:
 // 1. Fetch cv.md at page load
 async function loadCV() {
   try {
-    const res = await fetch('../../cv.md');
+    const res = await fetch('../../src/cv.md');
     const text = await res.text();
     const data = parseCV(text);
     renderResume(data);

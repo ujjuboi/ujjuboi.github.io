@@ -269,15 +269,6 @@ footer #footer_nav li a {
   }
 }
 
-@keyframes fadeIn{
-  from{
-    opacity: 0;
-  }
-  to{
-    opacity: 1;
-  }
-}
-
 @media (max-width: 720px) {
 
   body{
@@ -324,40 +315,11 @@ footer #footer_nav li a {
   
   header {
     animation-fill-mode: backwards;
-    display: none;
-    z-index: 10;
-    overflow-y: auto;
-    max-height: 90vh;
-    padding-top: 15%;
-    text-align: center;
-    flex-direction: column;
-    justify-content: space-around;
-    background-color: var(--contentColor);
-    right: 3%;
-    height: 75vh;
-    width: 91vw;
   }
-  
+
   header nav {
     height: 80%;
     width: 100%;
-  }
-  
-  header nav ul{
-    height: 80%;
-    width: 80%;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
-  }
-  
-  #menuIcon{
-    top: 0%;
-    right: 4%;
-    cursor: pointer;
-    visibility: visible;
-    position: absolute;
-    color: var(--shadowColor);
   }
 
   .active{
@@ -396,16 +358,6 @@ footer #footer_nav li a {
   .dropdown li a:hover {
     background-color: transparent;
     border-bottom: none;
-  }
-  
-  footer{
-    transition: height .2s linear, bottom .2s linear;
-    text-align: left;
-    font-size: 0.7rem;
-    height: 18vh;
-    width: 100%;
-    position: absolute;
-    bottom: 4%;
   }
   
   footer h1{

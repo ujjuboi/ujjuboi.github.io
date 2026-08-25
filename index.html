@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./style.css"/>
+  <link rel="stylesheet" href="./styles/style.css"/>
   <title>Ujjwal Verma</title>
 </head>
 <body>
@@ -87,81 +87,6 @@
     </ul>
   </footer>
 </body>
-<script>
-  const dateObj = new Date();
-  const hour = dateObj.getHours();
-
-  function setGreet() {
-    if (6 <= hour && hour < 12) {
-      return "Good Morning!"
-    } else if (12 <= hour && hour < 17) {
-      return "Good Afternoon!"
-    } else if (17 <= hour && hour < 22) {
-      return "Good Evening!"
-    } else if (22 <= hour) {
-      return "Good Evening, You should be in bed by now!"
-    }
-  }
-
-  document.getElementById("salutation").innerHTML = setGreet();
-
-  function notice(){
-    alert("Under Development!");
-  };  
-
-  var footer = document.querySelector('footer');
-  var hero = document.getElementById('hero');
-  var menuIcon = document.getElementById('menuIcon');
-  var header = document.querySelector('header');
-
-  function closeAllDropdowns() {
-    document.querySelectorAll('.nav-dropdown.dropdown-open').forEach(function(el) {
-      el.classList.remove('dropdown-open');
-    });
-  }
-
-  document.addEventListener('click', function(e) {
-    var dropdowns = document.querySelectorAll('.nav-dropdown');
-    if (!dropdowns.length) return;
-    var clickedInsideDropdown = false;
-    dropdowns.forEach(function(dropdown) {
-      if (dropdown.contains(e.target)) clickedInsideDropdown = true;
-    });
-    if (!clickedInsideDropdown) {
-      closeAllDropdowns();
-    }
-  });
-
-  var navDropdowns = document.querySelectorAll('.nav-dropdown > a');
-  navDropdowns.forEach(function(link) {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      var parent = this.parentElement;
-      var wasOpen = parent.classList.contains('dropdown-open');
-      closeAllDropdowns();
-      if (!wasOpen) {
-        parent.classList.add('dropdown-open');
-      }
-    });
-  });
-
-  menuIcon.addEventListener('click', () => {
-    menuIcon.style.display = "none";
-    header.style.display = "block";
-    hero.style.display = "none";
-    footer.style.height = "10vh";
-    footer.style.bottom = "1%";
-    closeAllDropdowns();
-  });
-
-  footer.addEventListener('click', () => {
-    menuIcon.style.display = "block";
-    footer.style.height = "18vh";
-    footer.style.bottom = "4%";
-    header.style.display = "none";
-    hero.style.display = "flex";
-    closeAllDropdowns();
-  });
-</script>
+<script src="./scripts/shared.js"></script>
+<script src="./scripts/home.js"></script>
 </html>
