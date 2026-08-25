@@ -1,6 +1,6 @@
-# CV Sync Script Plan
+# CV Runtime Loader Plan
 
-A Node.js script that parses `cv.md` and regenerates the resume content sections in `pages/Resume/Resume.html`, keeping the HTML shell (header, footer, script) intact.
+Client-side JavaScript that fetches `cv.md` at runtime and renders the resume into `pages/Resume/Resume.html`, keeping the HTML shell (header, footer, nav, toggle logic) intact. Follows the same pattern as `pages/Blog/Blog.html`.
 
 ## Problem
 
@@ -8,20 +8,20 @@ A Node.js script that parses `cv.md` and regenerates the resume content sections
 
 ## Solution
 
-A single `sync-cv.js` script at the repo root that:
-1. Reads `cv.md`
-2. Parses sections (Professional Summary, Work Experience, Projects, Education, Skills)
-3. Reads `pages/Resume/Resume.html`
-4. Replaces only the `<section data-section="resume">` content with generated HTML
-5. Writes the file back
+A `<script>` block inside `Resume.html` that:
+1. Fetches `cv.md` from the repo root at page load via `fetch('../../cv.md')`
+2. Parses the markdown into a structured object (contact, summary, experience, projects, education, skills)
+3. Renders the parsed data into `#resume-container` using DOM manipulation
+4. The HTML shell (header, footer, nav, theme logic) stays static — only `#resume-container` innerHTML is replaced
 
 ## Decisions
 
-- **Runtime**: Node.js (no dependencies — uses only `fs` and `path`)
-- **Trigger**: Manual (`node sync-cv.js`) or via GitHub Actions on push to `cv.md`
-- **Parsing**: Line-by-line regex, not a markdown library — keeps it dependency-free
-- **Output**: Only the inner content of `#resume-container` is replaced; header, footer, `<script>`, and `<header>` nav are untouched
-- **HTML shell preservation**: The script uses marker comments or targets `#resume-container` innerHTML specifically
+- **Runtime**: Client-side JavaScript in the browser (no build step, no Node.js)
+- **Data source**: `cv.md` fetched at runtime via `fetch()` — single source of truth, no duplication
+- **Pattern**: Same approach as Blog.html — static shell + JS-rendered content
+- **Parsing**: Line-by-line string parsing in JS, no markdown library — keeps it dependency-free
+- **Output**: Only `#resume-container` innerHTML is replaced by JS; header, footer, `<script>`, and `<header>` nav are untouched
+- **Fallback**: If fetch fails, show an error message in the container
 
 ## cv.md → HTML mapping
 
@@ -63,19 +63,45 @@ A single `sync-cv.js` script at the repo root that:
 - First section (Professional Summary): `active` class, `display: block`, icon `-`
 - All other sections: no `active`, `display: none`, icon `+`
 
-## Script outline (`sync-cv.js`)
+## Script outline (inline `<script>` in Resume.html)
 
 ```javascript
-// 1. Read cv.md
+// 1. Fetch cv.md at page load
+async function loadCV() {
+  try {
+    const res = await fetch('../../cv.md');
+    const text = await res.text();
+    const data = parseCV(text);
+    renderResume(data);
+  } catch (e) {
+    document.getElementById('resume-container').innerHTML = '<p>Failed to load CV data.</p>';
+  }
+}
+
 // 2. Parse into structured object:
-//    { contact: {...}, summary: string, experience: [{company, role, date, bullets[]}], projects: [{name, tag, desc}], education: [{degree, school, cgpa, dates}], skills: [{category, items: []}] }
-// 3. Read Resume.html
-// 4. Generate HTML string from parsed data
-// 5. Replace content between markers or via regex targeting #resume-container innerHTML
-// 6. Write back to Resume.html
+//    { contact: {...}, summary: string, experience: [{company, role, date, bullets[]}],
+//      projects: [{name, tag, desc}], education: [{degree, school, cgpa, dates}],
+//      skills: [{category, items: []}] }
+function parseCV(text) { ... }
+
+// 3. Render parsed data into #resume-container via DOM manipulation
+function renderResume(data) {
+  const container = document.getElementById('resume-container');
+  container.innerHTML = '';
+  container.appendChild(renderHeader(data.contact));
+  container.appendChild(renderSection('Professional Summary', renderSummary(data.summary), true));
+  container.appendChild(renderSection('Work Experience', renderExperience(data.experience), false));
+  container.appendChild(renderSection('Projects', renderProjects(data.projects), false));
+  container.appendChild(renderSection('Education', renderEducation(data.education), false));
+  container.appendChild(renderSection('Skills', renderSkills(data.skills), false));
+}
+
+// 4. Call loadCV() at the end of the script
 ```
 
 ### Parsing logic
+
+Same line-by-line approach, but in browser JS:
 
 - **Contact block**: Lines 2-7 of cv.md (`**Location:**`, `**Email:**`, etc.)
 - **Sections**: Split on `## ` headers
@@ -84,37 +110,33 @@ A single `sync-cv.js` script at the repo root that:
 - **Projects**: `- **Name** (Tag) -- Description`
 - **Education**: `- Degree, School (CGPA) Dates`
 
-### Replacement strategy
+### Rendering helpers
 
-Use regex to find the content between `<div id="resume-container">` and its closing `</div>` (the outermost one), or use marker comments:
+Each section gets a helper function that returns a DOM element:
 
-```html
-<!-- SYNC_START -->
-...generated content...
-<!-- SYNC_END -->
-```
-
-Insert markers once; subsequent runs replace between them.
+- `renderHeader(contact)` → `#resume-header` div with contact links
+- `renderSection(title, contentEl, active)` → `.resume-section` div with toggle header and collapsible content
+- `renderSummary(text)` → `<p>` element
+- `renderExperience(jobs)` → `.job` divs with `h3`, `h4`, `p.job-date`, `ul > li`
+- `renderProjects(projects)` → `.project` divs with `h3` + `.project-tag`, `p`
+- `renderEducation(items)` → `.education` divs with `h3`, `p`, `p.job-date`
+- `renderSkills(categories)` → `.skills-grid` > `.skill-category` divs
 
 ## Files
 
 | File | Action |
 |---|---|
-| `sync-cv.js` | **Create** — the sync script |
-| `pages/Resume/Resume.html` | **Edit once** — add `<!-- SYNC_START -->` / `<!-- SYNC_END -->` markers around `#resume-container` content |
-| `cv.md` | **Unchanged** — remains source of truth |
-| `.github/workflows/sync-cv.yml` | **Create** (optional) — GitHub Action that runs `node sync-cv.js` on push to `cv.md` and commits the result |
+| `pages/Resume/Resume.html` | **Edit** — empty `#resume-container`, add inline `<script>` with fetch/parse/render logic |
+| `pages/Resume/Resume.css` | **Unchanged** — existing styles already match the generated HTML structure |
+| `cv.md` | **Unchanged** — remains source of truth, fetched at runtime |
 
 ## Execution order
 
-1. Add `<!-- SYNC_START -->` / `<!-- SYNC_END -->` markers to `Resume.html`
-2. Create `sync-cv.js` with parsing + generation logic
-3. Test: run `node sync-cv.js`, diff output against current `Resume.html`
-4. (Optional) Create `.github/workflows/sync-cv.yml` for auto-sync on push
+1. Empty the hardcoded content inside `#resume-container` in `Resume.html` (keep the div itself)
+2. Add the `loadCV()` script block inside `<script>` in `Resume.html`
+3. Implement parsing functions (`parseCV` and section-specific parsers)
+4. Implement rendering functions (DOM manipulation helpers)
+5. Test: open `Resume.html` in browser — should look identical to current
+6. Edit `cv.md`, refresh — change should appear immediately
 
-## Verification
 
-1. Run `node sync-cv.js`
-2. Open `pages/Resume/Resume.html` in browser — should look identical to current
-3. Edit `cv.md` (add a bullet, change a date), re-run, verify change appears
-4. Ensure header/footer/script are untouched

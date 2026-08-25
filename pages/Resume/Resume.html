@@ -36,201 +36,7 @@
 
   <section data-section="resume">
     <div id="resume-container">
-      <div id="resume-header">
-        <p class="resume-contact">
-          <span>Delhi, 110076</span> | 
-          <a href="mailto:ujjwalv99@protonmail.com">ujjwalv99@protonmail.com</a> |
-          <a href="https://linkedin.com/in/ujjwal-verma99" target="_blank">LinkedIn</a> |
-          <a href="https://github.com/ujjuboi" target="_blank">GitHub</a> 
-        </p>
-      </div>
-
-      <div class="resume-section">
-        <h2 class="section-title active" onclick="toggleSection(this)">
-          <span class="title-text">Professional Summary</span>
-          <span class="toggle-icon">-</span>
-        </h2>
-        <div class="section-content" style="display: block;">
-          <p>Full-stack developer with 4+ years of experience in building enterprise-scale applications and AI-powered workflows. Specialized in Next.js, Express.js, SpringBoot, and AI integration for identity data analytics. Successfully transitioned from risk analysis to full-stack development with expertise in microservices, cloud platforms (AWS), and AI-driven automation solutions.</p>
-        </div>
-      </div>
-
-      <div class="resume-section">
-        <h2 class="section-title" onclick="toggleSection(this)">
-          <span class="title-text">Work Experience</span>
-          <span class="toggle-icon">+</span>
-        </h2>
-        <div class="section-content" style="display: none;">
-          <div class="job">
-            <h3>Deloitte USI -- Gurugram</h3>
-            <h4>Software Engineer 2 - DI App Factory</h4>
-            <h4 class="job-date">June 2026 - Present</h4>
-            <ul>
-              <li>Conducted architectural design study comparing DDX and Service Center data ingestion approaches, identifying that DDX's S3 + MongoDB GridFS architecture enabled faster and more scalable processing</li>
-              <li>Enhanced data ingestion capabilities by developing configurable API integration for trusted data sources with custom mapping functionality to align client data points with internal schema attributes</li>
-              <li>Improved bulk import performance from 100K to 400K records per batch, enabling processing of large-scale datasets with 500% increase in throughput</li>
-              <li>Implemented LDIF data ingestion for users, computers, and groups, with architectural redesign to handle group memberships more efficiently by creating a dedicated group membership collection with object references between groups, users, and applications</li>
-              <li>Designed and implemented schema attributes to establish relationships between SailPoint, Okta, and PingFederate data points (applications, accounts, identities, entitlements, workstations) and directory users, groups, and computers</li>
-              <li>Optimized MongoDB data ingestion from 10 to 1,500 records/sec through comprehensive performance profiling, new indexing strategies, batch size optimization, and bulk write operations instead of findOneAndUpdate, enabling ingestion of 18 million group membership records in just 3-4 hours (90% reduction in processing time)</li>
-              <li>Led architectural decision-making process to balance system performance with compliance requirements, determining that while S3 uploads would provide better scalability, the additional AWS compliance overhead made optimizing existing MongoDB operations a more practical solution</li>
-              <li>Identified data upload bottleneck between the ec2 instance server on which the app image was deployed and the mongo server instance, moving the db server to the same location to reduce network latency during import</li>
-              <li>Successfully migrating DDX's data classification, definition and usecases feature into app factory to identify orphan groups, inactive service accounts making it cross platform instead of DDX's specific directory data, creating correlation between inactive service accounts in business application, groups and entitlements</li>
-              <li>Extended the existing feature to track and alert on data ingestion errors, creating a quality gate check feature to create custom business rulesets that the data is ran upon and is staged before writing it to the db</li>
-              <li>Created business application specific workflows to resolve shared groups, identify potential owners of orphan groups, generate description for entitlements based on metadata</li>
-            </ul>
-          </div>
-
-          <div class="job">
-            <h3>Deloitte USI -- Gurugram</h3>
-            <h4>Software Engineer 1 - DI App Factory</h4>
-            <p class="job-date">Dec 2025 - June 2026</p>
-            <ul>
-              <li>Developed, tested, and documented features for a large-scale enterprise onboarding and governance platform.</li>
-              <li>Designed migration roadmap from modular monolith to microservices architecture by defining bounded contexts and service communication patterns.</li>
-              <li>Built AI-powered GitHub Agentic Workflows using GitHub Actions, markdown-defined workflows, gh aw CLI, and GitHub Copilot / Claude / Codex engines for autonomous pull request automation with secure guardrails.</li>
-              <li>Implemented Grumpy Code Reviewer using tools.github and LLM agents to review PRs, detect maintainability issues, and improve code review turnaround time.</li>
-              <li>Added intelligent lint-check workflows using bash tools, repository context tools, and PR triggers to validate coding standards and prevent unnecessary code changes.</li>
-              <li>Created automated jobs to generate PR descriptions from linked issues using GitHub issues + pull_requests toolsets, contextual summarization agents, and safe outputs.</li>
-              <li>Built Continuous AI workflows to automatically update Confluence documentation using web-fetch / web-search tools, external integrations, and scheduled GitHub Actions pipelines.</li>
-              <li>Developed AI-assisted Playwright regression test generation workflows using playwright tools, issue context, PR metadata, and browser automation for release validation.</li>
-              <li>Built both high-code and low-code AI agents using LangChain, integrating prompt chains, tool-calling flows, retrieval pipelines, and enterprise automation use cases.</li>
-              <li>Configured PR-triggered CI/CD pipelines so all review, documentation, testing, and quality workflows executed automatically on pull request creation.</li>
-            </ul>
-          </div>
-
-          <div class="job">
-            <h3>Deloitte USI -- Gurugram</h3>
-            <h4>Associate Software Developer - DI App Factory</h4>
-            <p class="job-date">July 2025 - Dec 2025</p>
-            <ul>
-              <li>Adapted to a new technology stack (Next.js, ExpressJS, MongoDB, Redis) and software development lifecycle, contributing to bug fixes, feature implementation, and peer code reviews.</li>
-              <li>Delivered on high-priority client requirements by enhancing user experience (UX) through optimized data handling with MongoDB aggregation pipelines, identified and resolved critical performance related bugs in API calls.</li>
-            </ul>
-          </div>
-
-          <div class="job">
-            <h3>Deloitte USI -- Gurugram</h3>
-            <h4>Associate Software Developer - DDPX</h4>
-            <p class="job-date">Nov 2023 - July 2025</p>
-            <ul>
-              <li>Worked as a full stack developer on a large-scale identity data analytics tool (DDPX), involving design, development, testing, and documentation.</li>
-              <li>Designed and implemented role based access control (RBAC) in Java for monolithic application, creating a whitelist of APIs and blocking all by default using multi-tenant handler in SpringBoot.</li>
-              <li>Set up SAML external Identity Provider like Okta, OAuth, AWS Cognito and Microsoft Azure Graph to make the tool more accessible.</li>
-              <li>Researched offerings like Wiz and SkyArk to build a PoC integrating AWS IAM data using AWS SDK for Java, extending tool capabilities.</li>
-              <li>Developed diverse analytics use cases by correlating identity sources such as Active Directory, Microsoft Entra ID, and AWS IAM through MongoDB queries.</li>
-              <li>Built visual graph-based analytics with React Flow and ChartJS to find security vulnerabilities in identity data.</li>
-              <li>Optimized dynamic data presentation in Next.js using dynamic routing and API payload tuning; reduced data load time by 50% with Bootstrap Table pagination.</li>
-              <li>Displaying data for each use case using dynamic routing in NextJS, reduced data load time by 50% by using pagination in Bootstrap Table and modifying payload in API.</li>
-              <li>Created algorithms for ownership attribution in privileged entities with 95% accuracy, blending deterministic methods and Llama-powered probabilistic approaches.</li>
-              <li>Directed client engagements involving analysis of 100,000+ records across multiple domains, uncovering vulnerabilities and flagging 80% of the data.</li>
-            </ul>
-          </div>
-
-          <div class="job">
-            <h3>Deloitte USI -- Gurugram</h3>
-            <h4>Risk & Financial Advisory Analyst - DDPX</h4>
-            <p class="job-date">June 2022 - Nov 2023</p>
-            <ul>
-              <li>Developed an AI agent using machine learning (Spacy3, NLTK) to identify potential owners of IAM principals based on description and info attributes.</li>
-              <li>Deloitte AI Academy Certified – 8-week bootcamp covering Hadoop, PySpark, Tableau, GCP Vertex AI, NumPy, and Pandas.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="resume-section">
-        <h2 class="section-title" onclick="toggleSection(this)">
-          <span class="title-text">Projects</span>
-          <span class="toggle-icon">+</span>
-        </h2>
-        <div class="section-content" style="display: none;">
-          <div class="project">
-            <h3>Sensor Data Communication <span class="project-tag">Open Source</span></h3>
-            <p>Real-time dashboard with 0.3ms downtime to display remote sensor data using MQTT, WebSockets - Pub/Sub, and Django.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="resume-section">
-        <h2 class="section-title" onclick="toggleSection(this)">
-          <span class="title-text">Education</span>
-          <span class="toggle-icon">+</span>
-        </h2>
-        <div class="section-content" style="display: none;">
-          <div class="education">
-            <h3>BTech. Computer Science & Engineering</h3>
-            <p>University of Petroleum & Energy Studies</p>
-            <p class="job-date">May 2018 - Dec 2022 |CGPA: 7.66/10</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="resume-section">
-        <h2 class="section-title" onclick="toggleSection(this)">
-          <span class="title-text">Skills</span>
-          <span class="toggle-icon">+</span>
-        </h2>
-        <div class="section-content" style="display: none;">
-          <div class="skills-grid">
-            <div class="skill-category">
-              <h3>Frontend/Backend</h3>
-              <div class="skills-wrapper">
-                <span class="skill-item">NextJS</span>
-                <span class="skill-item">ExpressJS</span>
-                <span class="skill-item">React Flow</span>
-                <span class="skill-item">ChartJS</span>
-                <span class="skill-item">Django</span>
-                <span class="skill-item">DevExpress Charts</span>
-              </div>
-            </div>
-            <div class="skill-category">
-              <h3>Languages/Tools</h3>
-              <div class="skills-wrapper">
-                <span class="skill-item">Java</span>
-                <span class="skill-item">Python</span>
-                <span class="skill-item">JavaScript</span>
-                <span class="skill-item">TypeScript</span>
-                <span class="skill-item">Git</span>
-                <span class="skill-item">Bash</span>
-              </div>
-            </div>
-            <div class="skill-category">
-              <h3>Databases</h3>
-              <div class="skills-wrapper">
-                <span class="skill-item">MongoDB</span>
-                <span class="skill-item">Redis</span>
-                <span class="skill-item">MySQL</span>
-              </div>
-            </div>
-            <div class="skill-category">
-              <h3>Cloud/AI</h3>
-              <div class="skills-wrapper">
-                <span class="skill-item">AWS</span>
-                <span class="skill-item">GCP</span>
-                <span class="skill-item">Docker</span>
-                <span class="skill-item">LangChain</span>
-                <span class="skill-item">Spacy 3</span>
-                <span class="skill-item">NLTK</span>
-                <span class="skill-item">Hadoop</span>
-                <span class="skill-item">PySpark</span>
-                <span class="skill-item">Tableau</span>
-                <span class="skill-item">GCP Vertex AI</span>
-                <span class="skill-item">Numpy</span>
-                <span class="skill-item">Pandas</span>
-              </div>
-            </div>
-            <div class="skill-category">
-              <h3>Infrastructure</h3>
-              <div class="skills-wrapper">
-                <span class="skill-item">GitHub Actions</span>
-                <span class="skill-item">Microservices</span>
-                <span class="skill-item">Modular Monolith</span>
-                <span class="skill-item">MCP</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Loading... -->
     </div>
   </section>
 
@@ -312,6 +118,340 @@
       header.style.display = "none";
       resumeContainer.style.display = "block";
     });
+
+    // CV Runtime Loader
+    async function loadCV() {
+      try {
+        const res = await fetch('../../cv.md');
+        if (!res.ok) throw new Error('Failed to fetch CV');
+        const text = await res.text();
+        const data = parseCV(text);
+        renderResume(data);
+      } catch (e) {
+        resumeContainer.innerHTML = '<p style="text-align:center;padding:2rem;">Failed to load CV data.</p>';
+      }
+    }
+
+    function parseCV(text) {
+      const lines = text.split('\n');
+      const data = { contact: {}, summary: '', experience: [], projects: [], education: [], skills: [] };
+      const fields = { Location: 'location', Email: 'email', LinkedIn: 'linkedin', Portfolio: 'portfolio', GitHub: 'github' };
+
+      function nextNonBlank(start) {
+        let j = start;
+        while (j < lines.length && lines[j].trim() === '') j++;
+        return j;
+      }
+
+      function sectionLines(start) {
+        const result = [];
+        let j = start;
+        while (j < lines.length && !lines[j].startsWith('## ')) {
+          result.push(lines[j]);
+          j++;
+        }
+        return result;
+      }
+
+      // Contact
+      for (let i = 1; i < lines.length && !lines[i].startsWith('## '); i++) {
+        const line = lines[i].trim();
+        for (const [key, field] of Object.entries(fields)) {
+          if (line.startsWith('**' + key + ':**')) {
+            data.contact[field] = line.split('**' + key + ':**')[1].trim();
+          }
+        }
+      }
+
+      // Find sections
+      let i = 0;
+      while (i < lines.length && !lines[i].startsWith('## ')) i++;
+
+      while (i < lines.length) {
+        const section = lines[i].replace(/^## /, '').trim();
+
+        if (section === 'Professional Summary') {
+          i = nextNonBlank(i + 1);
+          const end = sectionLines(i);
+          data.summary = end.filter(l => l.trim()).join(' ');
+          i += end.length;
+          continue;
+        }
+
+        if (section === 'Work Experience') {
+          const block = sectionLines(i + 1);
+          let job = null;
+          for (const line of block) {
+            if (line.startsWith('### ')) {
+              if (job) data.experience.push(job);
+              job = { company: line.replace(/^### /, '').trim(), role: '', date: '', bullets: [] };
+            } else if (job) {
+              const t = line.trim();
+              if (t === '') continue;
+              if (t.startsWith('**') && t.endsWith('**') && !job.role) {
+                job.role = t.slice(2, -2);
+              } else if (t.startsWith('- ')) {
+                job.bullets.push(t.slice(2));
+              } else if (t && !job.date) {
+                job.date = t;
+              }
+            }
+          }
+          if (job) data.experience.push(job);
+          i += block.length;
+          continue;
+        }
+
+        if (section === 'Projects') {
+          const block = sectionLines(i + 1);
+          for (const line of block) {
+            const t = line.trim();
+            if (!t.startsWith('- ')) continue;
+            const content = t.slice(2);
+            const name = content.split('**')[1] || '';
+            const afterName = content.split(')')[0] || '';
+            const tag = afterName.split('(')[1] || '';
+            const desc = content.split('--')[1] || '';
+            data.projects.push({ name: name.trim(), tag: tag.trim(), desc: desc.trim() });
+          }
+          i += block.length;
+          continue;
+        }
+
+        if (section === 'Education') {
+          const block = sectionLines(i + 1);
+          for (const line of block) {
+            const t = line.trim();
+            if (!t.startsWith('- ')) continue;
+            const content = t.slice(2);
+            const degree = content.split(',')[0].trim();
+            const rest = content.split(',')[1] || '';
+            const school = rest.split('(')[0].trim();
+            const cgpa = rest.includes('(') ? rest.split('(')[1].split(')')[0].trim() : '';
+            const dates = rest.includes(')') ? rest.split(')')[1].trim() : '';
+            data.education.push({ degree, school, cgpa, dates });
+          }
+          i += block.length;
+          continue;
+        }
+
+        if (section === 'Skills') {
+          const block = sectionLines(i + 1);
+          for (const line of block) {
+            const t = line.trim();
+            if (!t.startsWith('- ')) continue;
+            const content = t.slice(2);
+            const category = content.split('**')[1] || '';
+            const items = (content.split(':**')[1] || '').split(',').map(s => s.trim());
+            data.skills.push({ category, items });
+          }
+          i += block.length;
+          continue;
+        }
+
+        i++;
+      }
+
+      return data;
+    }
+
+    function renderResume(data) {
+      const container = document.getElementById('resume-container');
+      container.innerHTML = '';
+      container.appendChild(renderHeader(data.contact));
+      container.appendChild(renderSection('Professional Summary', renderSummary(data.summary), true));
+      container.appendChild(renderSection('Work Experience', renderExperience(data.experience), false));
+      container.appendChild(renderSection('Projects', renderProjects(data.projects), false));
+      container.appendChild(renderSection('Education', renderEducation(data.education), false));
+      container.appendChild(renderSection('Skills', renderSkills(data.skills), false));
+    }
+
+    function renderHeader(contact) {
+      const header = document.createElement('div');
+      header.id = 'resume-header';
+      
+      const p = document.createElement('p');
+      p.className = 'resume-contact';
+      
+      const parts = [];
+      if (contact.location) parts.push('<span>' + escapeHtml(contact.location) + '</span>');
+      if (contact.email) parts.push('<a href="mailto:' + escapeHtml(contact.email) + '">' + escapeHtml(contact.email) + '</a>');
+      if (contact.linkedin) parts.push('<a href="https://' + escapeHtml(contact.linkedin) + '" target="_blank">LinkedIn</a>');
+      if (contact.portfolio) parts.push('<a href="https://' + escapeHtml(contact.portfolio) + '" target="_blank">Portfolio</a>');
+      if (contact.github) parts.push('<a href="https://' + escapeHtml(contact.github) + '" target="_blank">GitHub</a>');
+      
+      p.innerHTML = parts.join(' | ');
+      header.appendChild(p);
+      return header;
+    }
+
+    function renderSection(title, contentEl, active) {
+      const section = document.createElement('div');
+      section.className = 'resume-section';
+      if (active) {
+        section.className += ' active';
+      }
+      
+      const h2 = document.createElement('h2');
+      h2.className = 'section-title' + (active ? ' active' : '');
+      h2.onclick = function() { toggleSection(this); };
+      
+      const titleText = document.createElement('span');
+      titleText.className = 'title-text';
+      titleText.textContent = title;
+      
+      const toggleIcon = document.createElement('span');
+      toggleIcon.className = 'toggle-icon';
+      toggleIcon.textContent = active ? '-' : '+';
+      
+      h2.appendChild(titleText);
+      h2.appendChild(toggleIcon);
+      
+      const content = document.createElement('div');
+      content.className = 'section-content';
+      content.style.display = active ? 'block' : 'none';
+      
+      if (contentEl) {
+        content.appendChild(contentEl);
+      }
+      
+      section.appendChild(h2);
+      section.appendChild(content);
+      return section;
+    }
+
+    function renderSummary(text) {
+      const p = document.createElement('p');
+      p.textContent = text || '';
+      return p;
+    }
+
+    function renderExperience(jobs) {
+      const wrapper = document.createDocumentFragment();
+      jobs.forEach(job => {
+        const div = document.createElement('div');
+        div.className = 'job';
+        
+        const h3 = document.createElement('h3');
+        h3.textContent = job.company || '';
+        div.appendChild(h3);
+        
+        const h4 = document.createElement('h4');
+        h4.textContent = job.role || '';
+        div.appendChild(h4);
+        
+        const p = document.createElement('p');
+        p.className = 'job-date';
+        p.textContent = job.date || '';
+        div.appendChild(p);
+        
+        if (job.bullets && job.bullets.length) {
+          const ul = document.createElement('ul');
+          job.bullets.forEach(bullet => {
+            const li = document.createElement('li');
+            li.textContent = bullet;
+            ul.appendChild(li);
+          });
+          div.appendChild(ul);
+        }
+        
+        wrapper.appendChild(div);
+      });
+      return wrapper;
+    }
+
+    function renderProjects(projects) {
+      const wrapper = document.createDocumentFragment();
+      projects.forEach(proj => {
+        const div = document.createElement('div');
+        div.className = 'project';
+        
+        const h3 = document.createElement('h3');
+        h3.textContent = proj.name || '';
+        if (proj.tag) {
+          const tag = document.createElement('span');
+          tag.className = 'project-tag';
+          tag.textContent = proj.tag;
+          h3.appendChild(tag);
+        }
+        div.appendChild(h3);
+        
+        if (proj.desc) {
+          const p = document.createElement('p');
+          p.textContent = proj.desc;
+          div.appendChild(p);
+        }
+        
+        wrapper.appendChild(div);
+      });
+      return wrapper;
+    }
+
+    function renderEducation(items) {
+      const wrapper = document.createDocumentFragment();
+      items.forEach(edu => {
+        const div = document.createElement('div');
+        div.className = 'education';
+        
+        const h3 = document.createElement('h3');
+        h3.textContent = edu.degree || '';
+        div.appendChild(h3);
+        
+        const p = document.createElement('p');
+        p.textContent = [edu.school, edu.cgpa].filter(Boolean).join(' ') || edu.school || '';
+        div.appendChild(p);
+        
+        if (edu.dates) {
+          const dateP = document.createElement('p');
+          dateP.className = 'job-date';
+          dateP.textContent = edu.dates;
+          div.appendChild(dateP);
+        }
+        
+        wrapper.appendChild(div);
+      });
+      return wrapper;
+    }
+
+    function renderSkills(categories) {
+      const div = document.createElement('div');
+      div.className = 'skills-grid';
+      
+      categories.forEach(cat => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'skill-category';
+        
+        const h3 = document.createElement('h3');
+        h3.textContent = cat.category || '';
+        catDiv.appendChild(h3);
+        
+        const wrapper = document.createElement('div');
+        wrapper.className = 'skills-wrapper';
+        
+        if (cat.items) {
+          cat.items.forEach(item => {
+            const span = document.createElement('span');
+            span.className = 'skill-item';
+            span.textContent = item;
+            wrapper.appendChild(span);
+          });
+        }
+        
+        catDiv.appendChild(wrapper);
+        div.appendChild(catDiv);
+      });
+      
+      return div;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Load CV on page load
+    loadCV();
   </script>
 </body>
 </html>
