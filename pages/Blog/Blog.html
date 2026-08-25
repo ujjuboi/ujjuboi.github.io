@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./style.css"/>
+  <link rel="stylesheet" href="../../style.css"/>
   <link rel="stylesheet" href="./Blog.css"/>
   <title>Blog - Ujjwal Verma</title>
 </head>
@@ -14,8 +14,8 @@
     <h1 id="brand">Ujjwal Verma</h1>
     <nav>
       <ul>
-        <li><a href="index.html" target="_self">Home</a></li>
-        <li><a href="./Resume.html" target="_self">Resume</a></li>
+        <li><a href="../../index.html" target="_self">Home</a></li>
+        <li><a href="../Resume/Resume.html" target="_self">Resume</a></li>
         <li><a class="active" href="./Blog.html" target="_self">Blog</a></li>
         <li><a onclick="notice()" href="#">Projects</a></li>
       </ul>
@@ -85,10 +85,10 @@
         title: "Scaling Identity Data Ingestion: MongoDB at Enterprise Scale",
         date: "August 22, 2026",
         excerpt: "How we optimized a data ingestion pipeline to process 18M group memberships in 4 hours — from 10 to 1,500 records/sec.",
-        banner: "./Images/Graphics/MongoDB.svg",
+        banner: "../../Images/Graphics/MongoDB.svg",
         category: "Deloitte",
         paragraphs: [
-          "<p>When we joined DI App Factory at Deloitte as Software Engineers, we were tasked with building a data ingestion pipeline capable of handling millions of records across multiple identity sources — Active Directory, SailPoint, Okta, PingFederate, and AWS IAM. The scale was staggering: seventeen million group membership records, MongoDB ingest rates stuck at ten records per second, and client datasets containing hundreds of millions of records. The challenge wasn't just storage — it was throughput.</p>",
+          "<p>When I joined DI App Factory at Deloitte as Software Engineer, our team was tasked with building a data ingestion pipeline capable of handling millions of records across multiple identity sources — Active Directory, SailPoint, Okta, PingFederate, and AWS IAM. The scale was staggering: seventeen million group membership records, MongoDB ingest rates stuck at ten records per second, and client datasets containing hundreds of millions of records. The challenge wasn't just storage — it was throughput.</p>",
           "<p>The first breakthrough came from profiling the ingestion pipeline. Initial profiling revealed that our write pattern was the bottleneck, not CPU or memory. We were performing too many individual <code>findOneAndUpdate</code> operations, each requiring separate network round-trips, locks, and index updates. The solution required replacing individual operations with bulk write operations, implementing new indexing strategies to reduce fragmentation, and optimizing batch sizes to align with MongoDB's internal buffer configurations. Combined, these improvements increased ingestion rates from ten to fifteen hundred records per second — a 150x improvement.</p>",
           "<p>The implications were dramatic. What previously would have taken days of continuous processing could now be completed in three to four hours — a 90% reduction in processing time. Bulk import throughput improved from 100K to 400K records per batch (500% increase), enabling us to ingest 18 million group membership records within standard maintenance windows.</p>",
           "<p>Another bottleneck emerged from network latency: the EC2 instance running the application and the MongoDB server were in different network locations, adding milliseconds per operation that compounded into hours over millions of records. The fix was straightforward — move the database server to the same location as the application server — but it highlighted a key lesson: every optimization creates new constraints that must be managed.</p>",
@@ -102,7 +102,7 @@
         title: "Teaching Machines to Read Legal Documents",
         date: "August 10, 2026",
         excerpt: "Building an NLP pipeline that turns PDFs, DOCs, and DOCX legal files into structured JSON — section extraction with SpaCy, multi-format parsing, and the dataset problem that stalled our custom NER model.",
-        banner: "./Images/Graphics/LegalDocuments.svg",
+        banner: "../../Images/Graphics/LegalDocuments.svg",
         category: "Personal Projects",
         paragraphs: [
           "<p>Legal documents have a way of actively resisting structure. Court judgments, appeals, petitions — each one arrives in a different template, a different format, with its own idea of where the parties end and the submissions begin. Anyone who has had to manually inspect a stack of these documents knows how slow and error-prone the process is. So I built a tool with one goal: take any legal document and emit structured JSON capturing its key features and entities, so the information inside can be consumed programmatically instead of skimmed by eye.</p>",
@@ -119,7 +119,7 @@
         title: "Teaching CI to Think: Agentic Workflows on GitHub Actions",
         date: "June 30, 2026",
         excerpt: "How we turned a modular monolith migration plan, code review, linting, PR descriptions, documentation, and regression tests into autonomous AI-powered GitHub Actions workflows.",
-        banner: "./Images/Graphics/GithubActions.svg",
+        banner: "../../Images/Graphics/GithubActions.svg",
         category: "Deloitte",
         paragraphs: [
           "<p>Between December 2025 and June 2026, we served as Software Engineers on Deloitte's DI App Factory team. The most interesting work wasn't a feature on the product roadmap — it was turning our own software development lifecycle into software. We built a family of AI-powered <em>agentic workflows</em> on GitHub Actions that reviewed code, enforced standards, described changes, updated documentation, and generated regression tests — autonomously, but safely.</p>",
@@ -140,7 +140,7 @@
         title: "Getting into AI/ML Agents",
         date: "February 17, 2026",
         excerpt: "My journey from writing scripts to building autonomous AI agents — the tools, frameworks, and lessons learned along the way.",
-        banner: "./Images/Graphics/Mind.svg",
+        banner: "../../Images/Graphics/Mind.svg",
         category: "Research",
         paragraphs: [
           "<p>Artificial Intelligence has always fascinated me, but it wasn't until I started working with Large Language Models (LLMs) that I truly understood what 'intelligence' in a machine could mean. The concept of agents — systems that can reason, plan, and act autonomously — is reshaping how we think about software.</p>",
@@ -154,7 +154,7 @@
         title: "Side Projects & Building for Fun",
         date: "December 14, 2025",
         excerpt: "Why I build side projects, the tools I love, and a technical deep dive into building a CLI movie ticket booking system in C++ and other solo projects.",
-        banner: "./Images/Graphics/Movie.svg",
+        banner: "../../Images/Graphics/Movie.svg",
         category: "Personal Projects",
         paragraphs: [
           "<p>There's a special kind of creativity that comes from building things simply because you want to. While my day job at Deloitte keeps me busy with enterprise-scale identity governance platforms and real-time sensor dashboards, my side projects are where I explore fundamentals, experiment with different languages, and push my learning boundaries.</p>",
@@ -169,7 +169,7 @@
         title: "Real-time Sensor Dashboards w/ MQTT & WebSockets",
         date: "November 8, 2025",
         excerpt: "Building a real-time monitoring system with 0.3ms downtime using MQTT, Pub/Sub, and WebSockets for remote sensor data streaming.",
-        banner: "./Images/Graphics/SensorData.svg",
+        banner: "../../Images/Graphics/SensorData.svg",
         category: "Personal Projects",
         paragraphs: [
           "<p>In the world of IoT, real-time data is everything. Over the past few months, I've been working on a sensor data communication project that streams live telemetry from remote sensors to a web dashboard with minimal latency.</p>",
@@ -183,7 +183,7 @@
         title: "Directory Data Analytics and Identity Correlation at Scale",
         date: "April 18, 2025",
         excerpt: "Building visual graph-based analytics to find security vulnerabilities in identity data across Active Directory, AWS IAM, and Microsoft Entra ID.",
-        banner: "./Images/Graphics/ActiveDirectory.svg",
+        banner: "../../Images/Graphics/ActiveDirectory.svg",
         category: "Deloitte",
         paragraphs: [
           "<p>At Deloitte, we worked on DDPX — a large-scale identity data analytics platform that helps enterprises discover security vulnerabilities and governance issues hidden within their identity infrastructure. The tool ingests data from Active Directory, Microsoft Entra ID, AWS IAM, and other identity sources, then surfaces insights like orphan groups, inactive service accounts, and risky permission assignments.</p>",
@@ -199,7 +199,7 @@
         title: "Legacy Stacks vs Modern Frameworks",
         date: "October 3, 2024",
         excerpt: "How my first PHP project — a Rock Paper Scissors game — taught me fundamentals that still shape how I build with Next.js and modern frameworks today.",
-        banner: "./Images/Graphics/php.png",
+        banner: "../../Images/Graphics/php.png",
         category: "Research",
         paragraphs: [
           "<p>Let me set the record straight: legacy technologies aren't dead. In fact, they power a massive portion of the web that most modern framework evangelists forget exists. My early development work with PHP through a beginner project — a Rock Paper Scissors game with login functionality — taught me things that no React tutorial ever could.</p>",
