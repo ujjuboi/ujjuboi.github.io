@@ -76,7 +76,7 @@ function renderBlogList() {
 
     grouped.forEach(({ post, index }) => {
       const card = document.createElement('div');
-      card.className = 'post-card';
+      card.className = 'post-card card';
       card.id = 'post-' + index;
       card.style.animationDelay = (delayIndex * 0.1) + 's';
       card.onclick = () => showPost(index);

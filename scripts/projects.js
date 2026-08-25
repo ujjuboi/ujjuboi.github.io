@@ -47,7 +47,7 @@ async function fetchGitHubStats() {
       if (description.length > 120) description = description.slice(0, 117) + '...';
 
       const card = document.createElement('a');
-      card.className = 'repo-card';
+      card.className = 'repo-card card';
       card.href = repo.html_url;
       card.target = '_blank';
       card.innerHTML = `
