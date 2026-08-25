@@ -272,46 +272,7 @@
   </footer>
 
 
-  <script>
-    function notice(){
-      alert("Under Development!");
-    };
-
-    function toggleSection(header) {
-      const content = header.nextElementSibling;
-      const icon = header.querySelector('.toggle-icon');
-      
-      if (content.style.display === 'none') {
-        content.style.display = 'block';
-        icon.textContent = '-';
-      } else {
-        content.style.display = 'none';
-        icon.textContent = '+';
-      }
-      
-      header.classList.toggle('active');
-    }
-
-    var footer = document.querySelector('footer');
-    var menuIcon = document.getElementById('menuIcon');
-    var header = document.querySelector('header');
-    var resumeContainer = document.getElementById('resume-container');
-
-    menuIcon.addEventListener('click', () => {
-      menuIcon.style.display = "none";
-      header.style.display = "block";
-      resumeContainer.style.display = "none";
-      footer.style.height = "10vh";
-      footer.style.bottom = "1%";
-    });
-
-    footer.addEventListener('click', () => {
-      menuIcon.style.display = "block";
-      footer.style.height = "18vh";
-      footer.style.bottom = "4%";
-      header.style.display = "none";
-      resumeContainer.style.display = "block";
-    });
-  </script>
+  <script src="../../scripts/shared.js"></script>
+  <script src="../../scripts/resume.js"></script>
 </body>
 </html>

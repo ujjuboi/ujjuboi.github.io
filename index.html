@@ -87,47 +87,6 @@
     </ul>
   </footer>
 </body>
-<script>
-  const dateObj = new Date();
-  const hour = dateObj.getHours();
-
-  function setGreet() {
-    if (6 <= hour && hour < 12) {
-      return "Good Morning!"
-    } else if (12 <= hour && hour < 17) {
-      return "Good Afternoon!"
-    } else if (17 <= hour && hour < 22) {
-      return "Good Evening!"
-    } else if (22 <= hour) {
-      return "Good Evening, You should be in bed by now!"
-    }
-  }
-
-  document.getElementById("salutation").innerHTML = setGreet();
-
-  function notice(){
-    alert("Under Development!");
-  };  
-
-  var footer = document.querySelector('footer');
-  var hero = document.getElementById('hero');
-  var menuIcon = document.getElementById('menuIcon');
-  var header = document.querySelector('header');
-
-  menuIcon.addEventListener('click', () => {
-    menuIcon.style.display = "none";
-    header.style.display = "block";
-    hero.style.display = "none";
-    footer.style.height = "10vh";
-    footer.style.bottom = "1%";
-  });
-
-  footer.addEventListener('click', () => {
-    menuIcon.style.display = "block";
-    footer.style.height = "18vh";
-    footer.style.bottom = "4%";
-    header.style.display = "none";
-    hero.style.display = "flex";
-  });
-</script>
+<script src="./scripts/shared.js"></script>
+<script src="./scripts/home.js"></script>
 </html>
