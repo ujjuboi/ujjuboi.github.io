@@ -17,6 +17,10 @@ Making my own dynamic blogging website!
 ## File tree
 
 ```
+├── .opencode/
+│   └── skills/
+│       └── quick-blog/
+│           └── SKILL.md
 ├── Images/
 │   ├── Graphics/
 │   │   ├── ActiveDirectory.svg
@@ -35,19 +39,39 @@ Making my own dynamic blogging website!
 │   └── Signature 1.svg
 ├── pages/
 │   ├── Blog/
-│   │   ├── Blog.css
 │   │   └── Blog.html
 │   ├── Projects/
-│   │   ├── Projects.css
 │   │   └── Projects.html
 │   └── Resume/
-│       ├── Resume.css
 │       └── Resume.html
+├── scripts/
+│   ├── blog.js
+│   ├── home.js
+│   ├── projects.js
+│   ├── resume.js
+│   └── shared.js
+├── src/
+│   ├── Blogs/
+│   │   ├── 01-scaling-identity-data.md
+│   │   ├── 02-teaching-machines-to-read.md
+│   │   ├── 03-teaching-ci-to-think.md
+│   │   ├── 04-getting-into-ai-ml-agents.md
+│   │   ├── 05-side-projects.md
+│   │   ├── 06-real-time-sensor-dashboards.md
+│   │   ├── 07-directory-data-analytics.md
+│   │   ├── 08-legacy-stacks.md
+│   │   ├── posts.json
+│   │   └── template.md
+│   └── cv.md
+├── styles/
+│   ├── Blog.css
+│   ├── common.css
+│   ├── Projects.css
+│   ├── Resume.css
+│   └── style.css
 ├── .gitignore
-├── cv.md
 ├── index.html
-├── README.md
-└── style.css
+└── README.md
 ```
 
 ## Page inventory
@@ -55,9 +79,9 @@ Making my own dynamic blogging website!
 | Page | Loads | Inline `<script>` does |
 |---|---|---|
 | `index.html` | `style.css` | Time-based greeting into `#salutation`; `notice()` alerts for unbuilt nav links; menu-icon logic |
-| `pages/Blog/Blog.html` | `style.css` + `Blog.css` | `notice()` alerts for unbuilt nav links; Hardcoded `posts[]` array; `renderBlogList()` grouped by category; `showPost()`/`showBlogList()` view-swap; theme-select + menu-icon logic |
-| `pages/Projects/Projects.html` | `style.css` + `Projects.css` | `notice()` alerts for unbuilt nav links; `toggleSection()` collapsible sections (+/- icons); LeetCode stats via third-party API; GitHub API integration for repos/stats; menu-icon logic |
-| `pages/Resume/Resume.html` | `style.css` + `Resume.css` | `notice()` alerts for unbuilt nav links; `toggleSection()` collapsible sections (+/- icons); menu-icon logic |
+| `pages/Blog/Blog.html` | `style.css` | `notice()` alerts for unbuilt nav links; menu-icon logic |
+| `pages/Projects/Projects.html` | `style.css` | `notice()` alerts for unbuilt nav links; `toggleSection()` collapsible sections (+/- icons); LeetCode stats via third-party API; menu-icon logic |
+| `pages/Resume/Resume.html` | `style.css` | `notice()` alerts for unbuilt nav links; menu-icon logic |
 
 ## Key details / conventions
 
@@ -69,11 +93,6 @@ Making my own dynamic blogging website!
 - **Unbuilt routes**: `../../index.html`, `../Resume/Resume.html`, `../Blog/Blog.html`, `../Projects/Projects.html`, `./Blog.html` currently call `notice()` ("Under Development!")
 - **Content source**: `cv.md` is the canonical CV text; `Resume.html` renders a subset of it. Update both when resume content changes.
 - **Git**: Default branch is `main`; deploys straight from repo root to GitHub Pages. Keep everything relative-pathed (`./style.css`, not absolute paths).
-
-## API Integrations
-
-- **LeetCode**: `https://leetcode-stats.tashif.codes/ujjuboi` (with graceful degradation on failure)
-- **GitHub**: `api.github.com/users/ujjuboi` for stats and repos
 
 ## Latest Blog Post
 
