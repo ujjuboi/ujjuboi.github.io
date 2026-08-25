@@ -75,7 +75,7 @@ function renderBlogList() {
 
     const content = document.createElement('div');
     content.className = 'section-content';
-    content.style.display = 'block';
+    content.style.display = sectionIndex === 0 ? 'block' : 'none';
 
     const grid = document.createElement('div');
     grid.className = 'post-grid';
@@ -85,6 +85,7 @@ function renderBlogList() {
       card.className = 'post-card card';
       card.id = 'post-' + index;
       card.style.animationDelay = (delayIndex * 0.1) + 's';
+      card.style.margin = 'auto';
       card.onclick = () => showPost(index);
       card.innerHTML = `
         <h3 class="card-title">${post.title}</h3>

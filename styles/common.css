@@ -66,6 +66,11 @@ body.sub-page section {
   background-color: var(--contentColor);
 }
 
+.section-heading.active .title-text,
+.section-heading.active .toggle-icon {
+  color: var(--borderColor);
+}
+
 .title-text {
   flex: 1;
 }
