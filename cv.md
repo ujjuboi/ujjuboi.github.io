@@ -3,7 +3,6 @@
 **Location:** Delhi, 110076
 **Email:** ujjwalv99@protonmail.com
 **LinkedIn:** linkedin.com/in/ujjwal-verma99
-**Portfolio:** ujjuboi.github.io
 **GitHub:** github.com/ujjuboi
 
 ## Professional Summary

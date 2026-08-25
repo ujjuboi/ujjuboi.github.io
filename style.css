@@ -126,12 +126,6 @@ header nav ul li a {
   padding: 0.5rem 1rem;
 }
 
-.active {
-  padding: 10%;
-  border: 0.15rem solid var(--shadowColor);
-  border-radius: 20%;
-}
-
 section {
   margin: 1%;
 }
