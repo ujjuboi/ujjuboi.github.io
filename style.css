@@ -92,21 +92,21 @@ header nav ul li a {
   left: 0;
   min-width: 140px;
   background-color: var(--backgroundColor);
-  border: 0.2rem solid var(--borderColor);
+  border: 0.15rem solid var(--borderColor);
   border-radius: 0.3rem;
   list-style: none;
-  padding: 0.5rem 0;
-  margin: 0;
+  padding: 0.3rem 0;
+  margin: 0.3rem 0 0;
   z-index: 100;
 }
 
-.nav-dropdown:hover .dropdown {
+.nav-dropdown.dropdown-open .dropdown {
   display: block;
 }
 
 .dropdown li a {
   display: block;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 1rem;
   font-size: 0.9rem;
   color: var(--shadowColor);
   text-decoration: none;
