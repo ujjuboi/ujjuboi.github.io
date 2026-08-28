@@ -56,6 +56,11 @@ function parsePostBody(text) {
 function renderBlogList() {
   const container = document.getElementById('blog-list');
   container.innerHTML = '';
+  const loading = document.getElementById('blog-loading');
+  if (loading) {
+    loading.classList.add('fade-out');
+    loading.addEventListener('animationend', () => loading.remove(), { once: true });
+  }
   let sectionIndex = 0;
   let delayIndex = 0;
   categories.forEach(category => {

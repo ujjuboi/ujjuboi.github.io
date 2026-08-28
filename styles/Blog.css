@@ -4,6 +4,37 @@
   gap: 1.5rem;
 }
 
+.loading-placeholder {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1rem;
+  color: var(--shadowColor);
+  opacity: 0.7;
+}
+
+.dot {
+  opacity: 0;
+  animation: dotPulse 1.4s infinite;
+}
+
+.dot1 { animation-delay: 0s; }
+.dot2 { animation-delay: 0.2s; }
+.dot3 { animation-delay: 0.4s; }
+
+@keyframes dotPulse {
+  0%, 20% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.fade-out {
+  animation: fadeOut 0.4s ease forwards;
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; }
+}
+
 .blog-section {
   min-width: 0;
 }
