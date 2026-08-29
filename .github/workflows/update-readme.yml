@@ -95,7 +95,7 @@ jobs:
             }
 
             function getLeetcodeApi() {
-              var projectsPath = 'pages/Projects/Projects.html';
+              var projectsPath = 'pages/MySpace/MySpace.html';
               if (!fs.existsSync(projectsPath)) return null;
               var content = fs.readFileSync(projectsPath, 'utf8');
               var match = content.match(/https:\/\/leetcode-stats\.tashif\.codes\/[\w]+/);
@@ -103,7 +103,7 @@ jobs:
             }
 
             function getGitHubUser() {
-              var projectsPath = 'pages/Projects/Projects.html';
+              var projectsPath = 'pages/MySpace/MySpace.html';
               if (!fs.existsSync(projectsPath)) return null;
               var content = fs.readFileSync(projectsPath, 'utf8');
               var match = content.match(/api\.github\.com\/users\/[\w-]+/);
@@ -118,7 +118,7 @@ jobs:
             }
 
             function detectNoticeRoutes() {
-              var files = ['index.html', 'pages/Resume/Resume.html', 'pages/Blog/Blog.html', 'pages/Projects/Projects.html'];
+              var files = ['index.html', 'pages/Resume/Resume.html', 'pages/Blog/Blog.html', 'pages/MySpace/MySpace.html'];
               var routes = [];
               for (var fi = 0; fi < files.length; fi++) {
                 var file = files[fi];
@@ -185,7 +185,7 @@ jobs:
                 details.push('Recent activity / commit via GitHub API (`fetchRecentActivity()`)');
               }
               if (scripts.indexOf('shared.js') !== -1) {
-                details.push('`shared.js` (`notice()`, dropdown + footer `menuIcon` toggle via `initMenuToggle()`)');
+                details.push('`shared.js` (footer `menuIcon` toggle via `initMenuToggle()`)');
               }
 
               return { styles: styles, scripts: scripts, details: details };
@@ -268,7 +268,7 @@ jobs:
             lines.push('- **Shared header/footer**: The `<header>` (brand + nav dropdown) and footer social-SVG block are **duplicated verbatim across pages** \u2014 any nav or footer change must be applied to every page. `.active` class marks the current page\'s nav link. Sub-pages use `<body class="sub-page">`; `index.html` does not.');
             var sharedCssLabel = sharedStyles.length ? sharedStyles.map(function(s) { return '`' + s + '`'; }).join(', ') : 'none';
             var sharedJsLabel = sharedScripts.length ? sharedScripts.map(function(s) { return '`' + s + '`'; }).join(', ') : 'none';
-            lines.push('- **Shared JS/CSS**: Files loaded by every page: CSS ' + sharedCssLabel + '; JS ' + sharedJsLabel + '. `scripts/shared.js` provides `notice()`, nav-dropdown logic, and the footer `menuIcon` toggle (`initMenuToggle()`); `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,projects,resume}.js` and page CSS in `styles/{Blog,Projects,Resume}.css`. Load order: `style.css` (\+ `common.css` on sub-pages) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.');
+            lines.push('- **Shared JS/CSS**: Files loaded by every page: CSS ' + sharedCssLabel + '; JS ' + sharedJsLabel + '. `scripts/shared.js` provides the footer `menuIcon` toggle (`initMenuToggle()`); `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,myspace,resume}.js` and page CSS in `styles/{Blog,MySpace,Resume}.css`. Load order: `style.css` (\+ `common.css` on sub-pages) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.');
             lines.push('- **Theming**: All colors and fonts come from CSS custom properties in `:root` of `style.css` (`--borderColor`, `--backgroundColor`, `--shadowColor`, `--contentColor`, `--headings`, `--poppins`, etc.). Never hardcode colors \u2014 use the variables. Fonts are imported at the top of `style.css`.');
             lines.push('- **Layout**: `index.html` is a full-height grid hero; sub-pages use `body.sub-page` and scroll normally (they do **not** use `overflow:hidden`). Sections are often collapsible (`toggleSection()` / `toggleBlogSection()` with +/- icons). Uses `720px` breakpoint for responsive work.');
             lines.push('- **Visual language**: Beige background, black borders, offset solid box-shadows (`--shadowColor`), rounded corners. Reuse existing patterns (`.card`, `.skill-item`, `.stat-card` styling) rather than inventing new ones.');

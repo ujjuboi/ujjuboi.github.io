@@ -361,7 +361,7 @@ async function fetchGitHubIssues() {
       const title = document.createElement('h3');
       title.className = 'card-title';
       const tagSpan = document.createElement('span');
-      tagSpan.className = 'project-tag';
+      tagSpan.className = 'myspace-tag';
       tagSpan.textContent = tag;
       const titleText = document.createElement('span');
       titleText.textContent = item.title;
@@ -407,4 +407,4 @@ fetchRecentActivity();
 fetchLeetCodeStats();
 loadLatestPost();
 fetchGitHubIssues();
-initMenuToggle('#projects-container');
+initMenuToggle('#myspace-container');

@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../../styles/Home.css"/>
   <link rel="stylesheet" href="../../styles/styles.css"/>
-  <link rel="stylesheet" href="../../styles/Projects.css"/>
-  <title>Projects - Ujjwal Verma</title>
+  <link rel="stylesheet" href="../../styles/MySpace.css"/>
+  <title>MySpace - Ujjwal Verma</title>
 </head>
 <body class="sub-page">
   <span id="menuIcon">&lt;</span>
@@ -18,21 +18,15 @@
         <li><a href="../../index.html" target="_self">Home</a></li>
         <li><a href="../Resume/Resume.html" target="_self">Resume</a></li>
         <li><a href="../Blog/Blog.html" target="_self">Blog</a></li>
-        <li class="nav-dropdown">
-          <a href="#">Projects</a>
-          <ul class="dropdown">
-            <li><a href="./Projects.html" target="_self" class="active">Professional</a></li>
-            <li><a onclick="notice()" href="#">mySpace</a></li>
-          </ul>
-        </li>
+        <li><a href="./MySpace.html" target="_self" class="active">MySpace</a></li>
       </ul>
     </nav>
   </header>
 
-  <section data-section="projects">
-    <div id="projects-container" class="page-container">
+  <section data-section="myspace">
+    <div id="myspace-container" class="page-container">
 
-      <div class="projects-section">
+      <div class="myspace-section">
         <h2 class="section-heading active" onclick="toggleSection(this)">
           <span class="title-text">Currently Working On</span>
           <span class="toggle-icon">-</span>
@@ -41,7 +35,7 @@
           <div id="activity-card" class="card">
             <h3 class="card-title">
               <span id="repo-name"></span>
-              <span class="project-tag">Commit</span>
+              <span class="myspace-tag">Commit</span>
             </h3>
             <p id="commit-message" class="card-excerpt"></p>
             <a id="commit-link" class="card-link" href="#" target="_blank">View on GitHub →</a>
@@ -56,7 +50,7 @@
         </div>
       </div>
 
-      <div class="projects-section">
+      <div class="myspace-section">
         <h2 class="section-heading" onclick="toggleSection(this)">
           <span class="title-text">GitHub Repositories</span>
           <span class="toggle-icon">+</span>
@@ -73,7 +67,7 @@
         </div>
       </div>
 
-      <div class="projects-section">
+      <div class="myspace-section">
         <h2 class="section-heading" onclick="toggleSection(this)">
           <span class="title-text">Latest from the Blog</span>
           <span class="toggle-icon">+</span>
@@ -89,7 +83,7 @@
         </div>
       </div>
 
-      <div class="projects-section">
+      <div class="myspace-section">
         <h2 class="section-heading" onclick="toggleSection(this)">
           <span class="title-text">LeetCode Progress</span>
           <span class="toggle-icon">+</span>
@@ -178,6 +172,6 @@
 
 
   <script src="../../scripts/shared.js"></script>
-  <script src="../../scripts/projects.js"></script>
+  <script src="../../scripts/myspace.js"></script>
 </body>
 </html>
