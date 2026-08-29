@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../../styles/style.css"/>
-  <link rel="stylesheet" href="../../styles/common.css"/>
+  <link rel="stylesheet" href="../../styles/Home.css"/>
+  <link rel="stylesheet" href="../../styles/styles.css"/>
   <link rel="stylesheet" href="../../styles/Blog.css"/>
   <title>Blog - Ujjwal Verma</title>
 </head>
@@ -32,7 +32,9 @@
   <section data-section="blog">
     <div id="blog-container" class="page-container">
       <div id="blog-list">
-        <!-- Post cards injected by JS -->
+        <div class="loading-placeholder" id="blog-loading">
+          Loading posts<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+        </div>
       </div>
 
       <div id="post-view" style="display: none;">

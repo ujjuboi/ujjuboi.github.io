@@ -45,6 +45,7 @@
 .resume-section:nth-child(6) { animation-delay: 0.5s; }
 
 .section-content {
+  animation: fadeIn ease 0.5s;
   padding: 2% 3%;
   background-color: var(--contentColor);
   border: 0.2rem solid var(--borderColor);
