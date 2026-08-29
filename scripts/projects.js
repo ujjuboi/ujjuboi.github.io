@@ -68,23 +68,44 @@ async function fetchGitHubStats() {
   }
 }
 
+let recentActivityOk = false;
+let gitHubIssuesOk = false;
+
+function syncActivityFallback() {
+  const fallback = document.getElementById('activity-fallback');
+  if (!recentActivityOk && !gitHubIssuesOk) {
+    fallback.style.display = 'block';
+  } else {
+    fallback.style.display = 'none';
+  }
+}
+
 async function fetchRecentActivity() {
   try {
     const repos = await cachedFetch('https://api.github.com/users/ujjuboi/repos?sort=updated&per_page=1');
-    if (repos.length === 0) return;
+    if (repos.length === 0) {
+      syncActivityFallback();
+      return;
+    }
 
     const latestRepo = repos[0];
-    const commits = await cachedFetch(`https://api.github.com/repos/ujjuboi/${latestRepo.name}/commits?per_page=1`);
-    if (commits.length === 0) return;
+    const commits = await cachedFetch(`https://api.github.com/repos/ujjuboi/${latestRepo.name}/commits?per_page=10`);
+    const userCommit = commits.find(c => c.author && c.author.login === 'ujjuboi');
+    if (!userCommit) {
+      syncActivityFallback();
+      return;
+    }
 
-    const commit = commits[0];
+    const commit = userCommit;
     document.getElementById('repo-name').textContent = latestRepo.name;
     document.getElementById('commit-message').textContent = commit.commit.message;
     document.getElementById('commit-link').href = commit.html_url;
     document.getElementById('activity-card').style.display = 'block';
+    recentActivityOk = true;
+    syncActivityFallback();
   } catch (error) {
     console.error('Recent activity error:', error);
-    document.getElementById('activity-fallback').style.display = 'block';
+    syncActivityFallback();
   }
 }
 
@@ -144,8 +165,72 @@ async function loadLatestPost() {
   }
 }
 
+async function fetchGitHubIssues() {
+  try {
+    const data = await cachedFetch('https://api.github.com/search/issues?q=author:ujjuboi+state:open&sort=created&order=desc&per_page=10');
+    const items = data && Array.isArray(data.items) ? data.items : null;
+    if (!items || items.length === 0) throw new Error('No open issues');
+
+    const grid = document.getElementById('issues-grid');
+    document.getElementById('issues-loading').style.display = '';
+
+    const cards = items.slice(0, 6).map((item) => {
+      const isPR = item.pull_request !== undefined;
+      const repoName = (item.repository_url || '').replace('https://api.github.com/repos/', '');
+      const card = document.createElement('a');
+      card.className = 'post-card card';
+      card.href = item.html_url;
+      card.target = '_blank';
+      const tag = isPR ? 'PR' : 'Issue';
+      const created = new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+      const title = document.createElement('h3');
+      title.className = 'card-title';
+      const tagSpan = document.createElement('span');
+      tagSpan.className = 'project-tag';
+      tagSpan.textContent = tag;
+      const titleText = document.createElement('span');
+      titleText.textContent = item.title;
+      title.appendChild(titleText);
+      title.appendChild(tagSpan);
+
+      const date = document.createElement('p');
+      date.className = 'card-date';
+      date.textContent = `${repoName} · ${created}`;
+
+      let excerpt = (item.body || '').replace(/[#*`>\[\]()!-]/g, ' ').replace(/\s+/g, ' ').trim();
+      if (excerpt.length > 120) excerpt = excerpt.slice(0, 117) + '...';
+      const excerptP = document.createElement('p');
+      excerptP.className = 'card-excerpt';
+      excerptP.textContent = excerpt;
+
+      const link = document.createElement('span');
+      link.className = 'card-link';
+      link.textContent = 'View on GitHub →';
+
+      card.appendChild(title);
+      card.appendChild(date);
+      card.appendChild(excerptP);
+      card.appendChild(link);
+      return card;
+    });
+
+    grid.style.display = '';
+    cards.forEach(c => grid.appendChild(c));
+    document.getElementById('issues-loading').style.display = 'none';
+    gitHubIssuesOk = true;
+    syncActivityFallback();
+  } catch (error) {
+    console.error('GitHub issues error:', error);
+    document.getElementById('issues-loading').style.display = 'none';
+    document.getElementById('issues-grid').style.display = 'none';
+    syncActivityFallback();
+  }
+}
+
 fetchGitHubStats();
 fetchRecentActivity();
 fetchLeetCodeStats();
 loadLatestPost();
+fetchGitHubIssues();
 initMenuToggle('#projects-container');
