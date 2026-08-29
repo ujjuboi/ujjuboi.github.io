@@ -80,6 +80,7 @@
 }
 
 .section-content {
+  animation: fadeIn ease 0.5s;
   transition: all 0.3s ease;
 }
 

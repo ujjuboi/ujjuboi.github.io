@@ -83,9 +83,6 @@ body.sub-page section {
   text-align: center;
 }
 
-.section-content {
-  animation: fadeIn ease 0.5s;
-}
 
 .card-title {
   font-family: var(--headings);
