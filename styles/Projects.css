@@ -79,6 +79,18 @@
   opacity: 0.8;
 }
 
+.project-tag {
+  font-size: 0.8rem;
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+  padding: 0.2% 2%;
+  margin-left: 1.5%;
+  border-radius: 0.5rem;
+  font-family: var(--poppins);
+  font-weight: normal;
+  vertical-align: middle;
+}
+
 .section-content {
   transition: all 0.3s ease;
 }
@@ -143,6 +155,45 @@
   margin-bottom: 1.5rem;
 }
 
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.post-card {
+  animation: fadeIn ease 0.8s;
+  animation-fill-mode: both;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+}
+
+.post-card .card-link {
+  margin-top: auto;
+}
+
+.post-card:nth-child(1) { animation-delay: 0.05s; }
+.post-card:nth-child(2) { animation-delay: 0.15s; }
+.post-card:nth-child(3) { animation-delay: 0.25s; }
+.post-card:nth-child(4) { animation-delay: 0.35s; }
+.post-card:nth-child(5) { animation-delay: 0.45s; }
+
+.post-card .card-title {
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.card-date {
+  color: var(--shadowColor);
+  font-size: 0.9rem;
+  margin: 0 0 0.8rem 0;
+  font-family: var(--poppins);
+  font-weight: normal;
+  opacity: 0.85;
+}
+
 #lc-recent {
   text-align: center;
   font-size: 0.95rem;
@@ -176,5 +227,17 @@
 
   #github-repos-grid {
     grid-template-columns: 1fr;
+  }
+
+  .post-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .post-card .card-title {
+    font-size: 1.05rem;
+  }
+
+  .post-card .card-excerpt {
+    font-size: 0.85rem;
   }
 }
