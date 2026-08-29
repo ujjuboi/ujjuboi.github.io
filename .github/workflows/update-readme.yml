@@ -24,11 +24,46 @@ jobs:
             const fs = require('fs');
             const path = require('path');
 
+            function loadGitignore(dir) {
+              var gitignorePath = path.join(dir, '.gitignore');
+              if (!fs.existsSync(gitignorePath)) return [];
+              return fs.readFileSync(gitignorePath, 'utf8')
+                .split('\n')
+                .map(function(l) { return l.trim(); })
+                .filter(function(l) { return l && !l.startsWith('#'); })
+                .filter(function(l) { return !l.startsWith('!'); });
+            }
+
+            function gitignoreGlobToRegex(pattern) {
+              var p = pattern;
+              var dirOnly = p.endsWith('/');
+              if (dirOnly) p = p.slice(0, -1);
+              var escaped = p
+                .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+                .replace(/\*\*/g, '\u0000')
+                .replace(/\*/g, '[^/]*')
+                .replace(/\u0000/g, '.*');
+              return { re: new RegExp('^' + escaped + '$'), dirOnly: dirOnly };
+            }
+
+            function patternsForDir(dir) {
+              return loadGitignore(dir).map(gitignoreGlobToRegex);
+            }
+
+            function isGitignored(name, isDir, dirPatterns) {
+              return dirPatterns.some(function(g) {
+                if (g.dirOnly && !isDir) return false;
+                return g.re.test(name);
+              });
+            }
+
             function walkDir(dir, prefix) {
               prefix = prefix || '';
+              var dirPatterns = patternsForDir(dir);
               var entries = fs.readdirSync(dir, { withFileTypes: true })
                 .filter(function(e) {
-                  return e.name !== '.git' && e.name !== 'node_modules' && e.name !== '.github' && e.name !== 'plan';
+                  if (e.name === '.git' || e.name === 'node_modules' || e.name === '.github' || e.name === 'plan' || e.name === '.gitignore') return false;
+                  return !isGitignored(e.name, e.isDirectory(), dirPatterns);
                 })
                 .sort(function(a, b) {
                   if (a.isDirectory() !== b.isDirectory()) return a.isDirectory() ? -1 : 1;
@@ -104,20 +139,12 @@ jobs:
                 var file = files[fi];
                 if (!fs.existsSync(file)) continue;
                 var content = fs.readFileSync(file, 'utf8');
-                var matches = content.match(/notice\(\)/g);
-                if (matches && matches.length > 0) {
-                  var navLinks = content.match(/<a[^>]*href="([^"]*)"[^>]*>[^<]*<\/a>/g) || [];
-                  for (var ni = 0; ni < navLinks.length; ni++) {
-                    var hrefMatch = navLinks[ni].match(/href="([^"]*)"/);
-                    if (hrefMatch) {
-                      var href = hrefMatch[1];
-                      if (href && !href.startsWith('#') && !href.startsWith('http') && !href.startsWith('mailto')) {
-                        var resolved = resolveRelative(file, href);
-                        if (!fs.existsSync(resolved)) {
-                          routes.push(href);
-                        }
-                      }
-                    }
+                var anchors = content.match(/<a[^>]*>[\s\S]*?<\/a>/g) || [];
+                for (var ai = 0; ai < anchors.length; ai++) {
+                  if (/\sonclick="notice\(\)"/.test(anchors[ai])) {
+                    var labelMatch = anchors[ai].match(/>([^<]*)<\/a>/);
+                    var label = labelMatch ? labelMatch[1].trim() : null;
+                    if (label) routes.push(label);
                   }
                 }
               }
@@ -127,7 +154,6 @@ jobs:
             function getPageInfo(filePath) {
               if (!fs.existsSync(filePath)) return null;
               var content = fs.readFileSync(filePath, 'utf8');
-              var pageDir = path.dirname(filePath);
 
               function collect(pattern) {
                 var out = [];
@@ -161,7 +187,7 @@ jobs:
               if (jsContent.includes('toggleBlogSection')) {
                 details.push('`toggleBlogSection()` collapsible categories');
               }
-              if (content.includes('toggleSection')) {
+              if (jsContent.includes('toggleSection') || content.includes('toggleSection')) {
                 details.push('`toggleSection()` collapsible sections (+/- icons)');
               }
               if (jsContent.includes('fetchLeetCodeStats') || content.includes('leetcode-stats')) {
@@ -196,8 +222,8 @@ jobs:
             }
 
             var pageRows = '';
-            var sharedScripts = [];
-            var sharedStyles = [];
+            var pageStylesByPage = [];
+            var pageScriptsByPage = [];
             for (var pi = 0; pi < pageList.length; pi++) {
               var info = getPageInfo(pageList[pi]);
               if (info) {
@@ -206,10 +232,20 @@ jobs:
                 var detailsLabel = info.details.join('; ') || 'N/A';
                 pageRows += '| `' + pageList[pi] + '` | ' + stylesLabel + ' | ' + scriptsLabel + ' | ' + detailsLabel + ' |\n';
 
-                info.styles.forEach(function(s) { if (sharedStyles.indexOf(s) === -1) sharedStyles.push(s); });
-                info.scripts.forEach(function(s) { if (sharedScripts.indexOf(s) === -1) sharedScripts.push(s); });
+                pageStylesByPage.push(info.styles);
+                pageScriptsByPage.push(info.scripts);
               }
             }
+
+            function sharedAcross(perPage) {
+              if (perPage.length === 0) return [];
+              return perPage[0].filter(function(f) {
+                return perPage.every(function(list) { return list.indexOf(f) !== -1; });
+              });
+            }
+
+            var sharedStyles = sharedAcross(pageStylesByPage);
+            var sharedScripts = sharedAcross(pageScriptsByPage);
 
             var noticeRoutes = detectNoticeRoutes();
             var leetcodeApi = getLeetcodeApi();
@@ -247,7 +283,9 @@ jobs:
             lines.push('## Key details / conventions');
             lines.push('');
             lines.push('- **Shared header/footer**: The `<header>` (brand + nav dropdown) and footer social-SVG block are **duplicated verbatim across pages** \u2014 any nav or footer change must be applied to every page. `.active` class marks the current page\'s nav link. Sub-pages use `<body class="sub-page">`; `index.html` does not.');
-            lines.push('- **Shared JS/CSS**: `scripts/shared.js` (`.notice()`, nav-dropdown logic, footer `menuIcon` toggle via `initMenuToggle()`) and `styles/common.css` are loaded by **every page**; `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,projects,resume}.js` and page CSS in `styles/{Blog,Projects,Resume}.css`. Load order: `style.css` (\+ `common.css`) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.');
+            var sharedCssLabel = sharedStyles.length ? sharedStyles.map(function(s) { return '`' + s + '`'; }).join(', ') : 'none';
+            var sharedJsLabel = sharedScripts.length ? sharedScripts.map(function(s) { return '`' + s + '`'; }).join(', ') : 'none';
+            lines.push('- **Shared JS/CSS**: Files loaded by every page: CSS ' + sharedCssLabel + '; JS ' + sharedJsLabel + '. `scripts/shared.js` provides `notice()`, nav-dropdown logic, and the footer `menuIcon` toggle (`initMenuToggle()`); `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,projects,resume}.js` and page CSS in `styles/{Blog,Projects,Resume}.css`. Load order: `style.css` (\+ `common.css` on sub-pages) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.');
             lines.push('- **Theming**: All colors and fonts come from CSS custom properties in `:root` of `style.css` (`--borderColor`, `--backgroundColor`, `--shadowColor`, `--contentColor`, `--headings`, `--poppins`, etc.). Never hardcode colors \u2014 use the variables. Fonts are imported at the top of `style.css`.');
             lines.push('- **Layout**: `index.html` is a full-height grid hero; sub-pages use `body.sub-page` and scroll normally (they do **not** use `overflow:hidden`). Sections are often collapsible (`toggleSection()` / `toggleBlogSection()` with +/- icons). Uses `720px` breakpoint for responsive work.');
             lines.push('- **Visual language**: Beige background, black borders, offset solid box-shadows (`--shadowColor`), rounded corners. Reuse existing patterns (`.card`, `.skill-item`, `.stat-card` styling) rather than inventing new ones.');
