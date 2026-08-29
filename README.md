@@ -22,8 +22,6 @@ Making my own dynamic blogging website!
 │   │   └── quick-blog/
 │   │       └── SKILL.md
 │   ├── .gitignore
-│   ├── package-lock.json
-│   └── package.json
 ├── Images/
 │   ├── Graphics/
 │   │   ├── ActiveDirectory.svg
