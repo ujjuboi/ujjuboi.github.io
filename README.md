@@ -70,8 +70,8 @@ Making my own dynamic blogging website!
 │   ├── Projects.css
 │   ├── Resume.css
 │   └── style.css
-├── index.html
-└── README.md
+├── .gitignore
+└── index.html
 ```
 
 ## Page inventory

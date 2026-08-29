@@ -23,67 +23,52 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
+            const { execSync } = require('child_process');
 
-            function loadGitignore(dir) {
-              var gitignorePath = path.join(dir, '.gitignore');
-              if (!fs.existsSync(gitignorePath)) return [];
-              return fs.readFileSync(gitignorePath, 'utf8')
-                .split('\n')
-                .map(function(l) { return l.trim(); })
-                .filter(function(l) { return l && !l.startsWith('#'); })
-                .filter(function(l) { return !l.startsWith('!'); });
-            }
-
-            function gitignoreGlobToRegex(pattern) {
-              var p = pattern;
-              var dirOnly = p.endsWith('/');
-              if (dirOnly) p = p.slice(0, -1);
-              var escaped = p
-                .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-                .replace(/\*\*/g, '\u0000')
-                .replace(/\*/g, '[^/]*')
-                .replace(/\u0000/g, '.*');
-              return { re: new RegExp('^' + escaped + '$'), dirOnly: dirOnly };
-            }
-
-            function patternsForDir(dir) {
-              return loadGitignore(dir).map(gitignoreGlobToRegex);
-            }
-
-            function isGitignored(name, isDir, dirPatterns) {
-              return dirPatterns.some(function(g) {
-                if (g.dirOnly && !isDir) return false;
-                return g.re.test(name);
-              });
-            }
-
-            function walkDir(dir, prefix) {
-              prefix = prefix || '';
-              var dirPatterns = patternsForDir(dir);
-              var entries = fs.readdirSync(dir, { withFileTypes: true })
-                .filter(function(e) {
-                  if (e.name === '.git' || e.name === 'node_modules' || e.name === '.github' || e.name === 'plan' || e.name === '.gitignore') return false;
-                  return !isGitignored(e.name, e.isDirectory(), dirPatterns);
-                })
-                .sort(function(a, b) {
-                  if (a.isDirectory() !== b.isDirectory()) return a.isDirectory() ? -1 : 1;
-                  return a.name.localeCompare(b.name);
+            function walkDir() {
+              var output = execSync('git ls-files', { encoding: 'utf8' });
+              var files = output.split('\n')
+                .filter(function(l) {
+                  return l && !l.startsWith('plan/') && !l.startsWith('.github/')
+                    && l !== 'README.md' && l !== '.github/workflows/update-readme.yml';
                 });
+              return buildTree(files);
+            }
 
+            function buildTree(files) {
+              var root = { children: {} };
+              files.forEach(function(f) {
+                var parts = f.split('/');
+                var node = root;
+                for (var i = 0; i < parts.length; i++) {
+                  var isFile = i === parts.length - 1;
+                  var key = parts[i];
+                  if (!node.children[key]) {
+                    node.children[key] = { name: key, isDir: !isFile, children: {} };
+                  }
+                  node = node.children[key];
+                }
+              });
+              return renderTree(root.children, '');
+            }
+
+            function renderTree(children, prefix) {
+              var names = Object.keys(children).sort(function(a, b) {
+                if (children[a].isDir !== children[b].isDir) return children[a].isDir ? -1 : 1;
+                return a.localeCompare(b);
+              });
               var lines = [];
-              for (var i = 0; i < entries.length; i++) {
-                var entry = entries[i];
-                var isLast = i === entries.length - 1;
+              for (var i = 0; i < names.length; i++) {
+                var name = names[i];
+                var isLast = i === names.length - 1;
                 var connector = isLast ? '\u2514\u2500\u2500 ' : '\u251C\u2500\u2500 ';
                 var childPrefix = isLast ? '    ' : '\u2502   ';
-
-                if (entry.isDirectory()) {
-                  var dirPath = path.join(dir, entry.name);
-                  var children = walkDir(dirPath, prefix + childPrefix);
-                  lines.push(prefix + connector + entry.name + '/');
-                  lines = lines.concat(children);
+                var node = children[name];
+                if (node.isDir) {
+                  lines.push(prefix + connector + name + '/');
+                  lines = lines.concat(renderTree(node.children, prefix + childPrefix));
                 } else {
-                  lines.push(prefix + connector + entry.name);
+                  lines.push(prefix + connector + name);
                 }
               }
               return lines;
@@ -206,9 +191,7 @@ jobs:
               return { styles: styles, scripts: scripts, details: details };
             }
 
-            var fileTreeLines = walkDir('.', '');
-            var fileTree = fileTreeLines.join('\n');
-
+            var fileTree = walkDir().join('\n');
             var pageList = ['index.html'];
             var dirs = fs.readdirSync('pages', { withFileTypes: true })
               .filter(function(d) { return d.isDirectory(); })
