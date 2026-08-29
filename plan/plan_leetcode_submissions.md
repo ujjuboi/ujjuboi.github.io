@@ -42,5 +42,5 @@ Add:
 - Mobile tweak under the existing `720px` media query.
 
 ## Out of Scope
-- No changes to the existing stats grid, "Last active", "Ranking", or profile link.
+- No changes to the existing stats grid, "Total active days", "Ranking", or profile link.
 - No auth/rate-limit handling beyond the existing `cachedFetch` 30-min TTL.

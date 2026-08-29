@@ -144,13 +144,30 @@
 }
 
 #lc-recent {
-  text-align: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 2rem;
   font-size: 0.95rem;
   color: var(--shadowColor);
 }
 
 #lc-recent p {
-  margin: 0.3rem 0;
+  margin: 0;
+  line-height: 1;
+}
+
+#lc-link {
+  margin-left: auto;
+}
+
+#lc-profile-link {
+  display: inline;
+  margin-top: 0;
+  line-height: 1;
+  vertical-align: baseline;
 }
 
 #lc-fallback {
@@ -253,6 +270,16 @@
 .lc-plot {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lc-total {
+  align-self: flex-end;
+  font-family: var(--headings);
+  font-size: 0.85rem;
+  color: var(--shadowColor);
+  margin-bottom: 0.4rem;
 }
 
 .lc-activity-bars {

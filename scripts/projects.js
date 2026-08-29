@@ -83,6 +83,7 @@ function renderLeetCodeActivity(submissionCalendar) {
         <span class="lc-axis-label lc-axis-label-y">Problems</span>
       </div>
       <div class="lc-plot">
+        <div class="lc-total">${total} total submissions</div>
         <div class="lc-activity-bars">${cols}</div>
       </div>
     </div>
@@ -272,8 +273,8 @@ async function fetchLeetCodeStats() {
       document.getElementById('lc-easy').textContent = data.easySolved;
       document.getElementById('lc-medium').textContent = data.mediumSolved;
       document.getElementById('lc-hard').textContent = data.hardSolved;
-      const lcActiveDays = document.getElementById('lc-active-days');
-      lcActiveDays.textContent = `Last active: ${data.data.totalActiveDays} days`;
+      const lcActiveDays = document.getElementById('lc-total-active-days');
+      lcActiveDays.textContent = `Total active days: ${data.data.totalActiveDays} days`;
       document.getElementById('lc-ranking').textContent = `Ranking: ${data.ranking.toLocaleString()}`;
       fetchLeetCodeActivity();
       fetchRecentSubmissions();
