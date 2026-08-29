@@ -40,14 +40,14 @@ Making my own dynamic blogging website!
 ├── pages/
 │   ├── Blog/
 │   │   └── Blog.html
-│   ├── Projects/
-│   │   └── Projects.html
+│   ├── MySpace/
+│   │   └── MySpace.html
 │   └── Resume/
 │       └── Resume.html
 ├── scripts/
 │   ├── blog.js
 │   ├── home.js
-│   ├── projects.js
+│   ├── myspace.js
 │   ├── resume.js
 │   └── shared.js
 ├── src/
@@ -67,7 +67,7 @@ Making my own dynamic blogging website!
 ├── styles/
 │   ├── Blog.css
 │   ├── Home.css
-│   ├── Projects.css
+│   ├── MySpace.css
 │   ├── Resume.css
 │   └── styles.css
 ├── .gitignore
@@ -80,18 +80,18 @@ Making my own dynamic blogging website!
 |---|---|---|---|
 | `index.html` | `Home.css` | `shared.js`, `home.js` | Time-based greeting into `#salutation`; `shared.js` (`notice()`, dropdown + footer `menuIcon` toggle via `initMenuToggle()`) |
 | `pages/Blog/Blog.html` | `Home.css` + `styles.css` + `Blog.css` | `shared.js`, `blog.js` | Renders posts from `posts.json` manifest; `renderBlogList()` grouped by category; `showPost()`/`showBlogList()` view-swap; `toggleBlogSection()` collapsible categories; `shared.js` (`notice()`, dropdown + footer `menuIcon` toggle via `initMenuToggle()`) |
-| `pages/Projects/Projects.html` | `Home.css` + `styles.css` + `Projects.css` | `shared.js`, `projects.js` | `toggleSection()` collapsible sections (+/- icons); LeetCode stats via third-party API (`fetchLeetCodeStats()`); GitHub repos/stats via GitHub API (`fetchGitHubStats()`); Recent activity / commit via GitHub API (`fetchRecentActivity()`); `shared.js` (`notice()`, dropdown + footer `menuIcon` toggle via `initMenuToggle()`) |
+| `pages/MySpace/MySpace.html` | `Home.css` + `styles.css` + `MySpace.css` | `shared.js`, `myspace.js` | `toggleSection()` collapsible sections (+/- icons); LeetCode stats via third-party API (`fetchLeetCodeStats()`); GitHub repos/stats via GitHub API (`fetchGitHubStats()`); Recent activity / commit via GitHub API (`fetchRecentActivity()`); `shared.js` (`notice()`, dropdown + footer `menuIcon` toggle via `initMenuToggle()`) |
 | `pages/Resume/Resume.html` | `Home.css` + `styles.css` + `Resume.css` | `shared.js`, `resume.js` | `toggleSection()` collapsible sections (+/- icons); `shared.js` (`notice()`, dropdown + footer `menuIcon` toggle via `initMenuToggle()`) |
 
 ## Key details / conventions
 
 - **Shared header/footer**: The `<header>` (brand + nav dropdown) and footer social-SVG block are **duplicated verbatim across pages** — any nav or footer change must be applied to every page. `.active` class marks the current page's nav link. Sub-pages use `<body class="sub-page">`; `index.html` does not.
-- **Shared JS/CSS**: Files loaded by every page: CSS `Home.css`; JS `shared.js`. `scripts/shared.js` provides `notice()`, nav-dropdown logic, and the footer `menuIcon` toggle (`initMenuToggle()`); `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,projects,resume}.js` and page CSS in `styles/{Blog,Projects,Resume}.css`. Load order: `style.css` (+ `common.css` on sub-pages) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.
+- **Shared JS/CSS**: Files loaded by every page: CSS `Home.css`; JS `shared.js`. `scripts/shared.js` provides `notice()`, nav-dropdown logic, and the footer `menuIcon` toggle (`initMenuToggle()`); `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,myspace,resume}.js` and page CSS in `styles/{Blog,MySpace,Resume}.css`. Load order: `style.css` (+ `common.css` on sub-pages) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.
 - **Theming**: All colors and fonts come from CSS custom properties in `:root` of `style.css` (`--borderColor`, `--backgroundColor`, `--shadowColor`, `--contentColor`, `--headings`, `--poppins`, etc.). Never hardcode colors — use the variables. Fonts are imported at the top of `style.css`.
 - **Layout**: `index.html` is a full-height grid hero; sub-pages use `body.sub-page` and scroll normally (they do **not** use `overflow:hidden`). Sections are often collapsible (`toggleSection()` / `toggleBlogSection()` with +/- icons). Uses `720px` breakpoint for responsive work.
 - **Visual language**: Beige background, black borders, offset solid box-shadows (`--shadowColor`), rounded corners. Reuse existing patterns (`.card`, `.skill-item`, `.stat-card` styling) rather than inventing new ones.
 - **Assets**: `Images/` holds shared assets: `MyImage.jpg` (hero photo) plus social/menu/signature SVGs plus `Images/Graphics/` (blog/project banner art). Footer social icons are inline SVGs in the HTML, not `<img>` tags.
-- **Unbuilt routes**: `mySpace` currently call `notice()` ("Under Development!")
+- **Unbuilt routes**: All nav routes are built
 - **Content source**: `src/cv.md` is the canonical CV text; `Resume.html` renders it via `scripts/resume.js`. `src/Blogs/posts.json` is the blog manifest (ordered list of `src/Blogs/*.md`); `Blog.html` renders via `scripts/blog.js`. Update the relevant source when content changes.
 - **Git**: Default branch is `main`; deploys straight from repo root to GitHub Pages. Keep everything relative-pathed (`./style.css`, `../../styles/common.css`), never absolute paths.
 
