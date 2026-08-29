@@ -23,7 +23,6 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            const { execSync } = require('child_process');
 
             function walkDir(dir, prefix) {
               prefix = prefix || '';
@@ -91,8 +90,15 @@ jobs:
               return match ? match[0].split('/').pop() : null;
             }
 
+            function resolveRelative(baseFile, href) {
+              var normalized = href;
+              if (normalized.startsWith('./')) normalized = normalized.slice(2);
+              var baseDir = path.dirname(baseFile);
+              return path.normalize(path.join(baseDir, normalized));
+            }
+
             function detectNoticeRoutes() {
-              var files = ['index.html', 'pages/Resume/Resume.html', 'pages/Blog/Blog.html'];
+              var files = ['index.html', 'pages/Resume/Resume.html', 'pages/Blog/Blog.html', 'pages/Projects/Projects.html'];
               var routes = [];
               for (var fi = 0; fi < files.length; fi++) {
                 var file = files[fi];
@@ -106,8 +112,8 @@ jobs:
                     if (hrefMatch) {
                       var href = hrefMatch[1];
                       if (href && !href.startsWith('#') && !href.startsWith('http') && !href.startsWith('mailto')) {
-                        var targetFile = href.startsWith('.') ? href.slice(2) : href;
-                        if (!fs.existsSync(targetFile)) {
+                        var resolved = resolveRelative(file, href);
+                        if (!fs.existsSync(resolved)) {
                           routes.push(href);
                         }
                       }
@@ -118,45 +124,60 @@ jobs:
               return routes.filter(function(v, i, a) { return a.indexOf(v) === i; });
             }
 
-            function detectPageDetails(filePath) {
+            function getPageInfo(filePath) {
               if (!fs.existsSync(filePath)) return null;
               var content = fs.readFileSync(filePath, 'utf8');
+              var pageDir = path.dirname(filePath);
 
-              var loads = ['`style.css`'];
-              var cssFile = filePath.replace('.html', '.css');
-              if (fs.existsSync(cssFile)) {
-                loads.push('`' + path.basename(cssFile) + '`');
+              function collect(pattern) {
+                var out = [];
+                var re = new RegExp(pattern, 'g');
+                var m;
+                while ((m = re.exec(content)) !== null) out.push(m[1]);
+                return out;
               }
 
-              var scripts = [];
-              if (content.includes('salutation') || content.includes('greeting')) {
-                scripts.push('Time-based greeting into `#salutation`');
+              var cssLinks = collect('href="([^"]*\\.css)"');
+              var scriptSrcs = collect('src="([^"]*\\.js)"');
+
+              var styles = cssLinks.map(function(c) { return path.basename(c); });
+              var scripts = scriptSrcs.map(function(s) { return path.basename(s); });
+
+              var pageScriptSrc = scriptSrcs.filter(function(s) { return path.basename(s) !== 'shared.js'; })[0] || null;
+              var jsContent = '';
+              if (pageScriptSrc && !pageScriptSrc.startsWith('http')) {
+                var jsPath = resolveRelative(filePath, pageScriptSrc);
+                if (fs.existsSync(jsPath)) jsContent = fs.readFileSync(jsPath, 'utf8');
               }
-              if (content.includes('notice()')) {
-                scripts.push('`notice()` alerts for unbuilt nav links');
+
+              var details = [];
+
+              if (jsContent.includes('setGreet') || content.includes('salutation')) {
+                details.push('Time-based greeting into `#salutation`');
+              }
+              if (jsContent.includes('renderBlogList') || jsContent.includes('showPost')) {
+                details.push('Renders posts from `posts.json` manifest; `renderBlogList()` grouped by category; `showPost()`/`showBlogList()` view-swap');
+              }
+              if (jsContent.includes('toggleBlogSection')) {
+                details.push('`toggleBlogSection()` collapsible categories');
               }
               if (content.includes('toggleSection')) {
-                scripts.push('`toggleSection()` collapsible sections (+/- icons)');
+                details.push('`toggleSection()` collapsible sections (+/- icons)');
               }
-              if (content.includes('renderBlogList') || content.includes('showPost')) {
-                scripts.push('Posts from `posts.json` manifest; `renderBlogList()` grouped by category; `showPost()`/`showBlogList()` view-swap');
+              if (jsContent.includes('fetchLeetCodeStats') || content.includes('leetcode-stats')) {
+                details.push('LeetCode stats via third-party API (`fetchLeetCodeStats()`)');
               }
-              if (content.includes('leetcode') || content.includes('LeetCode')) {
-                scripts.push('LeetCode stats via third-party API');
+              if (jsContent.includes('fetchGitHubStats') || content.includes('api.github.com')) {
+                details.push('GitHub repos/stats via GitHub API (`fetchGitHubStats()`)');
               }
-              if (content.includes('api.github.com')) {
-                scripts.push('GitHub API integration for repos/stats');
+              if (jsContent.includes('fetchRecentActivity')) {
+                details.push('Recent activity / commit via GitHub API (`fetchRecentActivity()`)');
               }
-              if (content.includes('theme-select') || content.includes('themeSelect')) {
-                scripts.push('theme-select + menu-icon logic');
-              }
-              if (content.includes('menu-icon') || content.includes('menuIcon')) {
-                if (scripts.every(function(s) { return !s.includes('menu-icon'); })) {
-                  scripts.push('menu-icon logic');
-                }
+              if (scripts.indexOf('shared.js') !== -1) {
+                details.push('`shared.js` (`notice()`, dropdown + footer `menuIcon` toggle via `initMenuToggle()`)');
               }
 
-              return { loads: loads.join(' + '), scripts: scripts.join('; ') || 'N/A' };
+              return { styles: styles, scripts: scripts, details: details };
             }
 
             var fileTreeLines = walkDir('.', '');
@@ -175,10 +196,18 @@ jobs:
             }
 
             var pageRows = '';
+            var sharedScripts = [];
+            var sharedStyles = [];
             for (var pi = 0; pi < pageList.length; pi++) {
-              var details = detectPageDetails(pageList[pi]);
-              if (details) {
-                pageRows += '| `' + pageList[pi] + '` | ' + details.loads + ' | ' + details.scripts + ' |\n';
+              var info = getPageInfo(pageList[pi]);
+              if (info) {
+                var stylesLabel = info.styles.map(function(s) { return '`' + s + '`'; }).join(' + ');
+                var scriptsLabel = info.scripts.map(function(s) { return '`' + s + '`'; }).join(', ');
+                var detailsLabel = info.details.join('; ') || 'N/A';
+                pageRows += '| `' + pageList[pi] + '` | ' + stylesLabel + ' | ' + scriptsLabel + ' | ' + detailsLabel + ' |\n';
+
+                info.styles.forEach(function(s) { if (sharedStyles.indexOf(s) === -1) sharedStyles.push(s); });
+                info.scripts.forEach(function(s) { if (sharedScripts.indexOf(s) === -1) sharedScripts.push(s); });
               }
             }
 
@@ -202,7 +231,7 @@ jobs:
             lines.push('');
             lines.push('# Project Map (for AI agents)');
             lines.push('');
-            lines.push('> Reference this section instead of re-scanning the repo. Static portfolio site: plain HTML/CSS + inline vanilla JS. **No build system, no package manager, no dependencies** \u2014 files are served as-is via GitHub Pages. To preview locally, just open `index.html` in a browser.');
+            lines.push('> Reference this section instead of re-scanning the repo. Static portfolio site: plain HTML + external vanilla JS/CSS files. **No build system, no package manager, no dependencies** \u2014 files are served as-is via GitHub Pages. To preview locally, just open `index.html` in a browser.');
             lines.push('');
             lines.push('## File tree');
             lines.push('');
@@ -212,16 +241,17 @@ jobs:
             lines.push('');
             lines.push('## Page inventory');
             lines.push('');
-            lines.push('| Page | Loads | Inline `<script>` does |');
-            lines.push('|---|---|---|');
+            lines.push('| Page | CSS files | JS files | Behavior |');
+            lines.push('|---|---|---|---|');
             lines.push(pageRows);
             lines.push('## Key details / conventions');
             lines.push('');
-            lines.push('- **Shared header/footer**: The `<header>` (brand + nav) and footer social-SVG block are **duplicated verbatim across pages** \u2014 any nav or footer change must be applied to every page. `.active` class marks the current page\'s nav link.');
+            lines.push('- **Shared header/footer**: The `<header>` (brand + nav dropdown) and footer social-SVG block are **duplicated verbatim across pages** \u2014 any nav or footer change must be applied to every page. `.active` class marks the current page\'s nav link. Sub-pages use `<body class="sub-page">`; `index.html` does not.');
+            lines.push('- **Shared JS/CSS**: `scripts/shared.js` (`.notice()`, nav-dropdown logic, footer `menuIcon` toggle via `initMenuToggle()`) and `styles/common.css` are loaded by **every page**; `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,projects,resume}.js` and page CSS in `styles/{Blog,Projects,Resume}.css`. Load order: `style.css` (\+ `common.css`) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.');
             lines.push('- **Theming**: All colors and fonts come from CSS custom properties in `:root` of `style.css` (`--borderColor`, `--backgroundColor`, `--shadowColor`, `--contentColor`, `--headings`, `--poppins`, etc.). Never hardcode colors \u2014 use the variables. Fonts are imported at the top of `style.css`.');
-            lines.push('- **Layout**: `body` is a CSS grid (`15vh / 60vh / 28vh`) with `overflow: hidden` on desktop pages. Pages that need scrolling must override this (e.g., `Blog.css` sets `body { display:block; overflow-y:auto }`). Uses `720px` breakpoint for responsive work.');
-            lines.push('- **Visual language**: Beige background, black borders, offset solid box-shadows (`--shadowColor`), rounded corners. Reuse existing patterns (`.skill-item` styling) rather than inventing new ones.');
-            lines.push('- **Assets**: `Images/` holds shared assets: `MyImage.jpg` (hero photo) plus social/menu/signature SVGs. Footer social icons are inline SVGs in the HTML, not `<img>` tags.');
+            lines.push('- **Layout**: `index.html` is a full-height grid hero; sub-pages use `body.sub-page` and scroll normally (they do **not** use `overflow:hidden`). Sections are often collapsible (`toggleSection()` / `toggleBlogSection()` with +/- icons). Uses `720px` breakpoint for responsive work.');
+            lines.push('- **Visual language**: Beige background, black borders, offset solid box-shadows (`--shadowColor`), rounded corners. Reuse existing patterns (`.card`, `.skill-item`, `.stat-card` styling) rather than inventing new ones.');
+            lines.push('- **Assets**: `Images/` holds shared assets: `MyImage.jpg` (hero photo) plus social/menu/signature SVGs plus `Images/Graphics/` (blog/project banner art). Footer social icons are inline SVGs in the HTML, not `<img>` tags.');
 
             if (noticeRoutes.length > 0) {
               lines.push('- **Unbuilt routes**: ' + noticeRoutes.map(function(r) { return '`' + r + '`'; }).join(', ') + ' currently call `notice()` ("Under Development!")');
@@ -229,8 +259,8 @@ jobs:
               lines.push('- **Unbuilt routes**: All nav routes are built');
             }
 
-            lines.push('- **Content source**: `cv.md` is the canonical CV text; `Resume.html` renders a subset of it. Update both when resume content changes.');
-            lines.push('- **Git**: Default branch is `main`; deploys straight from repo root to GitHub Pages. Keep everything relative-pathed (`./style.css`, not absolute paths).');
+            lines.push('- **Content source**: `src/cv.md` is the canonical CV text; `Resume.html` renders it via `scripts/resume.js`. `src/Blogs/posts.json` is the blog manifest (ordered list of `src/Blogs/*.md`); `Blog.html` renders via `scripts/blog.js`. Update the relevant source when content changes.');
+            lines.push('- **Git**: Default branch is `main`; deploys straight from repo root to GitHub Pages. Keep everything relative-pathed (`./style.css`, `../../styles/common.css`), never absolute paths.');
 
             if (leetcodeApi) {
               lines.push('');
@@ -255,13 +285,16 @@ jobs:
             lines.push('');
             lines.push('## When making changes');
             lines.push('');
-            lines.push('1. New page \u2192 copy the header/footer structure from an existing page, add its own CSS file, link `style.css` first.');
-            lines.push('2. Style changes \u2192 prefer editing `style.css` variables/components over page-specific overrides.');
-            lines.push('3. Responsive changes \u2192 use the 720px breakpoint convention.');
-            lines.push('4. After edits, verify by opening the affected pages directly in a browser \u2014 there is no linter, test suite, or build step.');
+            lines.push('1. New page \u2192 copy the header/footer + `<script>`/stylesheet block from an existing sub-page, keep the `pages/<Name>/<Name>.html` convention, and add `scripts/<name>.js` + `styles/<Name>.css`.');
+            lines.push('2. Cross-page JS \u2192 put it in `scripts/shared.js`; cross-page CSS \u2192 `styles/common.css`. Page-specific \u2192 the page\'s own file.');
+            lines.push('3. Style changes \u2192 prefer editing `style.css` variables/components over page-specific overrides.');
+            lines.push('4. Responsive changes \u2192 use the 720px breakpoint convention.');
+            lines.push('5. After edits, verify by opening the affected pages directly in a browser \u2014 there is no linter, test suite, or build step.');
 
             fs.writeFileSync('README.md', lines.join('\n'));
             console.log('README.md fully regenerated from repo analysis');
+            console.log('Page inventory rows:');
+            console.log(pageRows);
 
       - name: Commit updated README
         run: |
