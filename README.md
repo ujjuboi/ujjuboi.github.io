@@ -65,10 +65,10 @@ Making my own dynamic blogging website!
 │   └── cv.md
 ├── styles/
 │   ├── Blog.css
-│   ├── common.css
+│   ├── Home.css
 │   ├── Projects.css
 │   ├── Resume.css
-│   └── style.css
+│   └── styles.css
 ├── .gitignore
 ├── index.html
 └── README.md
