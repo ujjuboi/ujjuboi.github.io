@@ -32,6 +32,8 @@ Making my own dynamic blogging website!
 │   │   ├── Movie.svg
 │   │   ├── php.png
 │   │   └── SensorData.svg
+│   ├── application-code-svgrepo-com.svg
+│   ├── back-button-svgrepo-com.svg
 │   ├── email 1.svg
 │   ├── github 1.svg
 │   ├── linkedin 1.svg
@@ -43,12 +45,15 @@ Making my own dynamic blogging website!
 │   │   └── Blog.html
 │   ├── MySpace/
 │   │   └── MySpace.html
+│   ├── Professional/
+│   │   └── Professional.html
 │   └── Resume/
 │       └── Resume.html
 ├── scripts/
 │   ├── blog.js
 │   ├── home.js
 │   ├── myspace.js
+│   ├── professional.js
 │   ├── resume.js
 │   └── shared.js
 ├── src/
@@ -69,6 +74,7 @@ Making my own dynamic blogging website!
 │   ├── Blog.css
 │   ├── Home.css
 │   ├── MySpace.css
+│   ├── Professional.css
 │   ├── Resume.css
 │   └── styles.css
 ├── .gitignore
@@ -82,12 +88,13 @@ Making my own dynamic blogging website!
 | `index.html` | `Home.css` | `shared.js`, `home.js` | Time-based greeting into `#salutation`; `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
 | `pages/Blog/Blog.html` | `Home.css` + `styles.css` + `Blog.css` | `shared.js`, `blog.js` | Renders posts from `posts.json` manifest; `renderBlogList()` grouped by category; `showPost()`/`showBlogList()` view-swap; `toggleBlogSection()` collapsible categories; `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
 | `pages/MySpace/MySpace.html` | `Home.css` + `styles.css` + `MySpace.css` | `shared.js`, `myspace.js` | `toggleSection()` collapsible sections (+/- icons); LeetCode stats via third-party API (`fetchLeetCodeStats()`); GitHub repos/stats via GitHub API (`fetchGitHubStats()`); Recent activity / commit via GitHub API (`fetchRecentActivity()`); `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
+| `pages/Professional/Professional.html` | `Home.css` + `styles.css` + `Professional.css` | `professional.js` | N/A |
 | `pages/Resume/Resume.html` | `Home.css` + `styles.css` + `Resume.css` | `shared.js`, `resume.js` | `toggleSection()` collapsible sections (+/- icons); `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
 
 ## Key details / conventions
 
 - **Shared header/footer**: The `<header>` (brand + nav dropdown) and footer social-SVG block are **duplicated verbatim across pages** — any nav or footer change must be applied to every page. `.active` class marks the current page's nav link. Sub-pages use `<body class="sub-page">`; `index.html` does not.
-- **Shared JS/CSS**: Files loaded by every page: CSS `Home.css`; JS `shared.js`. `scripts/shared.js` provides the footer `menuIcon` toggle (`initMenuToggle()`); `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,myspace,resume}.js` and page CSS in `styles/{Blog,MySpace,Resume}.css`. Load order: `style.css` (+ `common.css` on sub-pages) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.
+- **Shared JS/CSS**: Files loaded by every page: CSS `Home.css`; JS none. `scripts/shared.js` provides the footer `menuIcon` toggle (`initMenuToggle()`); `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,myspace,resume}.js` and page CSS in `styles/{Blog,MySpace,Resume}.css`. Load order: `style.css` (+ `common.css` on sub-pages) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.
 - **Theming**: All colors and fonts come from CSS custom properties in `:root` of `style.css` (`--borderColor`, `--backgroundColor`, `--shadowColor`, `--contentColor`, `--headings`, `--poppins`, etc.). Never hardcode colors — use the variables. Fonts are imported at the top of `style.css`.
 - **Layout**: `index.html` is a full-height grid hero; sub-pages use `body.sub-page` and scroll normally (they do **not** use `overflow:hidden`). Sections are often collapsible (`toggleSection()` / `toggleBlogSection()` with +/- icons). Uses `720px` breakpoint for responsive work.
 - **Visual language**: Beige background, black borders, offset solid box-shadows (`--shadowColor`), rounded corners. Reuse existing patterns (`.card`, `.skill-item`, `.stat-card` styling) rather than inventing new ones.
