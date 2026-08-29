@@ -233,6 +233,11 @@
   margin-top: 1.5rem;
 }
 
+#lc-submissions-card:hover {
+  transform: none;
+  box-shadow: 0.3rem 0.3rem var(--shadowColor);
+}
+
 .lc-activity {
   position: relative;
   min-height: 6rem;
