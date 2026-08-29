@@ -32,7 +32,6 @@ Making my own dynamic blogging website!
 │   │   ├── Movie.svg
 │   │   ├── php.png
 │   │   └── SensorData.svg
-│   ├── .DS_Store
 │   ├── application-code-svgrepo-com.svg
 │   ├── back-button-svgrepo-com.svg
 │   ├── email 1.svg
@@ -78,7 +77,6 @@ Making my own dynamic blogging website!
 │   ├── Professional.css
 │   ├── Resume.css
 │   └── styles.css
-├── .DS_Store
 ├── .gitignore
 └── index.html
 ```
