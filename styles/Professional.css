@@ -67,16 +67,35 @@ body.pro-page {
   transform: translateY(100%);
 }
 
+.launch-banner .hero-block {
+  margin: 3rem 0;
+}
+
+.launch-banner .profiles-block {
+  width: 100%;
+  margin: 2.5rem 0;
+}
+
+.launch-banner .summary-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2.5rem 0;
+}
+
+.launch-banner .links-block {
+  margin: 2.5rem 0;
+}
+
 .launch-btn {
   font-family: var(--poppins);
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--accentDark);
   background-color: var(--accentPrimary);
   border: none;
   border-radius: 0.4rem;
-  padding: 0.9rem;
-  margin-top: 1rem;
+  padding: 1.25rem 2rem 1.25rem 2rem;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -100,16 +119,15 @@ body.pro-page {
 
 .launch-banner .banner-links {
   display: flex;
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: 4rem;
   align-items: center;
 }
 
 .launch-banner .banner-links a {
   display: inline-flex;
   align-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2rem;
+  height: 2rem;
   text-decoration: none;
   transition: transform 0.15s ease;
 }
@@ -130,19 +148,22 @@ body.pro-page {
 
 .launch-banner .banner-links a:hover .link-svg .link-path {
   fill: var(--accentPrimaryHover);
+  background-color: var(--bulletGray);
 }
 
 /* Hero Banner */
-.launch-banner > * {
+.launch-banner>* {
   animation: fadeIn ease 0.8s;
   animation-fill-mode: both;
 }
 
 .launch-banner h1 {
   font-family: var(--headings);
-  font-size: 10rem;
+  font-size: 8rem;
+  margin-bottom: 0;
+  margin-top: 0;
+  font-weight: 500;
   color: var(--editorText);
-  margin: 0 0 0.5rem 0;
   text-align: center;
 }
 
@@ -151,7 +172,7 @@ body.pro-page {
   font-size: 2.5rem;
   font-weight: 500;
   color: var(--accentPrimary);
-  margin: 0 0 2rem 0;
+  margin: 0;
   text-align: center;
 }
 
@@ -190,8 +211,13 @@ body.pro-page {
 }
 
 @keyframes profiles-marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .profiles-item {
@@ -254,17 +280,26 @@ body.pro-page {
 
 .launch-banner .hero-summary {
   font-family: var(--poppins);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   color: var(--editorMuted);
   line-height: 1.6;
-  margin: 3rem;
-  max-width: 75ch;
-  text-align: justify;
+  margin: 0;
+  max-width: 100ch;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
-.launch-banner h1 { animation-delay: 0.1s; }
-.launch-banner .role { animation-delay: 0.25s; }
-.launch-banner .hero-summary { animation-delay: 0.55s; }
+.launch-banner h1 {
+  animation-delay: 0.1s;
+}
+
+.launch-banner .role {
+  animation-delay: 0.25s;
+}
+
+.launch-banner .hero-summary {
+  animation-delay: 0.55s;
+}
 
 /* Sections span the full page width (override .page-container max-width) */
 body.pro-page .page-container {
@@ -279,11 +314,26 @@ body.pro-page .page-container {
   animation: fadeIn ease 0.7s;
   animation-fill-mode: both;
 }
-.pro-section:nth-child(1) { animation-delay: 0.45s; }
-.pro-section:nth-child(2) { animation-delay: 0.55s; }
-.pro-section:nth-child(3) { animation-delay: 0.65s; }
-.pro-section:nth-child(4) { animation-delay: 0.75s; }
-.pro-section:nth-child(5) { animation-delay: 0.85s; }
+
+.pro-section:nth-child(1) {
+  animation-delay: 0.45s;
+}
+
+.pro-section:nth-child(2) {
+  animation-delay: 0.55s;
+}
+
+.pro-section:nth-child(3) {
+  animation-delay: 0.65s;
+}
+
+.pro-section:nth-child(4) {
+  animation-delay: 0.75s;
+}
+
+.pro-section:nth-child(5) {
+  animation-delay: 0.85s;
+}
 
 /* Editor-style content container (grey, like a code editor) */
 .pro-section .section-content {
@@ -292,12 +342,41 @@ body.pro-page .page-container {
 }
 
 /* Token colors (syntax highlighting palette) */
-.tk-kw   { color: var(--tokenKeyword); font-weight: 600; }   /* keywords / tech */
-.tk-co   { color: var(--tokenCompany); font-weight: 600; }   /* companies */
-.tk-role { color: var(--tokenRole); font-weight: 600; }       /* roles */
-.tk-num  { color: var(--tokenNumber); font-weight: 600; }     /* numbers / percents */
-.tk-fn   { color: var(--tokenFunction); }                      /* functions / acronyms */
-.tk-lg   { color: var(--tokenLanguage); font-weight: 600; }   /* language/library identifiers */
+.tk-kw {
+  color: var(--tokenKeyword);
+  font-weight: 600;
+}
+
+/* keywords / tech */
+.tk-co {
+  color: var(--tokenCompany);
+  font-weight: 600;
+}
+
+/* companies */
+.tk-role {
+  color: var(--tokenRole);
+  font-weight: 600;
+}
+
+/* roles */
+.tk-num {
+  color: var(--tokenNumber);
+  font-weight: 600;
+}
+
+/* numbers / percents */
+.tk-fn {
+  color: var(--tokenFunction);
+}
+
+/* functions / acronyms */
+.tk-lg {
+  color: var(--tokenLanguage);
+  font-weight: 600;
+}
+
+/* language/library identifiers */
 
 /* Experience editor bullets */
 .editor-bullets {
@@ -535,9 +614,17 @@ body.pro-page .page-container {
   border-radius: 50%;
 }
 
-.dot-red    { background-color: var(--red); }
-.dot-yellow { background-color: var(--yellow); }
-.dot-green  { background-color: var(--green); }
+.dot-red {
+  background-color: var(--red);
+}
+
+.dot-yellow {
+  background-color: var(--yellow);
+}
+
+.dot-green {
+  background-color: var(--green);
+}
 
 /* Red traffic-light dot doubles as a back control */
 .editor-dot-back {
@@ -726,13 +813,31 @@ body.pro-page .page-container {
   animation: dotPulse 1.2s infinite ease-in-out;
 }
 
-.loading-placeholder .dot1 { animation-delay: 0s; }
-.loading-placeholder .dot2 { animation-delay: 0.2s; }
-.loading-placeholder .dot3 { animation-delay: 0.4s; }
+.loading-placeholder .dot1 {
+  animation-delay: 0s;
+}
+
+.loading-placeholder .dot2 {
+  animation-delay: 0.2s;
+}
+
+.loading-placeholder .dot3 {
+  animation-delay: 0.4s;
+}
 
 @keyframes dotPulse {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-  40% { transform: scale(1); opacity: 1; }
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Error state */
@@ -817,7 +922,7 @@ body.pro-page footer #footer_nav {
 
   /* Keep banner children at natural height so flex doesn't collapse them on short screens;
      overflow-y on the banner scrolls instead. */
-  .launch-banner > * {
+  .launch-banner>* {
     flex-shrink: 0;
   }
 

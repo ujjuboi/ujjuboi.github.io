@@ -110,6 +110,24 @@ function sectionLines(lines, start) {
   return result;
 }
 
+var SORT_MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+var SORT_MONTH_LABELS = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function parseStartSortKey(dateStr) {
+  const m = String(dateStr || '').trim().match(/^([A-Za-z]+)\s+(\d{4})/);
+  if (!m) return 0;
+  const mon = SORT_MONTHS[m[1].toLowerCase().slice(0, 3)];
+  if (!mon) return 0;
+  return parseInt(m[2], 10) * 100 + mon;
+}
+
+function sortKeyToLabel(key) {
+  if (!key) return '';
+  const year = Math.floor(key / 100);
+  const mon = key % 100;
+  return SORT_MONTH_LABELS[mon] ? SORT_MONTH_LABELS[mon] + ' ' + year : '';
+}
+
 function parseCV(text) {
   const lines = text.split('\n');
   const data = { summary: '', experience: [], projects: [], skills: [] };
@@ -144,6 +162,7 @@ function parseCV(text) {
             job.bullets.push(t.slice(2));
           } else if (t && !job.date) {
             job.date = t;
+            job.sortKey = parseStartSortKey(t);
           }
         }
       }
