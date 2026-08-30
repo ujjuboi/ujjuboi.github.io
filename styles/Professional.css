@@ -280,6 +280,22 @@ body.pro-page .page-container {
   overflow: hidden;
 }
 
+.activity-bar {
+  display: none;
+  flex: 0 0 2.75rem;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 0.75rem;
+  background-color: var(--editorBgAlt);
+  border-right: 0.1rem solid #3c3c3c;
+}
+
+.editor-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+}
+
 .directory {
   display: flex;
   flex-direction: column;
@@ -290,6 +306,9 @@ body.pro-page .page-container {
 }
 
 .directory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   flex: 0 0 auto;
   font-family: var(--poppins);
   font-size: 1.1rem;
@@ -298,6 +317,21 @@ body.pro-page .page-container {
   color: var(--editorMuted);
   padding: 0.6rem 0.9rem;
   border-bottom: 0.1rem solid #3c3c3c;
+}
+
+.directory-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0.1rem;
+  cursor: pointer;
+  color: var(--editorMuted);
+}
+
+.directory-toggle:hover {
+  color: #4ec9b0;
 }
 
 .directory-tree {
@@ -656,12 +690,20 @@ body.pro-page footer #footer_nav li svg path {
 
 /* Responsive: max-width 720px */
 @media (max-width: 720px) {
+  .launch-banner {
+    justify-content: flex-start;
+    padding: 2.5rem 0;
+    overflow-y: auto;
+  }
+
   .launch-banner h1 {
-    font-size: 1.6rem;
+    font-size: clamp(2.25rem, 24vw, 4rem);
+    padding-inline: 0.75rem;
   }
 
   .launch-banner .role {
-    font-size: 1rem;
+    font-size: clamp(1.1rem, 6vw, 1.75rem);
+    padding-inline: 0.75rem;
   }
 
   .launch-banner .profiles {
@@ -669,7 +711,10 @@ body.pro-page footer #footer_nav li svg path {
   }
 
   .launch-banner .hero-summary {
-    font-size: 0.85rem;
+    font-size: clamp(0.8rem, 4vw, 1rem);
+    max-width: 100%;
+    padding-inline: 1.25rem;
+    text-align: center;
   }
 
   .editor-tab {
@@ -681,17 +726,40 @@ body.pro-page footer #footer_nav li svg path {
     padding: 1rem;
   }
 
-  .editor-window-body {
+  .activity-bar {
+    display: flex;
+  }
+
+  .editor-content {
     flex-direction: column;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
   }
 
   .directory {
-    flex: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
     width: 100%;
-    max-height: 30vh;
-    position: static;
+    z-index: 5;
     border-right: none;
     border-bottom: 0.1rem solid #3c3c3c;
+    transition: transform 0.35s ease;
+  }
+
+  .directory.open {
+    transform: translateX(-100%);
+  }
+
+  .directory-back {
+    display: none;
+  }
+
+  .directory-toggle {
+    display: flex;
   }
 
   .page-container {

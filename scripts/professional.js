@@ -255,11 +255,30 @@ function setupEditorWindow() {
   });
 
   titlebar.appendChild(redDot);
-  titlebar.innerHTML += '<span class="editor-dot dot-yellow"></span><span class="editor-dot dot-green"></span><span class="editor-filename">portfolio.md \u2014 Ujjwal Verma</span>';
+  titlebar.insertAdjacentHTML('beforeend', '<span class="editor-dot dot-yellow"></span><span class="editor-dot dot-green"></span><span class="editor-filename">portfolio.md \u2014 Ujjwal Verma</span>');
   container.appendChild(titlebar);
 
   const body = document.createElement('div');
   body.className = 'editor-window-body';
+
+  const activityBar = document.createElement('div');
+  activityBar.className = 'activity-bar';
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'directory-toggle';
+  toggle.setAttribute('aria-label', 'Toggle sidebar');
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.title = 'Toggle sidebar';
+  toggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  toggle.addEventListener('click', function () {
+    const open = sidebar.classList.toggle('open');
+    this.setAttribute('aria-expanded', String(open));
+  });
+  activityBar.appendChild(toggle);
+
+  const content = document.createElement('div');
+  content.className = 'editor-content';
 
   const sidebar = document.createElement('div');
   sidebar.className = 'directory';
@@ -282,11 +301,14 @@ function setupEditorWindow() {
   });
   sidebar.appendChild(backBtn);
 
-  body.appendChild(sidebar);
+  content.appendChild(sidebar);
 
   const main = document.createElement('div');
   main.className = 'editor-main';
-  body.appendChild(main);
+  content.appendChild(main);
+
+  body.appendChild(activityBar);
+  body.appendChild(content);
 
   const statusbar = document.createElement('div');
   statusbar.className = 'editor-statusbar';
@@ -311,6 +333,7 @@ function registerDirectoryEntry(title, sectionEl) {
   item.appendChild(icon);
   item.appendChild(name);
   item.onclick = function () {
+    if (editorWindow.sidebar) editorWindow.sidebar.classList.add('open');
     editorWindow.entries.forEach(entry => {
       entry.section.style.display = 'none';
       entry.item.classList.remove('active');
