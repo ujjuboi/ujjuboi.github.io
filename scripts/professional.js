@@ -348,6 +348,37 @@ function setupEditorWindow() {
   return editorWindow;
 }
 
+var SHORT_NAMES = {
+  'Software Engineer 2 - DI App Factory': 'swe-2',
+  'Software Engineer 1 - DI App Factory': 'swe-1',
+  'Associate Software Developer - DI App Factory': 'asoc-dev',
+  'Associate Software Developer - DDPX': 'asoc-ddpx',
+  'Risk & Financial Advisory Analyst - DDPX': 'risk-analyst',
+  'Frontend/Backend': 'frontend',
+  'Languages/Tools': 'languages',
+  'Databases': 'databases',
+  'Cloud/AI': 'cloud',
+  'Infrastructure': 'infra'
+};
+
+var ICON_SRC = '../../Images/information-svgrepo-com.svg';
+
+function shortName(label) {
+  const clean = String(label || '').replace(/:$/, '');
+  if (SHORT_NAMES[clean] !== undefined) return SHORT_NAMES[clean];
+  const slug = clean.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const parts = slug.split('-').filter(Boolean);
+  if (parts.length === 0) return 'file';
+  return parts.slice(0, 2).join('-');
+}
+
+function setActiveFolderHeader() {
+  if (!editorWindow || !editorWindow.folders) return;
+  editorWindow.folders.forEach(folder => {
+    folder.__setActive(false);
+  });
+}
+
 function activateSection(sectionEl, item) {
   if (!editorWindow) return;
   if (editorWindow.sidebar) editorWindow.sidebar.classList.add('open');
@@ -359,23 +390,104 @@ function activateSection(sectionEl, item) {
   });
   sectionEl.style.display = 'block';
   if (item) item.classList.add('active');
+  setActiveFolderHeader();
+  if (item && item.parentElement && item.parentElement.classList.contains('directory-folder-body')) {
+    const folder = item.parentElement.parentElement;
+    if (folder && folder.__setActive) folder.__setActive(true);
+  }
 }
 
-function registerDirectoryEntry(title, sectionEl) {
+function registerDirectoryEntry(title, sectionEl, item) {
   if (!editorWindow) return;
-  const item = document.createElement('div');
-  item.className = 'directory-file';
-  const icon = document.createElement('span');
-  icon.className = 'directory-file-icon';
-  const name = document.createElement('span');
-  name.className = 'directory-file-name';
+  item = item || document.createElement('div');
+  if (!item.classList.contains('directory-file')) item.className = 'directory-file';
+  const icon = item.querySelector('.directory-file-icon') || document.createElement('img');
+  const name = item.querySelector('.directory-file-name') || document.createElement('span');
+  if (!item.querySelector('.directory-file-icon')) {
+    icon.className = 'directory-file-icon';
+    icon.alt = '';
+    icon.src = ICON_SRC;
+    item.appendChild(icon);
+  }
+  if (!item.querySelector('.directory-file-name')) {
+    name.className = 'directory-file-name';
+    item.appendChild(name);
+  }
   name.textContent = title;
-  item.appendChild(icon);
-  item.appendChild(name);
   item.onclick = function () { activateSection(sectionEl, item); };
   sectionEl.style.display = 'none';
   editorWindow.entries.push({ section: sectionEl, item: item });
   editorWindow.tree.appendChild(item);
+  return item;
+}
+
+function registerSectionFolder(name, sectionEl, tabRefs) {
+  if (!editorWindow) return;
+
+  const folder = document.createElement('div');
+  folder.className = 'directory-folder open';
+
+  const header = document.createElement('div');
+  header.className = 'directory-folder-header';
+
+  const caret = document.createElement('span');
+  caret.className = 'directory-caret';
+  caret.textContent = '\u25BE';
+
+  const icon = document.createElement('span');
+  icon.className = 'directory-folder-icon';
+
+  const label = document.createElement('span');
+  label.className = 'directory-folder-name';
+  label.textContent = name;
+
+  header.appendChild(caret);
+  header.appendChild(icon);
+  header.appendChild(label);
+
+  const body = document.createElement('div');
+  body.className = 'directory-folder-body';
+
+  tabRefs.forEach(ref => {
+    const item = document.createElement('div');
+    item.className = 'directory-file directory-file-nested';
+    const fileName = (ref.fileName || shortName(ref.label) || 'file') + '.md';
+    registerDirectoryEntry(fileName, sectionEl, item);
+    const baseClick = item.onclick;
+    item.onclick = function () {
+      if (baseClick) baseClick.call(this);
+      if (ref.editor && ref.tab && ref.view) {
+        selectEditorFile(ref.editor, ref.tab, ref.view);
+      }
+    };
+    body.appendChild(item);
+    ref.item = item;
+  });
+
+  function toggle(force) {
+    const open = typeof force === 'boolean' ? force : !folder.classList.contains('open');
+    folder.classList.toggle('open', open);
+    header.setAttribute('aria-expanded', String(open));
+    caret.textContent = open ? '\u25BE' : '\u25B8';
+    return open;
+  }
+
+  header.addEventListener('click', function () {
+    toggle();
+  });
+
+  folder.appendChild(header);
+  folder.appendChild(body);
+  editorWindow.tree.appendChild(folder);
+  sectionEl.style.display = 'none';
+
+  folder.__setActive = function (active) {
+    header.classList.toggle('active', active);
+    if (active) toggle(true);
+  };
+
+  editorWindow.folders = editorWindow.folders || [];
+  editorWindow.folders.push(folder);
 }
 
 function renderProfessional(data) {
@@ -391,21 +503,25 @@ function renderProfessional(data) {
 
   setupEditorWindow();
 
-  const exp = renderTimeline(data.experience);
+  const exp = renderExperience(data.experience);
   const expSection = renderSection('Experience', exp.wrapper);
   editorWindow.main.appendChild(expSection);
-  registerDirectoryEntry('Experience.md', expSection);
+  registerSectionFolder('Experience', expSection, exp.tabRefs);
 
-  [['Projects', renderProjects(data.projects)],
-   ['Skills', renderSkills(data.skills)]
-  ].forEach(pair => {
-    const section = renderSection(pair[0], pair[1]);
-    editorWindow.main.appendChild(section);
-    registerDirectoryEntry(pair[0] + '.md', section);
-  });
+  const projects = renderProjects(data.projects);
+  const projectsSection = renderSection('Projects', projects.wrapper);
+  editorWindow.main.appendChild(projectsSection);
+  registerSectionFolder('Projects', projectsSection, projects.tabRefs);
+
+  const skills = renderSkills(data.skills);
+  const skillsSection = renderSection('Skills', skills.wrapper);
+  editorWindow.main.appendChild(skillsSection);
+  registerSectionFolder('Skills', skillsSection, skills.tabRefs);
 
   activateSection(expSection);
-  exp.selectJob(exp.jobRefs[0]);
+  if (exp.tabRefs[0] && exp.tabRefs[0].item) {
+    activateSection(expSection, exp.tabRefs[0].item);
+  }
 
   container.querySelectorAll('.editor-bullets, .editor-excerpt, .skills-code').forEach(content => {
     highlightTokens(content);
@@ -429,60 +545,30 @@ function renderSection(title, contentEl) {
   return section;
 }
 
-function renderTimeline(jobs) {
+function renderExperience(jobs) {
   const wrapper = document.createElement('div');
   wrapper.className = 'editor-panel experience-panel';
-
-  const timeline = document.createElement('aside');
-  timeline.className = 'timeline';
-  wrapper.appendChild(timeline);
-
-  const header = document.createElement('div');
-  header.className = 'timeline-header';
-
-  const title = document.createElement('span');
-  title.className = 'timeline-title';
-  title.textContent = '// careers \u2014 ' + jobs.length + ' role' + (jobs.length === 1 ? '' : 's');
-
-  const toggle = document.createElement('button');
-  toggle.type = 'button';
-  toggle.className = 'timeline-toggle';
-  toggle.setAttribute('aria-expanded', 'true');
-  toggle.setAttribute('aria-label', 'Collapse timeline');
-  toggle.textContent = '\u25BE';
-  toggle.addEventListener('click', function () {
-    const collapsed = timeline.classList.toggle('collapsed');
-    toggle.setAttribute('aria-expanded', String(!collapsed));
-    toggle.setAttribute('aria-label', collapsed ? 'Expand timeline' : 'Collapse timeline');
-  });
-
-  header.appendChild(title);
-  header.appendChild(toggle);
-  timeline.appendChild(header);
-
-  const list = document.createElement('div');
-  list.className = 'timeline-list';
-  timeline.appendChild(list);
 
   const stack = document.createElement('div');
   stack.className = 'editor-stack';
   wrapper.appendChild(stack);
 
   const editor = createEditorPanel(stack);
-  const jobRefs = [];
+  const tabRefs = [];
 
   const sorted = jobs.slice().sort(function (a, b) {
     return (b.sortKey || 0) - (a.sortKey || 0);
   });
 
   sorted.forEach(job => {
-    const tabName = job.role || job.company || 'Role';
+    const fullName = job.role || job.company || 'Role';
+    const short = shortName(fullName);
 
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(tabName));
-    tab.title = (job.company || '') + (job.date ? ' \u00B7 ' + job.date : '');
+    tab.appendChild(document.createTextNode(short + '.md'));
+    tab.title = fullName + (job.company && job.company !== job.role ? ' \u00B7 ' + job.company : '') + (job.date ? ' \u00B7 ' + job.date : '');
 
     const close = document.createElement('span');
     close.className = 'editor-tab-close';
@@ -492,13 +578,10 @@ function renderTimeline(jobs) {
     const view = document.createElement('div');
     view.className = 'editor-view';
 
-    if (job.company || job.role) {
-      const comment = document.createElement('p');
-      comment.className = 'editor-comment';
-      const slug = tabName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      comment.textContent = '// careers/' + slug + '.md';
-      view.appendChild(comment);
-    }
+    const comment = document.createElement('p');
+    comment.className = 'editor-comment';
+    comment.textContent = '// Experience/' + short + '.md';
+    view.appendChild(comment);
 
     if (job.role) {
       const title = document.createElement('h3');
@@ -525,81 +608,34 @@ function renderTimeline(jobs) {
       view.appendChild(ul);
     }
 
-    const node = document.createElement('button');
-    node.type = 'button';
-    node.className = 'timeline-node';
-    node.setAttribute('aria-label', (job.role || tabName) + (job.date ? ', ' + job.date : ''));
+    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
 
-    const dot = document.createElement('span');
-    dot.className = 'timeline-dot';
-    const text = document.createElement('span');
-    text.className = 'timeline-text';
-    const roleEl = document.createElement('span');
-    roleEl.className = 'timeline-role';
-    roleEl.textContent = tabName;
-    const companyEl = document.createElement('span');
-    companyEl.className = 'timeline-company';
-    companyEl.textContent = [job.company, job.date].filter(Boolean).join(' \u00B7 ');
-    const dateEl = document.createElement('span');
-    dateEl.className = 'timeline-date';
-    dateEl.textContent = sortKeyToLabel(job.sortKey);
-    text.appendChild(roleEl);
-    text.appendChild(companyEl);
-    node.appendChild(dot);
-    node.appendChild(text);
-    node.appendChild(dateEl);
-    list.appendChild(node);
-
-    const jobRef = { tab: tab, view: view, node: node, job: job, title: tabName };
-    jobRefs.push(jobRef);
-
-    tab.onclick = function () { selectJob(jobRef); };
-    node.onclick = function () { selectJob(jobRef); };
+    tab.onclick = function () { selectEditorFile(editor, tab, view); };
 
     editor.tabs.appendChild(tab);
     editor.views.appendChild(view);
+
+    if (!editor.activeTab) selectEditorFile(editor, tab, view);
   });
 
-  function selectJob(jobRef) {
-    if (!jobRef) return;
-    selectEditorFile(editor, jobRef.tab, jobRef.view);
-    jobRefs.forEach(ref => {
-      const active = ref === jobRef;
-      ref.node.classList.toggle('active', active);
-      ref.node.setAttribute('aria-current', active ? 'true' : 'false');
-    });
-  }
-
-  jobRefs.forEach((ref, index) => {
-    ref.node.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        selectJob(ref);
-      } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        const step = e.key === 'ArrowDown' ? 1 : -1;
-        const next = jobRefs[(index + step + jobRefs.length) % jobRefs.length];
-        selectJob(next);
-        next.node.focus({ preventScroll: true });
-      }
-    });
-  });
-
-  return { wrapper: wrapper, editor: editor, jobRefs: jobRefs, selectJob: selectJob };
+  return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
 
 function renderProjects(projects) {
   const wrapper = document.createElement('div');
   wrapper.className = 'editor-panel';
   const editor = createEditorPanel(wrapper);
+  const tabRefs = [];
 
   projects.forEach(proj => {
-    const tabName = proj.name || 'Untitled';
+    const fullName = proj.name || 'Untitled';
+    const short = shortName(fullName);
+
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(tabName));
-    tab.title = proj.tag || proj.name || '';
+    tab.appendChild(document.createTextNode(short + '.md'));
+    tab.title = proj.tag || fullName;
 
     const close = document.createElement('span');
     close.className = 'editor-tab-close';
@@ -611,13 +647,12 @@ function renderProjects(projects) {
 
     const comment = document.createElement('p');
     comment.className = 'editor-comment';
-    const slug = tabName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    comment.textContent = '// projects/' + slug + '.md';
+    comment.textContent = '// Projects/' + short + '.md';
     view.appendChild(comment);
 
     const title = document.createElement('h3');
     title.className = 'editor-title';
-    title.textContent = tabName;
+    title.textContent = fullName;
     view.appendChild(title);
 
     if (proj.tag) {
@@ -634,6 +669,8 @@ function renderProjects(projects) {
       view.appendChild(desc);
     }
 
+    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
+
     tab.onclick = function () { selectEditorFile(editor, tab, view); };
 
     editor.tabs.appendChild(tab);
@@ -642,22 +679,24 @@ function renderProjects(projects) {
     if (!editor.activeTab) selectEditorFile(editor, tab, view);
   });
 
-  return wrapper;
+  return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
 
 function renderSkills(categories) {
   const wrapper = document.createElement('div');
   wrapper.className = 'editor-panel';
   const editor = createEditorPanel(wrapper);
+  const tabRefs = [];
 
   (categories || []).forEach((cat, index) => {
-    const catName = (cat.category || 'skills_' + index).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    const fullName = cat.category || ('skills_' + index);
+    const short = shortName(fullName);
 
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(catName));
-    tab.title = cat.category || catName;
+    tab.appendChild(document.createTextNode(short + '.md'));
+    tab.title = fullName;
 
     const close = document.createElement('span');
     close.className = 'editor-tab-close';
@@ -669,7 +708,7 @@ function renderSkills(categories) {
 
     const comment = document.createElement('p');
     comment.className = 'editor-comment';
-    comment.textContent = '// ' + catName;
+    comment.textContent = '// Skills/' + short + '.md';
     view.appendChild(comment);
 
     const pre = document.createElement('div');
@@ -678,7 +717,7 @@ function renderSkills(categories) {
     const open = document.createElement('p');
     open.className = 'skills-code-line';
     open.appendChild(makeSpan('tk-kw', 'const'));
-    open.appendChild(makeSpan('tk-lg', ' ' + catName));
+    open.appendChild(makeSpan('tk-lg', ' ' + short));
     open.appendChild(document.createTextNode(' = ['));
     pre.appendChild(open);
 
@@ -697,6 +736,8 @@ function renderSkills(categories) {
 
     view.appendChild(pre);
 
+    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
+
     tab.onclick = function () { selectEditorFile(editor, tab, view); };
 
     editor.tabs.appendChild(tab);
@@ -705,7 +746,7 @@ function renderSkills(categories) {
     if (!editor.activeTab) selectEditorFile(editor, tab, view);
   });
 
-  return wrapper;
+  return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
 
 function makeSpan(cls, text) {
@@ -729,12 +770,12 @@ function loadBlogPosts() {
       blogSection.querySelector('.section-content').appendChild(grid);
       if (editorWindow) {
         editorWindow.main.appendChild(blogSection);
-        registerDirectoryEntry('Latest Posts.md', blogSection);
       } else {
         document.getElementById('pro-container').appendChild(blogSection);
       }
 
       const editor = createEditorPanel(grid);
+      const blogTabRefs = [];
       showLoadingPlaceholder(editor.views);
 
       const postFiles = filenames.slice(0, 2);
@@ -757,10 +798,13 @@ function loadBlogPosts() {
               file: file,
               index: index
             };
-            renderBlogCard(editor, post);
+            renderBlogCard(editor, post, blogTabRefs);
             loaded++;
             if (loaded === postFiles.length) {
               removeLoading(editor.views);
+              if (editorWindow && blogTabRefs.length) {
+                registerSectionFolder('Latest Posts', blogSection, blogTabRefs);
+              }
               if (error) showBlogError(grid, 'Some posts could not be loaded.');
             }
           })
@@ -770,6 +814,9 @@ function loadBlogPosts() {
             loaded++;
             if (loaded === postFiles.length) {
               removeLoading(editor.views);
+              if (editorWindow && blogTabRefs.length) {
+                registerSectionFolder('Latest Posts', blogSection, blogTabRefs);
+              }
               showBlogError(grid, 'Some posts could not be loaded.');
             }
           });
@@ -833,11 +880,12 @@ function selectEditorFile(editor, tab, view) {
   view.classList.add('active');
 }
 
-function renderBlogCard(editor, post) {
+function renderBlogCard(editor, post, tabRefs) {
   const tab = document.createElement('button');
   tab.type = 'button';
   tab.className = 'editor-tab';
-  tab.appendChild(document.createTextNode(post.title));
+  const short = shortName(post.title);
+  tab.appendChild(document.createTextNode(short + '.md'));
   tab.title = post.title;
 
   const close = document.createElement('span');
@@ -851,7 +899,7 @@ function renderBlogCard(editor, post) {
   if (post.file) {
     const comment = document.createElement('p');
     comment.className = 'editor-comment';
-    comment.textContent = '// src/Blogs/' + post.file;
+    comment.textContent = '// "Latest Posts"/' + post.file;
     view.appendChild(comment);
   }
 
@@ -877,6 +925,10 @@ function renderBlogCard(editor, post) {
   view.appendChild(link);
 
   tab.onclick = function () { selectEditorFile(editor, tab, view); };
+
+  if (tabRefs) {
+    tabRefs.push({ label: post.title, fileName: short, tab: tab, view: view, editor: editor });
+  }
 
   editor.tabs.appendChild(tab);
   editor.views.appendChild(view);
