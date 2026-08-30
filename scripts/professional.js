@@ -28,10 +28,6 @@ function mdBlock(text) {
   let html = '';
   const stack = [];
 
-  function openListCount() {
-    return stack.filter(function (t) { return t === 'ul' || t === 'ol'; }).length;
-  }
-
   function closeAll() {
     while (stack.length) {
       const tag = stack.pop();
@@ -161,7 +157,7 @@ function applyRegexToNode(textNode, regex, classFor) {
 function textNodesIn(root) {
   var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode: function (node) {
-      if (node.parentElement && node.parentElement.closest('a, .tk-kw, .tk-co, .tk-role, .tk-num, .tk-fn, .tk-lg')) {
+      if (node.parentElement && node.parentElement.closest('a, code, .tk-kw, .tk-co, .tk-role, .tk-num, .tk-fn, .tk-lg')) {
         return NodeFilter.FILTER_REJECT;
       }
       return NodeFilter.FILTER_ACCEPT;
@@ -624,7 +620,7 @@ function renderProfessional(data) {
     activateSection(expSection, exp.tabRefs[0].item);
   }
 
-  container.querySelectorAll('.editor-bullets, .editor-excerpt, .editor-preview').forEach(content => {
+  container.querySelectorAll('.editor-bullets, .editor-excerpt').forEach(content => {
     highlightTokens(content);
   });
 }
@@ -951,7 +947,7 @@ function loadBlogPosts() {
             loaded++;
             if (loaded === postFiles.length) {
               removeLoading(editor.views);
-              grid.querySelectorAll('.editor-preview').forEach(content => highlightTokens(content));
+              
               addPreviewToggle(grid, editor.modebar);
               if (editorWindow && blogTabRefs.length) {
                 registerSectionFolder('Latest Posts', blogSection, blogTabRefs);
@@ -965,7 +961,7 @@ function loadBlogPosts() {
             loaded++;
             if (loaded === postFiles.length) {
               removeLoading(editor.views);
-              grid.querySelectorAll('.editor-preview').forEach(content => highlightTokens(content));
+              
               addPreviewToggle(grid, editor.modebar);
               if (editorWindow && blogTabRefs.length) {
                 registerSectionFolder('Latest Posts', blogSection, blogTabRefs);

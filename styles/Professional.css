@@ -23,6 +23,7 @@ body.pro-page {
   --borderDark: #3c3c3c;
   --borderPanel: #2d2d30;
   --borderError: #4a4a4a;
+  --borderColor: #000000;
   --bulletGray: #808080;
 
   /* Syntax highlighting tokens */
@@ -961,8 +962,60 @@ body.pro-page .page-container {
   line-height: 1.7;
 }
 
+.editor-preview h1,
+.editor-preview h2,
+.editor-preview h3,
+.editor-preview h4,
+.editor-preview h5,
+.editor-preview h6 {
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.editor-preview h1,
+.editor-preview h2 {
+  padding-bottom: 0.3em;
+  border-bottom: 0.1rem solid var(--borderDark);
+}
+
+.editor-preview h1 {
+  font-size: 2em;
+}
+
+.editor-preview h2 {
+  font-size: 1.5em;
+}
+
 .editor-preview h3 {
+  font-size: 1.25em;
   color: var(--accentPrimary);
+}
+
+.editor-preview h4 {
+  font-size: 1em;
+  color: var(--editorText);
+}
+
+.editor-preview h5 {
+  font-size: 0.875em;
+  color: var(--editorText);
+}
+
+.editor-preview h6 {
+  font-size: 0.85em;
+  color: var(--editorText);
+}
+
+.editor-preview h1:first-child,
+.editor-preview h2:first-child,
+.editor-preview h3:first-child,
+.editor-preview h4:first-child,
+.editor-preview h5:first-child,
+.editor-preview h6:first-child {
+  margin-top: 0;
 }
 
 .editor-preview p {
@@ -1010,19 +1063,6 @@ body.pro-page .page-container {
 
 .editor-preview ol li {
   padding-left: 0.35rem;
-}
-
-.editor-preview h4,
-.editor-preview h5 {
-  font-family: inherit;
-  font-weight: 600;
-  color: var(--editorText);
-  margin: 1.2rem 0 0.25rem 0;
-}
-
-.editor-preview h4:first-child,
-.editor-preview h5:first-child {
-  margin-top: 0;
 }
 
 .editor-preview hr {
@@ -1305,9 +1345,7 @@ body.pro-page footer #footer_nav {
     margin-bottom: 0.4rem;
   }
 
-  .editor-subheading,
-  .editor-preview h4,
-  .editor-preview h5 {
+  .editor-subheading {
     font-size: clamp(0.72rem, 3.4vw, 1rem);
     margin-top: 0.9rem;
   }
