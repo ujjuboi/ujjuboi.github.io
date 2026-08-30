@@ -38,6 +38,7 @@ body.pro-page {
   --borderPanel: #2d2d30;
   --borderError: #4a4a4a;
   --bulletGray: #808080;
+  --explorerHover: #35353a;
 
   /* Syntax highlighting tokens */
   --tokenKeyword: #569cd6;
@@ -412,7 +413,7 @@ body.pro-page .page-container {
 }
 
 .directory-back:hover {
-  background-color: #35353a;
+  background-color: var(--explorerHover);
 }
 
 .directory-file {
