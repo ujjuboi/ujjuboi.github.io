@@ -108,6 +108,43 @@
   color: var(--borderColor);
 }
 
+.job ul ul {
+  padding-left: 4%;
+  margin-top: 0.8%;
+}
+
+.job ul ul li {
+  margin-bottom: 0.8%;
+  font-size: 0.95em;
+}
+
+.job .resume-subheading {
+  list-style: none;
+  font-family: var(--headings);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--borderColor);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 2% 0 0.6%;
+  padding: 0;
+}
+
+.job .resume-subheading::marker {
+  content: '';
+}
+
+.job code,
+.project code,
+.education code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+  padding: 0.05rem 0.3rem;
+  border-radius: 0.25rem;
+}
+
 .project {
   margin-bottom: 2%;
   line-height: 1.6;

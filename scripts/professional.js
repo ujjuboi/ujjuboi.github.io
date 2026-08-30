@@ -4,6 +4,99 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function mdInline(text) {
+  let html = escapeHtml(String(text || ''));
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (match, label, url) {
+    const trimmed = url.trim();
+    const scheme = trimmed.match(/^([a-z][a-z0-9+.-]*):/i);
+    if (scheme && ['http', 'https', 'mailto', '#'].indexOf(scheme[1].toLowerCase()) === -1) {
+      return match;
+    }
+    return '<a href="' + escapeHtml(trimmed) + '" target="_blank" rel="noopener">' + label + '</a>';
+  });
+  html = html.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/(^|[^*])\*([^*]+)\*/g, function (match, pre, italic) {
+    return pre + '<em>' + italic + '</em>';
+  });
+  return html;
+}
+
+function mdBlock(text) {
+  const lines = String(text || '').split('\n');
+  let html = '';
+  const stack = [];
+
+  function closeAll() {
+    while (stack.length) {
+      const tag = stack.pop();
+      html += tag === 'li' ? '</li>' : '</' + tag + '>';
+    }
+  }
+
+  for (const line of lines) {
+    const listMatch = line.match(/^([ \t]*)([-+*]|\d+\.)\s+(.*)$/);
+    if (listMatch) {
+      const level = Math.round(listMatch[1].replace(/\t/g, '  ').length / 2);
+      const marker = listMatch[2];
+      const content = listMatch[3];
+      let depth = stack.filter(function (t) { return t === 'ul' || t === 'ol'; }).length - 1;
+
+      if (depth < level) {
+        while (depth < level) {
+          const tag = /^\d+\.$/.test(marker) ? 'ol' : 'ul';
+          html += '<' + tag + '>';
+          stack.push(tag);
+          depth++;
+        }
+      } else {
+        while (depth > level) {
+          html += '</li>';
+          stack.pop();
+          html += '</' + stack.pop() + '>';
+          depth--;
+        }
+        if (depth >= 0) {
+          html += '</li>';
+          stack.pop();
+        }
+      }
+
+      html += '<li>' + mdInline(content);
+      stack.push('li');
+      continue;
+    }
+
+    closeAll();
+
+    if (/^#{1,6}\s/.test(line)) {
+      const level = line.match(/^#+/)[0].length;
+      html += '\n<h' + level + '>' + mdInline(line.replace(/^#{1,6}\s*/, '')) + '</h' + level + '>\n';
+    } else if (/^\s*([-*_])\1{2,}\s*$/.test(line)) {
+      html += '\n<hr>\n';
+    } else if (/^>\s?/.test(line)) {
+      html += '\n<blockquote><p>' + mdInline(line.replace(/^>\s?/, '').trim()) + '</p></blockquote>\n';
+    } else if (line.trim() === '') {
+      html += '\n';
+    } else {
+      html += '\n<p>' + mdInline(line.trim()) + '</p>\n';
+    }
+  }
+
+  closeAll();
+  return html;
+}
+
+function parsePostParagraphs(text) {
+  const lines = text.split('\n');
+  const bodyStart = lines.findIndex(l => l.startsWith('## Paragraphs'));
+  if (bodyStart === -1) return [];
+  return lines.slice(bodyStart + 1)
+    .filter(line => line.startsWith('- '))
+    .map(line => line.slice(2).trim());
+}
+
 var TOKEN_MAP = {
   'next.js': 'tk-kw', 'nextjs': 'tk-kw', 'express.js': 'tk-kw',
   'expressjs': 'tk-kw', 'express js': 'tk-kw', 'springboot': 'tk-kw', 'spring boot': 'tk-kw',
@@ -64,7 +157,7 @@ function applyRegexToNode(textNode, regex, classFor) {
 function textNodesIn(root) {
   var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode: function (node) {
-      if (node.parentElement && node.parentElement.closest('a, .tk-kw, .tk-co, .tk-role, .tk-num, .tk-fn, .tk-lg')) {
+      if (node.parentElement && node.parentElement.closest('a, code, .tk-kw, .tk-co, .tk-role, .tk-num, .tk-fn, .tk-lg')) {
         return NodeFilter.FILTER_REJECT;
       }
       return NodeFilter.FILTER_ACCEPT;
@@ -110,6 +203,24 @@ function sectionLines(lines, start) {
   return result;
 }
 
+var SORT_MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+var SORT_MONTH_LABELS = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function parseStartSortKey(dateStr) {
+  const m = String(dateStr || '').trim().match(/^([A-Za-z]+)\s+(\d{4})/);
+  if (!m) return 0;
+  const mon = SORT_MONTHS[m[1].toLowerCase().slice(0, 3)];
+  if (!mon) return 0;
+  return parseInt(m[2], 10) * 100 + mon;
+}
+
+function sortKeyToLabel(key) {
+  if (!key) return '';
+  const year = Math.floor(key / 100);
+  const mon = key % 100;
+  return SORT_MONTH_LABELS[mon] ? SORT_MONTH_LABELS[mon] + ' ' + year : '';
+}
+
 function parseCV(text) {
   const lines = text.split('\n');
   const data = { summary: '', experience: [], projects: [], skills: [] };
@@ -140,10 +251,22 @@ function parseCV(text) {
           if (t === '') continue;
           if (t.startsWith('**') && t.endsWith('**') && !job.role) {
             job.role = t.slice(2, -2);
+          } else if (/^#{3,6}\s/.test(t)) {
+            job.bullets.push({
+              kind: 'heading',
+              level: t.match(/^#+/)[0].length,
+              text: t.replace(/^#+\s*/, '')
+            });
+          } else if (/^[-+*]\s/.test(t) && line !== t) {
+            const last = job.bullets[job.bullets.length - 1];
+            if (last && last.kind === 'bullet') {
+              last.sub.push(t.replace(/^[-+*]\s*/, ''));
+            }
           } else if (t.startsWith('- ')) {
-            job.bullets.push(t.slice(2));
+            job.bullets.push({ kind: 'bullet', text: t.slice(2), sub: [] });
           } else if (t && !job.date) {
             job.date = t;
+            job.sortKey = parseStartSortKey(t);
           }
         }
       }
@@ -329,63 +452,175 @@ function setupEditorWindow() {
   return editorWindow;
 }
 
-function registerDirectoryEntry(title, sectionEl) {
+var SHORT_NAMES = {
+  'Software Engineer 2 - DI App Factory': 'swe-2',
+  'Software Engineer 1 - DI App Factory': 'swe-1',
+  'Associate Software Developer - DI App Factory': 'asoc-dev',
+  'Associate Software Developer - DDPX': 'asoc-ddpx',
+  'Risk & Financial Advisory Analyst - DDPX': 'risk-analyst',
+  'Frontend/Backend': 'frontend',
+  'Languages/Tools': 'languages',
+  'Databases': 'databases',
+  'Cloud/AI': 'cloud',
+  'Infrastructure': 'infra'
+};
+
+var ICON_SRC = '../../Images/information-svgrepo-com.svg';
+
+function shortName(label) {
+  const clean = String(label || '').replace(/:$/, '');
+  if (SHORT_NAMES[clean] !== undefined) return SHORT_NAMES[clean];
+  const slug = clean.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const parts = slug.split('-').filter(Boolean);
+  if (parts.length === 0) return 'file';
+  return parts.slice(0, 2).join('-');
+}
+
+function setActiveFolderHeader() {
+  if (!editorWindow || !editorWindow.folders) return;
+  editorWindow.folders.forEach(folder => {
+    folder.__setActive(false);
+  });
+}
+
+function activateSection(sectionEl, item) {
   if (!editorWindow) return;
-  const item = document.createElement('div');
-  item.className = 'directory-file';
-  const icon = document.createElement('span');
-  icon.className = 'directory-file-icon';
-  const name = document.createElement('span');
-  name.className = 'directory-file-name';
+  if (editorWindow.sidebar) editorWindow.sidebar.classList.add('open');
+  editorWindow.main.querySelectorAll('.pro-section').forEach(function (s) {
+    s.style.display = 'none';
+  });
+  editorWindow.entries.forEach(entry => {
+    entry.item.classList.remove('active');
+  });
+  sectionEl.style.display = 'block';
+  if (item) item.classList.add('active');
+  setActiveFolderHeader();
+  if (item && item.parentElement && item.parentElement.classList.contains('directory-folder-body')) {
+    const folder = item.parentElement.parentElement;
+    if (folder && folder.__setActive) folder.__setActive(true);
+  }
+}
+
+function registerDirectoryEntry(title, sectionEl, item) {
+  if (!editorWindow) return;
+  item = item || document.createElement('div');
+  if (!item.classList.contains('directory-file')) item.className = 'directory-file';
+  const icon = item.querySelector('.directory-file-icon') || document.createElement('img');
+  const name = item.querySelector('.directory-file-name') || document.createElement('span');
+  if (!item.querySelector('.directory-file-icon')) {
+    icon.className = 'directory-file-icon';
+    icon.alt = '';
+    icon.src = ICON_SRC;
+    item.appendChild(icon);
+  }
+  if (!item.querySelector('.directory-file-name')) {
+    name.className = 'directory-file-name';
+    item.appendChild(name);
+  }
   name.textContent = title;
-  item.appendChild(icon);
-  item.appendChild(name);
-  item.onclick = function () {
-    if (editorWindow.sidebar) editorWindow.sidebar.classList.add('open');
-    editorWindow.entries.forEach(entry => {
-      entry.section.style.display = 'none';
-      entry.item.classList.remove('active');
-    });
-    sectionEl.style.display = 'block';
-    item.classList.add('active');
-  };
+  item.onclick = function () { activateSection(sectionEl, item); };
   sectionEl.style.display = 'none';
   editorWindow.entries.push({ section: sectionEl, item: item });
   editorWindow.tree.appendChild(item);
+  return item;
 }
 
-function showFirstDirectoryEntry() {
-  if (!editorWindow || !editorWindow.entries.length) return;
-  const first = editorWindow.entries[0];
-  first.item.classList.add('active');
-  first.section.style.display = 'block';
+function registerSectionFolder(name, sectionEl, tabRefs) {
+  if (!editorWindow) return;
+
+  const folder = document.createElement('div');
+  folder.className = 'directory-folder open';
+
+  const header = document.createElement('div');
+  header.className = 'directory-folder-header';
+
+  const caret = document.createElement('span');
+  caret.className = 'directory-caret';
+  caret.textContent = '\u25BE';
+
+  const icon = document.createElement('span');
+  icon.className = 'directory-folder-icon';
+
+  const label = document.createElement('span');
+  label.className = 'directory-folder-name';
+  label.textContent = name;
+
+  header.appendChild(caret);
+  header.appendChild(icon);
+  header.appendChild(label);
+
+  const body = document.createElement('div');
+  body.className = 'directory-folder-body';
+
+  tabRefs.forEach(ref => {
+    const item = document.createElement('div');
+    item.className = 'directory-file directory-file-nested';
+    const fileName = (ref.fileName || shortName(ref.label) || 'file') + '.md';
+    registerDirectoryEntry(fileName, sectionEl, item);
+    const baseClick = item.onclick;
+    item.onclick = function () {
+      if (baseClick) baseClick.call(this);
+      if (ref.editor && ref.tab && ref.view) {
+        selectEditorFile(ref.editor, ref.tab, ref.view);
+      }
+    };
+    body.appendChild(item);
+    ref.item = item;
+  });
+
+  function toggle(force) {
+    const open = typeof force === 'boolean' ? force : !folder.classList.contains('open');
+    folder.classList.toggle('open', open);
+    header.setAttribute('aria-expanded', String(open));
+    caret.textContent = open ? '\u25BE' : '\u25B8';
+    return open;
+  }
+
+  header.addEventListener('click', function () {
+    toggle();
+  });
+
+  folder.appendChild(header);
+  folder.appendChild(body);
+  editorWindow.tree.appendChild(folder);
+  sectionEl.style.display = 'none';
+
+  folder.__setActive = function (active) {
+    header.classList.toggle('active', active);
+    if (active) toggle(true);
+  };
+
+  editorWindow.folders = editorWindow.folders || [];
+  editorWindow.folders.push(folder);
 }
 
 function renderProfessional(data) {
   const container = document.getElementById('pro-container');
   container.innerHTML = '';
 
-  if (data.summary) {
-    const heroSummary = document.getElementById('hero-summary');
-    if (heroSummary) {
-      heroSummary.textContent = data.summary;
-    }
-  }
-
   setupEditorWindow();
 
-  [['Experience', renderTimeline(data.experience)],
-   ['Projects', renderProjects(data.projects)],
-   ['Skills', renderSkills(data.skills)]
-  ].forEach(pair => {
-    const section = renderSection(pair[0], pair[1]);
-    editorWindow.main.appendChild(section);
-    registerDirectoryEntry(pair[0] + '.md', section);
-  });
+  const exp = renderExperience(data.experience);
+  const expSection = renderSection('Experience', exp.wrapper);
+  editorWindow.main.appendChild(expSection);
+  registerSectionFolder('Experience', expSection, exp.tabRefs);
 
-  showFirstDirectoryEntry();
+  const projects = renderProjects(data.projects);
+  const projectsSection = renderSection('Projects', projects.wrapper);
+  editorWindow.main.appendChild(projectsSection);
+  registerSectionFolder('Projects', projectsSection, projects.tabRefs);
 
-  container.querySelectorAll('.editor-bullets, .editor-excerpt, .skills-code').forEach(content => {
+  const skills = renderSkills(data.skills);
+  const skillsSection = renderSection('Skills', skills.wrapper);
+  editorWindow.main.appendChild(skillsSection);
+  registerSectionFolder('Skills', skillsSection, skills.tabRefs);
+
+  activateSection(expSection);
+  if (exp.tabRefs[0] && exp.tabRefs[0].item) {
+    activateSection(expSection, exp.tabRefs[0].item);
+  }
+
+  container.querySelectorAll('.editor-bullets, .editor-excerpt').forEach(content => {
     highlightTokens(content);
   });
 }
@@ -407,83 +642,30 @@ function renderSection(title, contentEl) {
   return section;
 }
 
-function renderTimeline(jobs) {
+function renderExperience(jobs) {
   const wrapper = document.createElement('div');
-  wrapper.className = 'editor-panel';
-  const editor = createEditorPanel(wrapper);
+  wrapper.className = 'editor-panel experience-panel';
 
-  jobs.forEach(job => {
-    const tabName = job.role || job.company || 'Role';
-    const tab = document.createElement('button');
-    tab.type = 'button';
-    tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(tabName));
-    tab.title = (job.company || '') + (job.date ? ' · ' + job.date : '');
+  const stack = document.createElement('div');
+  stack.className = 'editor-stack';
+  wrapper.appendChild(stack);
 
-    const close = document.createElement('span');
-    close.className = 'editor-tab-close';
-    close.textContent = '\u00D7';
-    tab.appendChild(close);
+  const editor = createEditorPanel(stack);
+  const tabRefs = [];
 
-    const view = document.createElement('div');
-    view.className = 'editor-view';
-
-    if (job.company || job.role) {
-      const comment = document.createElement('p');
-      comment.className = 'editor-comment';
-      const slug = (tabName).toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      comment.textContent = '// careers/' + slug + '.md';
-      view.appendChild(comment);
-    }
-
-    if (job.role) {
-      const title = document.createElement('h3');
-      title.className = 'editor-title';
-      title.textContent = job.role;
-      view.appendChild(title);
-    }
-
-    if (job.company || job.date) {
-      const meta = document.createElement('p');
-      meta.className = 'editor-meta';
-      meta.textContent = [job.company, job.date].filter(Boolean).join(' · ');
-      view.appendChild(meta);
-    }
-
-    if (job.bullets && job.bullets.length) {
-      const ul = document.createElement('ul');
-      ul.className = 'editor-bullets';
-      job.bullets.forEach(bullet => {
-        const li = document.createElement('li');
-        li.textContent = bullet;
-        ul.appendChild(li);
-      });
-      view.appendChild(ul);
-    }
-
-    tab.onclick = function () { selectEditorFile(editor, tab, view); };
-
-    editor.tabs.appendChild(tab);
-    editor.views.appendChild(view);
-
-    if (!editor.activeTab) selectEditorFile(editor, tab, view);
+  const sorted = jobs.slice().sort(function (a, b) {
+    return (b.sortKey || 0) - (a.sortKey || 0);
   });
 
-  return wrapper;
-}
+  sorted.forEach(job => {
+    const fullName = job.role || job.company || 'Role';
+    const short = shortName(fullName);
 
-function renderProjects(projects) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'editor-panel';
-  const editor = createEditorPanel(wrapper);
-
-  projects.forEach(proj => {
-    const tabName = proj.name || 'Untitled';
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(tabName));
-    tab.title = proj.tag || proj.name || '';
+    tab.appendChild(document.createTextNode(short + '.md'));
+    tab.title = fullName + (job.company && job.company !== job.role ? ' \u00B7 ' + job.company : '') + (job.date ? ' \u00B7 ' + job.date : '');
 
     const close = document.createElement('span');
     close.className = 'editor-tab-close';
@@ -495,13 +677,123 @@ function renderProjects(projects) {
 
     const comment = document.createElement('p');
     comment.className = 'editor-comment';
-    const slug = tabName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    comment.textContent = '// projects/' + slug + '.md';
+    comment.textContent = '// Experience/' + short + '.md';
+    view.appendChild(comment);
+
+    if (job.role) {
+      const title = document.createElement('h3');
+      title.className = 'editor-title';
+      title.textContent = job.role;
+      view.appendChild(title);
+    }
+
+    if (job.company || job.date) {
+      const meta = document.createElement('p');
+      meta.className = 'editor-meta';
+      meta.textContent = [job.company, job.date].filter(Boolean).join(' \u00B7 ');
+      view.appendChild(meta);
+    }
+
+    if (job.bullets && job.bullets.length) {
+      const wrap = document.createElement('div');
+      wrap.className = 'editor-bullets';
+      let currentUl = null;
+
+      function ensureUl() {
+        if (!currentUl) {
+          currentUl = document.createElement('ul');
+          wrap.appendChild(currentUl);
+        }
+        return currentUl;
+      }
+
+      job.bullets.forEach(bullet => {
+        if (bullet.kind === 'heading') {
+          currentUl = null;
+          const h = document.createElement('div');
+          h.className = 'editor-subheading';
+          h.textContent = bullet.text;
+          wrap.appendChild(h);
+          return;
+        }
+        const li = document.createElement('li');
+        li.textContent = bullet.text;
+        ensureUl().appendChild(li);
+        if (bullet.sub && bullet.sub.length) {
+          const subUl = document.createElement('ul');
+          bullet.sub.forEach(s => {
+            const sl = document.createElement('li');
+            sl.textContent = s;
+            subUl.appendChild(sl);
+          });
+          li.appendChild(subUl);
+        }
+      });
+      view.appendChild(wrap);
+
+      const preview = document.createElement('div');
+      preview.className = 'editor-preview';
+      const lines = [];
+      job.bullets.forEach(bullet => {
+        if (bullet.kind === 'heading') {
+          lines.push('');
+          lines.push('#'.repeat(bullet.level || 4) + ' ' + bullet.text);
+        } else {
+          lines.push('- ' + bullet.text);
+          (bullet.sub || []).forEach(s => lines.push('  - ' + s));
+        }
+      });
+      preview.innerHTML = mdBlock(lines.join('\n'));
+      view.appendChild(preview);
+    }
+
+    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
+
+    tab.onclick = function () { selectEditorFile(editor, tab, view); };
+
+    editor.tabs.appendChild(tab);
+    editor.views.appendChild(view);
+
+    if (!editor.activeTab) selectEditorFile(editor, tab, view);
+  });
+
+  addPreviewToggle(wrapper, editor.modebar);
+
+  return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
+}
+
+function renderProjects(projects) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'editor-panel';
+  const editor = createEditorPanel(wrapper);
+  const tabRefs = [];
+
+  projects.forEach(proj => {
+    const fullName = proj.name || 'Untitled';
+    const short = shortName(fullName);
+
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'editor-tab';
+    tab.appendChild(document.createTextNode(short + '.md'));
+    tab.title = proj.tag || fullName;
+
+    const close = document.createElement('span');
+    close.className = 'editor-tab-close';
+    close.textContent = '\u00D7';
+    tab.appendChild(close);
+
+    const view = document.createElement('div');
+    view.className = 'editor-view';
+
+    const comment = document.createElement('p');
+    comment.className = 'editor-comment';
+    comment.textContent = '// Projects/' + short + '.md';
     view.appendChild(comment);
 
     const title = document.createElement('h3');
     title.className = 'editor-title';
-    title.textContent = tabName;
+    title.textContent = fullName;
     view.appendChild(title);
 
     if (proj.tag) {
@@ -516,7 +808,16 @@ function renderProjects(projects) {
       desc.className = 'editor-excerpt';
       desc.textContent = proj.desc;
       view.appendChild(desc);
+
+      const preview = document.createElement('div');
+      preview.className = 'editor-preview';
+      const p = document.createElement('p');
+      p.innerHTML = mdInline(proj.desc);
+      preview.appendChild(p);
+      view.appendChild(preview);
     }
+
+    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
 
     tab.onclick = function () { selectEditorFile(editor, tab, view); };
 
@@ -526,22 +827,26 @@ function renderProjects(projects) {
     if (!editor.activeTab) selectEditorFile(editor, tab, view);
   });
 
-  return wrapper;
+  addPreviewToggle(wrapper, editor.modebar);
+
+  return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
 
 function renderSkills(categories) {
   const wrapper = document.createElement('div');
   wrapper.className = 'editor-panel';
   const editor = createEditorPanel(wrapper);
+  const tabRefs = [];
 
   (categories || []).forEach((cat, index) => {
-    const catName = (cat.category || 'skills_' + index).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    const fullName = cat.category || ('skills_' + index);
+    const short = shortName(fullName);
 
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(catName));
-    tab.title = cat.category || catName;
+    tab.appendChild(document.createTextNode(short + '.md'));
+    tab.title = fullName;
 
     const close = document.createElement('span');
     close.className = 'editor-tab-close';
@@ -553,33 +858,34 @@ function renderSkills(categories) {
 
     const comment = document.createElement('p');
     comment.className = 'editor-comment';
-    comment.textContent = '// ' + catName;
+    comment.textContent = '// Skills/' + short + '.md';
     view.appendChild(comment);
 
-    const pre = document.createElement('div');
-    pre.className = 'skills-code';
+    const title = document.createElement('h3');
+    title.className = 'editor-title';
+    title.textContent = fullName;
+    view.appendChild(title);
 
-    const open = document.createElement('p');
-    open.className = 'skills-code-line';
-    open.appendChild(makeSpan('tk-kw', 'const'));
-    open.appendChild(makeSpan('tk-lg', ' ' + catName));
-    open.appendChild(document.createTextNode(' = ['));
-    pre.appendChild(open);
-
+    const ul = document.createElement('ul');
+    ul.className = 'editor-bullets';
     (cat.items || []).forEach(skill => {
-      const item = document.createElement('p');
-      item.className = 'skills-code-line indented';
-      item.appendChild(document.createTextNode(skill));
-      item.appendChild(document.createTextNode(','));
-      pre.appendChild(item);
+      const li = document.createElement('li');
+      li.textContent = skill;
+      ul.appendChild(li);
     });
+    view.appendChild(ul);
 
-    const closing = document.createElement('p');
-    closing.className = 'skills-code-line indented';
-    closing.textContent = '];';
-    pre.appendChild(closing);
+    const preview = document.createElement('div');
+    preview.className = 'editor-preview';
+    (cat.items || []).forEach(skill => {
+      const chip = document.createElement('span');
+      chip.className = 'tag';
+      chip.textContent = skill;
+      preview.appendChild(chip);
+    });
+    view.appendChild(preview);
 
-    view.appendChild(pre);
+    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
 
     tab.onclick = function () { selectEditorFile(editor, tab, view); };
 
@@ -589,14 +895,9 @@ function renderSkills(categories) {
     if (!editor.activeTab) selectEditorFile(editor, tab, view);
   });
 
-  return wrapper;
-}
+  addPreviewToggle(wrapper, editor.modebar);
 
-function makeSpan(cls, text) {
-  const span = document.createElement('span');
-  span.className = cls;
-  span.textContent = text;
-  return span;
+  return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
 
 function loadBlogPosts() {
@@ -613,12 +914,12 @@ function loadBlogPosts() {
       blogSection.querySelector('.section-content').appendChild(grid);
       if (editorWindow) {
         editorWindow.main.appendChild(blogSection);
-        registerDirectoryEntry('Latest Posts.md', blogSection);
       } else {
         document.getElementById('pro-container').appendChild(blogSection);
       }
 
       const editor = createEditorPanel(grid);
+      const blogTabRefs = [];
       showLoadingPlaceholder(editor.views);
 
       const postFiles = filenames.slice(0, 2);
@@ -638,13 +939,19 @@ function loadBlogPosts() {
               category: meta.category || '',
               date: meta.date || '',
               excerpt: meta.excerpt || '',
+              paragraphs: parsePostParagraphs(text),
               file: file,
               index: index
             };
-            renderBlogCard(editor, post);
+            renderBlogCard(editor, post, blogTabRefs);
             loaded++;
             if (loaded === postFiles.length) {
               removeLoading(editor.views);
+              
+              addPreviewToggle(grid, editor.modebar);
+              if (editorWindow && blogTabRefs.length) {
+                registerSectionFolder('Latest Posts', blogSection, blogTabRefs);
+              }
               if (error) showBlogError(grid, 'Some posts could not be loaded.');
             }
           })
@@ -654,6 +961,11 @@ function loadBlogPosts() {
             loaded++;
             if (loaded === postFiles.length) {
               removeLoading(editor.views);
+              
+              addPreviewToggle(grid, editor.modebar);
+              if (editorWindow && blogTabRefs.length) {
+                registerSectionFolder('Latest Posts', blogSection, blogTabRefs);
+              }
               showBlogError(grid, 'Some posts could not be loaded.');
             }
           });
@@ -694,16 +1006,56 @@ function parsePostHeaders(text) {
 }
 
 function createEditorPanel(grid) {
+  const tabsbar = document.createElement('div');
+  tabsbar.className = 'editor-tabsbar';
+
   const tabs = document.createElement('div');
   tabs.className = 'editor-tabs';
+
+  const modebar = document.createElement('div');
+  modebar.className = 'editor-modebar';
+  modebar.setAttribute('role', 'group');
+  modebar.setAttribute('aria-label', 'Display mode');
+
+  tabsbar.appendChild(tabs);
+  tabsbar.appendChild(modebar);
 
   const views = document.createElement('div');
   views.className = 'editor-views';
 
-  grid.appendChild(tabs);
+  grid.appendChild(tabsbar);
   grid.appendChild(views);
 
-  return { tabs: tabs, views: views, activeTab: null };
+  return { tabs: tabs, views: views, modebar: modebar, activeTab: null };
+}
+
+function addPreviewToggle(panel, modebar) {
+  const previewBtn = document.createElement('button');
+  previewBtn.type = 'button';
+  previewBtn.className = 'mode-btn mode-preview active';
+  previewBtn.textContent = 'Preview';
+  previewBtn.setAttribute('aria-pressed', 'true');
+
+  const sourceBtn = document.createElement('button');
+  sourceBtn.type = 'button';
+  sourceBtn.className = 'mode-btn mode-source';
+  sourceBtn.textContent = 'Source';
+  sourceBtn.setAttribute('aria-pressed', 'false');
+
+  function setMode(preview) {
+    panel.classList.toggle('is-preview', preview);
+    previewBtn.classList.toggle('active', preview);
+    sourceBtn.classList.toggle('active', !preview);
+    previewBtn.setAttribute('aria-pressed', String(preview));
+    sourceBtn.setAttribute('aria-pressed', String(!preview));
+  }
+
+  previewBtn.addEventListener('click', function () { setMode(true); this.blur(); });
+  sourceBtn.addEventListener('click', function () { setMode(false); this.blur(); });
+
+  modebar.appendChild(previewBtn);
+  modebar.appendChild(sourceBtn);
+  setMode(true);
 }
 
 function selectEditorFile(editor, tab, view) {
@@ -717,11 +1069,12 @@ function selectEditorFile(editor, tab, view) {
   view.classList.add('active');
 }
 
-function renderBlogCard(editor, post) {
+function renderBlogCard(editor, post, tabRefs) {
   const tab = document.createElement('button');
   tab.type = 'button';
   tab.className = 'editor-tab';
-  tab.appendChild(document.createTextNode(post.title));
+  const short = shortName(post.title);
+  tab.appendChild(document.createTextNode(short + '.md'));
   tab.title = post.title;
 
   const close = document.createElement('span');
@@ -735,7 +1088,7 @@ function renderBlogCard(editor, post) {
   if (post.file) {
     const comment = document.createElement('p');
     comment.className = 'editor-comment';
-    comment.textContent = '// src/Blogs/' + post.file;
+    comment.textContent = '// "Latest Posts"/' + post.file;
     view.appendChild(comment);
   }
 
@@ -754,6 +1107,18 @@ function renderBlogCard(editor, post) {
   excerpt.textContent = post.excerpt;
   view.appendChild(excerpt);
 
+  if (post.paragraphs && post.paragraphs.length) {
+    const preview = document.createElement('div');
+    preview.className = 'editor-preview';
+    post.paragraphs.forEach(paragraph => {
+      const para = document.createElement('div');
+      para.className = 'preview-paragraph';
+      para.innerHTML = paragraph;
+      preview.appendChild(para);
+    });
+    view.appendChild(preview);
+  }
+
   const link = document.createElement('a');
   link.className = 'editor-link';
   link.href = '../Blog/Blog.html#post-' + post.index;
@@ -761,6 +1126,10 @@ function renderBlogCard(editor, post) {
   view.appendChild(link);
 
   tab.onclick = function () { selectEditorFile(editor, tab, view); };
+
+  if (tabRefs) {
+    tabRefs.push({ label: post.title, fileName: short, tab: tab, view: view, editor: editor });
+  }
 
   editor.tabs.appendChild(tab);
   editor.views.appendChild(view);

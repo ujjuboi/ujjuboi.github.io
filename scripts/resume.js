@@ -82,8 +82,15 @@ function parseCV(text) {
           if (t === '') continue;
           if (t.startsWith('**') && t.endsWith('**') && !job.role) {
             job.role = t.slice(2, -2);
+          } else if (/^#{3,6}\s/.test(t)) {
+            job.bullets.push({ kind: 'heading', text: t.replace(/^#+\s*/, '') });
+          } else if (/^[-+*]\s/.test(t) && line !== t) {
+            const last = job.bullets[job.bullets.length - 1];
+            if (last && last.kind === 'bullet') {
+              last.sub.push(t.replace(/^[-+*]\s*/, ''));
+            }
           } else if (t.startsWith('- ')) {
-            job.bullets.push(t.slice(2));
+            job.bullets.push({ kind: 'bullet', text: t.slice(2), sub: [] });
           } else if (t && !job.date) {
             job.date = t;
           }
@@ -240,8 +247,24 @@ function renderExperience(jobs) {
     if (job.bullets && job.bullets.length) {
       const ul = document.createElement('ul');
       job.bullets.forEach(bullet => {
+        if (bullet.kind === 'heading') {
+          const h = document.createElement('li');
+          h.className = 'resume-subheading';
+          h.innerHTML = mdInline(bullet.text);
+          ul.appendChild(h);
+          return;
+        }
         const li = document.createElement('li');
-        li.textContent = bullet;
+        li.innerHTML = mdInline(bullet.text);
+        if (bullet.sub && bullet.sub.length) {
+          const subUl = document.createElement('ul');
+          bullet.sub.forEach(s => {
+            const sl = document.createElement('li');
+            sl.innerHTML = mdInline(s);
+            subUl.appendChild(sl);
+          });
+          li.appendChild(subUl);
+        }
         ul.appendChild(li);
       });
       div.appendChild(ul);
@@ -340,6 +363,25 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+function mdInline(text) {
+  let html = escapeHtml(String(text || ''));
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (match, label, url) {
+    const trimmed = url.trim();
+    const scheme = trimmed.match(/^([a-z][a-z0-9+.-]*):/i);
+    if (scheme && ['http', 'https', 'mailto', '#'].indexOf(scheme[1].toLowerCase()) === -1) {
+      return match;
+    }
+    return '<a href="' + escapeHtml(trimmed) + '" target="_blank" rel="noopener">' + label + '</a>';
+  });
+  html = html.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/(^|[^*])\*([^*]+)\*/g, function (match, pre, italic) {
+    return pre + '<em>' + italic + '</em>';
+  });
+  return html;
 }
 
 initMenuToggle('#resume-container');
