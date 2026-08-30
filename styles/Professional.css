@@ -1,20 +1,4 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins&family=Raleway:wght@800&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&display=swap');
-
-:root {
-  font-size: 16px;
-
-  --borderColor: #000000;
-  --backgroundColor: #F9F3EF;
-  --shadowColor: #09382F;
-  --contentColor: #F6DBDB;
-  --contrastText: #09382F;
-  --linkColor: #09382F;
-  --linkHover: #000000;
-
-  --headings: 'Raleway', sans-serif;
-  --poppins: 'Poppins', sans-serif;
-}
 
 /* Editor theme: CSS variables for all hex colors */
 body.pro-page {
@@ -38,7 +22,6 @@ body.pro-page {
   --borderPanel: #2d2d30;
   --borderError: #4a4a4a;
   --bulletGray: #808080;
-  --explorerHover: #35353a;
 
   /* Syntax highlighting tokens */
   --tokenKeyword: #569cd6;
@@ -358,10 +341,6 @@ body.pro-page .page-container {
   padding: 0;
 }
 
-/* .editor-window .editor-titlebar {
-  gap: 0.5rem;
-} */
-
 .editor-filename {
   font-family: var(--poppins);
   font-size: 1.06rem;
@@ -401,7 +380,6 @@ body.pro-page .page-container {
   flex: 0 0 17rem;
   min-height: 0;
   background-color: var(--editorBgAlt);
-  /* border-right: 0.1rem solid #3c3c3c; */
 }
 
 .directory-header {
