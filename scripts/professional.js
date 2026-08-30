@@ -4,6 +4,103 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function mdInline(text) {
+  let html = escapeHtml(String(text || ''));
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (match, label, url) {
+    const trimmed = url.trim();
+    const scheme = trimmed.match(/^([a-z][a-z0-9+.-]*):/i);
+    if (scheme && ['http', 'https', 'mailto', '#'].indexOf(scheme[1].toLowerCase()) === -1) {
+      return match;
+    }
+    return '<a href="' + escapeHtml(trimmed) + '" target="_blank" rel="noopener">' + label + '</a>';
+  });
+  html = html.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/(^|[^*])\*([^*]+)\*/g, function (match, pre, italic) {
+    return pre + '<em>' + italic + '</em>';
+  });
+  return html;
+}
+
+function mdBlock(text) {
+  const lines = String(text || '').split('\n');
+  let html = '';
+  const stack = [];
+
+  function openListCount() {
+    return stack.filter(function (t) { return t === 'ul' || t === 'ol'; }).length;
+  }
+
+  function closeAll() {
+    while (stack.length) {
+      const tag = stack.pop();
+      html += tag === 'li' ? '</li>' : '</' + tag + '>';
+    }
+  }
+
+  for (const line of lines) {
+    const listMatch = line.match(/^([ \t]*)([-+*]|\d+\.)\s+(.*)$/);
+    if (listMatch) {
+      const level = Math.round(listMatch[1].replace(/\t/g, '  ').length / 2);
+      const marker = listMatch[2];
+      const content = listMatch[3];
+      let depth = stack.filter(function (t) { return t === 'ul' || t === 'ol'; }).length - 1;
+
+      if (depth < level) {
+        while (depth < level) {
+          const tag = /^\d+\.$/.test(marker) ? 'ol' : 'ul';
+          html += '<' + tag + '>';
+          stack.push(tag);
+          depth++;
+        }
+      } else {
+        while (depth > level) {
+          html += '</li>';
+          stack.pop();
+          html += '</' + stack.pop() + '>';
+          depth--;
+        }
+        if (depth >= 0) {
+          html += '</li>';
+          stack.pop();
+        }
+      }
+
+      html += '<li>' + mdInline(content);
+      stack.push('li');
+      continue;
+    }
+
+    closeAll();
+
+    if (/^#{1,6}\s/.test(line)) {
+      const level = line.match(/^#+/)[0].length;
+      html += '\n<h' + level + '>' + mdInline(line.replace(/^#{1,6}\s*/, '')) + '</h' + level + '>\n';
+    } else if (/^\s*([-*_])\1{2,}\s*$/.test(line)) {
+      html += '\n<hr>\n';
+    } else if (/^>\s?/.test(line)) {
+      html += '\n<blockquote><p>' + mdInline(line.replace(/^>\s?/, '').trim()) + '</p></blockquote>\n';
+    } else if (line.trim() === '') {
+      html += '\n';
+    } else {
+      html += '\n<p>' + mdInline(line.trim()) + '</p>\n';
+    }
+  }
+
+  closeAll();
+  return html;
+}
+
+function parsePostParagraphs(text) {
+  const lines = text.split('\n');
+  const bodyStart = lines.findIndex(l => l.startsWith('## Paragraphs'));
+  if (bodyStart === -1) return [];
+  return lines.slice(bodyStart + 1)
+    .filter(line => line.startsWith('- '))
+    .map(line => line.slice(2).trim());
+}
+
 var TOKEN_MAP = {
   'next.js': 'tk-kw', 'nextjs': 'tk-kw', 'express.js': 'tk-kw',
   'expressjs': 'tk-kw', 'express js': 'tk-kw', 'springboot': 'tk-kw', 'spring boot': 'tk-kw',
@@ -158,8 +255,19 @@ function parseCV(text) {
           if (t === '') continue;
           if (t.startsWith('**') && t.endsWith('**') && !job.role) {
             job.role = t.slice(2, -2);
+          } else if (/^#{3,6}\s/.test(t)) {
+            job.bullets.push({
+              kind: 'heading',
+              level: t.match(/^#+/)[0].length,
+              text: t.replace(/^#+\s*/, '')
+            });
+          } else if (/^[-+*]\s/.test(t) && line !== t) {
+            const last = job.bullets[job.bullets.length - 1];
+            if (last && last.kind === 'bullet') {
+              last.sub.push(t.replace(/^[-+*]\s*/, ''));
+            }
           } else if (t.startsWith('- ')) {
-            job.bullets.push(t.slice(2));
+            job.bullets.push({ kind: 'bullet', text: t.slice(2), sub: [] });
           } else if (t && !job.date) {
             job.date = t;
             job.sortKey = parseStartSortKey(t);
@@ -494,13 +602,6 @@ function renderProfessional(data) {
   const container = document.getElementById('pro-container');
   container.innerHTML = '';
 
-  if (data.summary) {
-    const heroSummary = document.getElementById('hero-summary');
-    if (heroSummary) {
-      heroSummary.textContent = data.summary;
-    }
-  }
-
   setupEditorWindow();
 
   const exp = renderExperience(data.experience);
@@ -523,7 +624,7 @@ function renderProfessional(data) {
     activateSection(expSection, exp.tabRefs[0].item);
   }
 
-  container.querySelectorAll('.editor-bullets, .editor-excerpt, .skills-code').forEach(content => {
+  container.querySelectorAll('.editor-bullets, .editor-excerpt, .editor-preview').forEach(content => {
     highlightTokens(content);
   });
 }
@@ -598,14 +699,56 @@ function renderExperience(jobs) {
     }
 
     if (job.bullets && job.bullets.length) {
-      const ul = document.createElement('ul');
-      ul.className = 'editor-bullets';
+      const wrap = document.createElement('div');
+      wrap.className = 'editor-bullets';
+      let currentUl = null;
+
+      function ensureUl() {
+        if (!currentUl) {
+          currentUl = document.createElement('ul');
+          wrap.appendChild(currentUl);
+        }
+        return currentUl;
+      }
+
       job.bullets.forEach(bullet => {
+        if (bullet.kind === 'heading') {
+          currentUl = null;
+          const h = document.createElement('div');
+          h.className = 'editor-subheading';
+          h.textContent = bullet.text;
+          wrap.appendChild(h);
+          return;
+        }
         const li = document.createElement('li');
-        li.textContent = bullet;
-        ul.appendChild(li);
+        li.textContent = bullet.text;
+        ensureUl().appendChild(li);
+        if (bullet.sub && bullet.sub.length) {
+          const subUl = document.createElement('ul');
+          bullet.sub.forEach(s => {
+            const sl = document.createElement('li');
+            sl.textContent = s;
+            subUl.appendChild(sl);
+          });
+          li.appendChild(subUl);
+        }
       });
-      view.appendChild(ul);
+      view.appendChild(wrap);
+
+      const preview = document.createElement('div');
+      preview.className = 'editor-preview';
+      const lines = [];
+      job.bullets.forEach(bullet => {
+        if (bullet.kind === 'heading') {
+          lines.push('');
+          lines.push('#'.repeat(bullet.level || 4) + ' ' + bullet.text);
+        } else {
+          lines.push('- ' + bullet.text);
+          (bullet.sub || []).forEach(s => lines.push('  - ' + s));
+        }
+      });
+      preview.innerHTML = mdBlock(lines.join('\n'));
+      view.appendChild(preview);
     }
 
     tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
@@ -617,6 +760,8 @@ function renderExperience(jobs) {
 
     if (!editor.activeTab) selectEditorFile(editor, tab, view);
   });
+
+  addPreviewToggle(wrapper, editor.modebar);
 
   return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
@@ -667,6 +812,13 @@ function renderProjects(projects) {
       desc.className = 'editor-excerpt';
       desc.textContent = proj.desc;
       view.appendChild(desc);
+
+      const preview = document.createElement('div');
+      preview.className = 'editor-preview';
+      const p = document.createElement('p');
+      p.innerHTML = mdInline(proj.desc);
+      preview.appendChild(p);
+      view.appendChild(preview);
     }
 
     tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
@@ -678,6 +830,8 @@ function renderProjects(projects) {
 
     if (!editor.activeTab) selectEditorFile(editor, tab, view);
   });
+
+  addPreviewToggle(wrapper, editor.modebar);
 
   return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
@@ -711,30 +865,29 @@ function renderSkills(categories) {
     comment.textContent = '// Skills/' + short + '.md';
     view.appendChild(comment);
 
-    const pre = document.createElement('div');
-    pre.className = 'skills-code';
+    const title = document.createElement('h3');
+    title.className = 'editor-title';
+    title.textContent = fullName;
+    view.appendChild(title);
 
-    const open = document.createElement('p');
-    open.className = 'skills-code-line';
-    open.appendChild(makeSpan('tk-kw', 'const'));
-    open.appendChild(makeSpan('tk-lg', ' ' + short));
-    open.appendChild(document.createTextNode(' = ['));
-    pre.appendChild(open);
-
+    const ul = document.createElement('ul');
+    ul.className = 'editor-bullets';
     (cat.items || []).forEach(skill => {
-      const item = document.createElement('p');
-      item.className = 'skills-code-line indented';
-      item.appendChild(document.createTextNode(skill));
-      item.appendChild(document.createTextNode(','));
-      pre.appendChild(item);
+      const li = document.createElement('li');
+      li.textContent = skill;
+      ul.appendChild(li);
     });
+    view.appendChild(ul);
 
-    const closing = document.createElement('p');
-    closing.className = 'skills-code-line indented';
-    closing.textContent = '];';
-    pre.appendChild(closing);
-
-    view.appendChild(pre);
+    const preview = document.createElement('div');
+    preview.className = 'editor-preview';
+    (cat.items || []).forEach(skill => {
+      const chip = document.createElement('span');
+      chip.className = 'tag';
+      chip.textContent = skill;
+      preview.appendChild(chip);
+    });
+    view.appendChild(preview);
 
     tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
 
@@ -746,14 +899,9 @@ function renderSkills(categories) {
     if (!editor.activeTab) selectEditorFile(editor, tab, view);
   });
 
-  return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
-}
+  addPreviewToggle(wrapper, editor.modebar);
 
-function makeSpan(cls, text) {
-  const span = document.createElement('span');
-  span.className = cls;
-  span.textContent = text;
-  return span;
+  return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
 
 function loadBlogPosts() {
@@ -795,6 +943,7 @@ function loadBlogPosts() {
               category: meta.category || '',
               date: meta.date || '',
               excerpt: meta.excerpt || '',
+              paragraphs: parsePostParagraphs(text),
               file: file,
               index: index
             };
@@ -802,6 +951,8 @@ function loadBlogPosts() {
             loaded++;
             if (loaded === postFiles.length) {
               removeLoading(editor.views);
+              grid.querySelectorAll('.editor-preview').forEach(content => highlightTokens(content));
+              addPreviewToggle(grid, editor.modebar);
               if (editorWindow && blogTabRefs.length) {
                 registerSectionFolder('Latest Posts', blogSection, blogTabRefs);
               }
@@ -814,6 +965,8 @@ function loadBlogPosts() {
             loaded++;
             if (loaded === postFiles.length) {
               removeLoading(editor.views);
+              grid.querySelectorAll('.editor-preview').forEach(content => highlightTokens(content));
+              addPreviewToggle(grid, editor.modebar);
               if (editorWindow && blogTabRefs.length) {
                 registerSectionFolder('Latest Posts', blogSection, blogTabRefs);
               }
@@ -857,16 +1010,56 @@ function parsePostHeaders(text) {
 }
 
 function createEditorPanel(grid) {
+  const tabsbar = document.createElement('div');
+  tabsbar.className = 'editor-tabsbar';
+
   const tabs = document.createElement('div');
   tabs.className = 'editor-tabs';
+
+  const modebar = document.createElement('div');
+  modebar.className = 'editor-modebar';
+  modebar.setAttribute('role', 'group');
+  modebar.setAttribute('aria-label', 'Display mode');
+
+  tabsbar.appendChild(tabs);
+  tabsbar.appendChild(modebar);
 
   const views = document.createElement('div');
   views.className = 'editor-views';
 
-  grid.appendChild(tabs);
+  grid.appendChild(tabsbar);
   grid.appendChild(views);
 
-  return { tabs: tabs, views: views, activeTab: null };
+  return { tabs: tabs, views: views, modebar: modebar, activeTab: null };
+}
+
+function addPreviewToggle(panel, modebar) {
+  const previewBtn = document.createElement('button');
+  previewBtn.type = 'button';
+  previewBtn.className = 'mode-btn mode-preview active';
+  previewBtn.textContent = 'Preview';
+  previewBtn.setAttribute('aria-pressed', 'true');
+
+  const sourceBtn = document.createElement('button');
+  sourceBtn.type = 'button';
+  sourceBtn.className = 'mode-btn mode-source';
+  sourceBtn.textContent = 'Source';
+  sourceBtn.setAttribute('aria-pressed', 'false');
+
+  function setMode(preview) {
+    panel.classList.toggle('is-preview', preview);
+    previewBtn.classList.toggle('active', preview);
+    sourceBtn.classList.toggle('active', !preview);
+    previewBtn.setAttribute('aria-pressed', String(preview));
+    sourceBtn.setAttribute('aria-pressed', String(!preview));
+  }
+
+  previewBtn.addEventListener('click', function () { setMode(true); this.blur(); });
+  sourceBtn.addEventListener('click', function () { setMode(false); this.blur(); });
+
+  modebar.appendChild(previewBtn);
+  modebar.appendChild(sourceBtn);
+  setMode(true);
 }
 
 function selectEditorFile(editor, tab, view) {
@@ -917,6 +1110,18 @@ function renderBlogCard(editor, post, tabRefs) {
   excerpt.className = 'editor-excerpt';
   excerpt.textContent = post.excerpt;
   view.appendChild(excerpt);
+
+  if (post.paragraphs && post.paragraphs.length) {
+    const preview = document.createElement('div');
+    preview.className = 'editor-preview';
+    post.paragraphs.forEach(paragraph => {
+      const para = document.createElement('div');
+      para.className = 'preview-paragraph';
+      para.innerHTML = paragraph;
+      preview.appendChild(para);
+    });
+    view.appendChild(preview);
+  }
 
   const link = document.createElement('a');
   link.className = 'editor-link';
