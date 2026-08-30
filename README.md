@@ -35,7 +35,10 @@ Making my own dynamic blogging website!
 │   ├── application-code-svgrepo-com.svg
 │   ├── back-button-svgrepo-com.svg
 │   ├── email 1.svg
+│   ├── folder-open-svgrepo-com.svg
+│   ├── folder-svgrepo-com.svg
 │   ├── github 1.svg
+│   ├── information-svgrepo-com.svg
 │   ├── linkedin 1.svg
 │   ├── Menu  1.svg
 │   ├── MyImage.jpg
