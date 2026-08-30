@@ -348,6 +348,19 @@ function setupEditorWindow() {
   return editorWindow;
 }
 
+function activateSection(sectionEl, item) {
+  if (!editorWindow) return;
+  if (editorWindow.sidebar) editorWindow.sidebar.classList.add('open');
+  editorWindow.main.querySelectorAll('.pro-section').forEach(function (s) {
+    s.style.display = 'none';
+  });
+  editorWindow.entries.forEach(entry => {
+    entry.item.classList.remove('active');
+  });
+  sectionEl.style.display = 'block';
+  if (item) item.classList.add('active');
+}
+
 function registerDirectoryEntry(title, sectionEl) {
   if (!editorWindow) return;
   const item = document.createElement('div');
@@ -359,25 +372,10 @@ function registerDirectoryEntry(title, sectionEl) {
   name.textContent = title;
   item.appendChild(icon);
   item.appendChild(name);
-  item.onclick = function () {
-    if (editorWindow.sidebar) editorWindow.sidebar.classList.add('open');
-    editorWindow.entries.forEach(entry => {
-      entry.section.style.display = 'none';
-      entry.item.classList.remove('active');
-    });
-    sectionEl.style.display = 'block';
-    item.classList.add('active');
-  };
+  item.onclick = function () { activateSection(sectionEl, item); };
   sectionEl.style.display = 'none';
   editorWindow.entries.push({ section: sectionEl, item: item });
   editorWindow.tree.appendChild(item);
-}
-
-function showFirstDirectoryEntry() {
-  if (!editorWindow || !editorWindow.entries.length) return;
-  const first = editorWindow.entries[0];
-  first.item.classList.add('active');
-  first.section.style.display = 'block';
 }
 
 function renderProfessional(data) {
@@ -393,8 +391,12 @@ function renderProfessional(data) {
 
   setupEditorWindow();
 
-  [['Experience', renderTimeline(data.experience)],
-   ['Projects', renderProjects(data.projects)],
+  const exp = renderTimeline(data.experience);
+  const expSection = renderSection('Experience', exp.wrapper);
+  editorWindow.main.appendChild(expSection);
+  registerDirectoryEntry('Experience.md', expSection);
+
+  [['Projects', renderProjects(data.projects)],
    ['Skills', renderSkills(data.skills)]
   ].forEach(pair => {
     const section = renderSection(pair[0], pair[1]);
@@ -402,7 +404,8 @@ function renderProfessional(data) {
     registerDirectoryEntry(pair[0] + '.md', section);
   });
 
-  showFirstDirectoryEntry();
+  activateSection(expSection);
+  exp.selectJob(exp.jobRefs[0]);
 
   container.querySelectorAll('.editor-bullets, .editor-excerpt, .skills-code').forEach(content => {
     highlightTokens(content);
@@ -428,16 +431,58 @@ function renderSection(title, contentEl) {
 
 function renderTimeline(jobs) {
   const wrapper = document.createElement('div');
-  wrapper.className = 'editor-panel';
-  const editor = createEditorPanel(wrapper);
+  wrapper.className = 'editor-panel experience-panel';
 
-  jobs.forEach(job => {
+  const timeline = document.createElement('aside');
+  timeline.className = 'timeline';
+  wrapper.appendChild(timeline);
+
+  const header = document.createElement('div');
+  header.className = 'timeline-header';
+
+  const title = document.createElement('span');
+  title.className = 'timeline-title';
+  title.textContent = '// careers \u2014 ' + jobs.length + ' role' + (jobs.length === 1 ? '' : 's');
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'timeline-toggle';
+  toggle.setAttribute('aria-expanded', 'true');
+  toggle.setAttribute('aria-label', 'Collapse timeline');
+  toggle.textContent = '\u25BE';
+  toggle.addEventListener('click', function () {
+    const collapsed = timeline.classList.toggle('collapsed');
+    toggle.setAttribute('aria-expanded', String(!collapsed));
+    toggle.setAttribute('aria-label', collapsed ? 'Expand timeline' : 'Collapse timeline');
+  });
+
+  header.appendChild(title);
+  header.appendChild(toggle);
+  timeline.appendChild(header);
+
+  const list = document.createElement('div');
+  list.className = 'timeline-list';
+  timeline.appendChild(list);
+
+  const stack = document.createElement('div');
+  stack.className = 'editor-stack';
+  wrapper.appendChild(stack);
+
+  const editor = createEditorPanel(stack);
+  const jobRefs = [];
+
+  const sorted = jobs.slice().sort(function (a, b) {
+    return (b.sortKey || 0) - (a.sortKey || 0);
+  });
+
+  sorted.forEach(job => {
     const tabName = job.role || job.company || 'Role';
+
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'editor-tab';
     tab.appendChild(document.createTextNode(tabName));
-    tab.title = (job.company || '') + (job.date ? ' · ' + job.date : '');
+    tab.title = (job.company || '') + (job.date ? ' \u00B7 ' + job.date : '');
 
     const close = document.createElement('span');
     close.className = 'editor-tab-close';
@@ -450,7 +495,7 @@ function renderTimeline(jobs) {
     if (job.company || job.role) {
       const comment = document.createElement('p');
       comment.className = 'editor-comment';
-      const slug = (tabName).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const slug = tabName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       comment.textContent = '// careers/' + slug + '.md';
       view.appendChild(comment);
     }
@@ -465,7 +510,7 @@ function renderTimeline(jobs) {
     if (job.company || job.date) {
       const meta = document.createElement('p');
       meta.className = 'editor-meta';
-      meta.textContent = [job.company, job.date].filter(Boolean).join(' · ');
+      meta.textContent = [job.company, job.date].filter(Boolean).join(' \u00B7 ');
       view.appendChild(meta);
     }
 
@@ -480,15 +525,67 @@ function renderTimeline(jobs) {
       view.appendChild(ul);
     }
 
-    tab.onclick = function () { selectEditorFile(editor, tab, view); };
+    const node = document.createElement('button');
+    node.type = 'button';
+    node.className = 'timeline-node';
+    node.setAttribute('aria-label', (job.role || tabName) + (job.date ? ', ' + job.date : ''));
+
+    const dot = document.createElement('span');
+    dot.className = 'timeline-dot';
+    const text = document.createElement('span');
+    text.className = 'timeline-text';
+    const roleEl = document.createElement('span');
+    roleEl.className = 'timeline-role';
+    roleEl.textContent = tabName;
+    const companyEl = document.createElement('span');
+    companyEl.className = 'timeline-company';
+    companyEl.textContent = [job.company, job.date].filter(Boolean).join(' \u00B7 ');
+    const dateEl = document.createElement('span');
+    dateEl.className = 'timeline-date';
+    dateEl.textContent = sortKeyToLabel(job.sortKey);
+    text.appendChild(roleEl);
+    text.appendChild(companyEl);
+    node.appendChild(dot);
+    node.appendChild(text);
+    node.appendChild(dateEl);
+    list.appendChild(node);
+
+    const jobRef = { tab: tab, view: view, node: node, job: job, title: tabName };
+    jobRefs.push(jobRef);
+
+    tab.onclick = function () { selectJob(jobRef); };
+    node.onclick = function () { selectJob(jobRef); };
 
     editor.tabs.appendChild(tab);
     editor.views.appendChild(view);
-
-    if (!editor.activeTab) selectEditorFile(editor, tab, view);
   });
 
-  return wrapper;
+  function selectJob(jobRef) {
+    if (!jobRef) return;
+    selectEditorFile(editor, jobRef.tab, jobRef.view);
+    jobRefs.forEach(ref => {
+      const active = ref === jobRef;
+      ref.node.classList.toggle('active', active);
+      ref.node.setAttribute('aria-current', active ? 'true' : 'false');
+    });
+  }
+
+  jobRefs.forEach((ref, index) => {
+    ref.node.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectJob(ref);
+      } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const step = e.key === 'ArrowDown' ? 1 : -1;
+        const next = jobRefs[(index + step + jobRefs.length) % jobRefs.length];
+        selectJob(next);
+        next.node.focus({ preventScroll: true });
+      }
+    });
+  });
+
+  return { wrapper: wrapper, editor: editor, jobRefs: jobRefs, selectJob: selectJob };
 }
 
 function renderProjects(projects) {
