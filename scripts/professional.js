@@ -112,17 +112,7 @@ function sectionLines(lines, start) {
 
 function parseCV(text) {
   const lines = text.split('\n');
-  const data = { contact: {}, summary: '', experience: [], projects: [], education: [], skills: [] };
-  const fields = { Location: 'location', Email: 'email', LinkedIn: 'linkedin', Portfolio: 'portfolio', GitHub: 'github' };
-
-  for (let i = 1; i < lines.length && !lines[i].startsWith('## '); i++) {
-    const line = lines[i].trim();
-    for (const [key, field] of Object.entries(fields)) {
-      if (line.startsWith('**' + key + ':**')) {
-        data.contact[field] = line.split('**' + key + ':**')[1].trim();
-      }
-    }
-  }
+  const data = { summary: '', experience: [], projects: [], skills: [] };
 
   let i = 0;
   while (i < lines.length && !lines[i].startsWith('## ')) i++;
@@ -173,23 +163,6 @@ function parseCV(text) {
         const tag = afterName.split('(')[1] || '';
         const desc = content.split('--')[1] || '';
         data.projects.push({ name: name.trim(), tag: tag.trim(), desc: desc.trim() });
-      }
-      i += block.length;
-      continue;
-    }
-
-    if (section === 'Education') {
-      const block = sectionLines(lines, i + 1);
-      for (const line of block) {
-        const t = line.trim();
-        if (!t.startsWith('- ')) continue;
-        const content = t.slice(2);
-        const degree = content.split(',')[0].trim();
-        const rest = content.split(',')[1] || '';
-        const school = rest.split('(')[0].trim();
-        const cgpa = rest.includes('(') ? rest.split('(')[1].split(')')[0].trim() : '';
-        const dates = rest.includes(')') ? rest.split(')')[1].trim() : '';
-        data.education.push({ degree, school, cgpa, dates });
       }
       i += block.length;
       continue;
