@@ -23,8 +23,8 @@ June 2026 - Present
 - Designed and implemented schema attributes to establish relationships between SailPoint, Okta, and PingFederate data points (applications, accounts, identities, entitlements, workstations) and directory users, groups, and computers
 - Optimized MongoDB data ingestion from 10 to 1,500 records/sec through comprehensive performance profiling, new indexing strategies, batch size optimization, and bulk write operations instead of findOneAndUpdate, enabling ingestion of 18 million group membership records in just 3-4 hours (90% reduction in processing time)
 - Led architectural decision-making process to balance system performance with compliance requirements, determining that while S3 uploads would provide better scalability, the additional AWS compliance overhead made optimizing existing MongoDB operations a more practical solution 
-- Identified data upload bottleneck between the ec2 instance server on which the app image was deployed and the mongo server instance, moving the db server to the same location to reduce network latency during import
-- Successfully migrating DDX's data classification, definition and usecases feature into app factory to identify orphan groups, inactive service accounts making it cross platform instead of DDX's specific directory data, creating correlation between inactive service accounts in business application, groups and entitlements
+- Identified data upload bottleneck between the EC2 instance server on which the app image was deployed and the MongoDB server instance; moved the DB server to the same location to reduce network latency during import
+- Migrated DDX's data classification, definition and usecases feature into app factory to identify orphan groups, inactive service accounts making it cross platform instead of DDX's specific directory data, creating correlation between inactive service accounts in business application, groups and entitlements
 - Extended the existing feature to track and alert on data ingestion errors, creating a quality gate check feature to create custom business rulesets that the data is ran upon and is staged before writing it to the db 
 - Created business application specific workflows to resolve shared groups, identify potential owners of orphan groups, generate description for entitlements based on metadata
 
@@ -35,7 +35,7 @@ Dec 2025 - June 2026
 
 - Developed, tested, and documented features for a large-scale enterprise onboarding and governance platform.
 - Designed migration roadmap from modular monolith to microservices architecture by defining bounded contexts and service communication patterns.
-- Built AI-powered GitHub Agentic Workflows using GitHub Actions, markdown-defined workflows, gh aw CLI, and GitHub Copilot / Claude / Codex engines for autonomous pull request automation with secure guardrails.
+- Built AI-powered GitHub Agentic Workflows using GitHub Actions, markdown-defined workflows, gh CLI, and GitHub Copilot / Claude / Codex engines for autonomous pull request automation with secure guardrails.
 - Implemented Grumpy Code Reviewer using tools.github and LLM agents to review PRs, detect maintainability issues, and improve code review turnaround time.
 - Added intelligent lint-check workflows using bash tools, repository context tools, and PR triggers to validate coding standards and prevent unnecessary code changes.
 - Created automated jobs to generate PR descriptions from linked issues using GitHub issues + pull_requests toolsets, contextual summarization agents, and safe outputs.
@@ -63,8 +63,7 @@ Nov 2023 - July 2025
 - Researched offerings like Wiz and SkyArk to build a PoC integrating AWS IAM data using AWS SDK for Java, extending tool capabilities.
 - Developed diverse analytics use cases by correlating identity sources such as Active Directory, Microsoft Entra ID, and AWS IAM through MongoDB queries.
 - Built visual graph-based analytics with React Flow and ChartJS to find security vulnerabilities in identity data.
-- Optimized dynamic data presentation in Next.js using dynamic routing and API payload tuning; reduced data load time by 50% with Bootstrap Table pagination.
-- Displaying data for each use case using dynamic routing in NextJS, reduced data load time by 50% by using pagination in Bootstrap Table and modifying payload in API.
+- Optimized dynamic data presentation in Next.js using dynamic routing, API payload tuning, and Bootstrap Table pagination; reduced data load time by 50%.
 - Created algorithms for ownership attribution in privileged entities with 95% accuracy, blending deterministic methods and Llama-powered probabilistic approaches.
 - Directed client engagements involving analysis of 100,000+ records across multiple domains, uncovering vulnerabilities and flagging 80% of the data.
 
@@ -73,7 +72,7 @@ Nov 2023 - July 2025
 **Risk & Financial Advisory Analyst - DDPX**
 June 2022 - Nov 2023
 
-- Developed an AI agent using machine learning (Spacy3, NLTK) to identify potential owners of IAM principals based on description and info attributes.
+- Developed an AI agent using machine learning (Spacy 3, NLTK) to identify potential owners of IAM principals based on description and info attributes.
 - Deloitte AI Academy Certified – 8-week bootcamp covering Hadoop, PySpark, Tableau, GCP Vertex AI, NumPy, and Pandas.
 
 ## Projects
@@ -86,7 +85,7 @@ June 2022 - Nov 2023
 
 ## Skills
 
-- **Frontend/Backend:** NextJS, ExpressJS, React Flow, ChartJS, Django
+- **Frontend/Backend:** Next.js, ExpressJS, React Flow, ChartJS, Django
 - **Languages/Tools:** Java, Python, JavaScript, TypeScript, Git, Bash
 - **Databases:** MongoDB, Redis, MySQL
 - **Cloud/AI:** AWS, GCP, Docker, Kubernetes, LangChain, Spacy 3, NLTK, Hadoop, PySpark, Tableau, GCP Vertex AI, Numpy, Pandas

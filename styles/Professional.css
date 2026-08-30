@@ -16,16 +16,44 @@
   --poppins: 'Poppins', sans-serif;
 }
 
-/* Dedicated root so this page scrolls normally (it is NOT body.sub-page) */
+/* Editor theme: CSS variables for all hex colors */
 body.pro-page {
   --headings: 'Consolas', 'Courier New', monospace;
   --poppins: 'Consolas', 'Courier New', monospace;
 
-  /* Editor theme */
+  /* Base colors */
   --editorBg: #1e1e1e;
   --editorBgAlt: #262626;
   --editorText: #d4d4d4;
   --editorMuted: #9aa0a6;
+
+  /* Accent colors */
+  --accentPrimary: #4ec9b0;
+  --accentPrimaryHover: #5fd9c0;
+  --accentDark: #09382f;
+  --accentLight: #ffffff;
+
+  /* Border colors */
+  --borderDark: #3c3c3c;
+  --borderPanel: #2d2d30;
+  --borderError: #4a4a4a;
+  --bulletGray: #808080;
+  --explorerHover: #35353a;
+
+  /* Syntax highlighting tokens */
+  --tokenKeyword: #569cd6;
+  --tokenCompany: #ce9178;
+  --tokenRole: #4ec9b0;
+  --tokenNumber: #f2961f;
+  --tokenFunction: #dcdcaa;
+  --tokenLanguage: #c586c0;
+
+  /* UI chrome */
+  --red: #ff5f56;
+  --yellow: #ffbd2e;
+  --green: #27c93f;
+  --commentGreen: #6a9955;
+  --statusBarBlue: #007acc;
 
   display: block;
   min-height: 100vh;
@@ -59,8 +87,8 @@ body.pro-page {
 .launch-btn {
   font-family: var(--poppins);
   font-size: 1.1rem;
-  color: #09382f;
-  background-color: #4ec9b0;
+  color: var(--accentDark);
+  background-color: var(--accentPrimary);
   border: none;
   border-radius: 0.4rem;
   padding: 0.9rem;
@@ -78,16 +106,36 @@ body.pro-page {
 
 .launch-btn:hover {
   transform: translateY(-2px);
-  background-color: #5fd9c0;
-  color: #000000;
+  background-color: var(--accentPrimaryHover);
+  color: var(--borderColor);
 }
 
 .launch-btn:hover .launch-btn-icon {
-  fill: #000000;
+  fill: var(--borderColor);
 }
 
 .launch-btn:active {
   transform: translateY(0);
+}
+
+.launch-banner .banner-links {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.1rem;
+  font-family: var(--poppins);
+  font-size: 1rem;
+}
+
+.launch-banner .banner-links a {
+  color: var(--editorMuted);
+  text-decoration: none;
+  border-bottom: 0.1rem solid transparent;
+  transition: color 0.15s ease, border-bottom-color 0.15s ease;
+}
+
+.launch-banner .banner-links a:hover {
+  color: var(--accentPrimary);
+  border-bottom-color: var(--accentPrimary);
 }
 
 /* Hero Banner */
@@ -108,7 +156,7 @@ body.pro-page {
   font-family: var(--poppins);
   font-size: 2.5rem;
   font-weight: 500;
-  color: #4ec9b0;
+  color: var(--accentPrimary);
   margin: 0 0 0.8rem 0;
   text-align: center;
 }
@@ -125,7 +173,7 @@ body.pro-page {
   position: relative;
   width: 100%;
   align-self: stretch;
-  background-color: #4ec9b0;
+  background-color: var(--accentPrimary);
 }
 
 .profiles-strip {
@@ -210,12 +258,12 @@ body.pro-page .page-container {
 }
 
 /* Token colors (syntax highlighting palette) */
-.tk-kw   { color: #569cd6; font-weight: 600; }   /* keywords / tech */
-.tk-co   { color: #ce9178; font-weight: 600; }   /* companies */
-.tk-role { color: #4ec9b0; font-weight: 600; }   /* roles */
-.tk-num  { color: #f2961f; font-weight: 600; }     /* numbers / percents */
-.tk-fn   { color: #dcdcaa; }                     /* functions / acronyms */
-.tk-lg   { color: #c586c0; font-weight: 600; }   /* language/library identifiers */
+.tk-kw   { color: var(--tokenKeyword); font-weight: 600; }   /* keywords / tech */
+.tk-co   { color: var(--tokenCompany); font-weight: 600; }   /* companies */
+.tk-role { color: var(--tokenRole); font-weight: 600; }       /* roles */
+.tk-num  { color: var(--tokenNumber); font-weight: 600; }     /* numbers / percents */
+.tk-fn   { color: var(--tokenFunction); }                      /* functions / acronyms */
+.tk-lg   { color: var(--tokenLanguage); font-weight: 600; }   /* language/library identifiers */
 
 /* Experience editor bullets */
 .editor-bullets {
@@ -239,7 +287,7 @@ body.pro-page .page-container {
   content: '-';
   position: absolute;
   left: 0;
-  color: #808080;
+  color: var(--bulletGray);
   font-weight: bold;
 }
 
@@ -280,6 +328,22 @@ body.pro-page .page-container {
   overflow: hidden;
 }
 
+.activity-bar {
+  display: none;
+  flex: 0 0 2.75rem;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 0.75rem;
+  background-color: var(--editorBgAlt);
+  border-right: 0.1rem solid var(--borderDark);
+}
+
+.editor-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+}
+
 .directory {
   display: flex;
   flex-direction: column;
@@ -290,6 +354,9 @@ body.pro-page .page-container {
 }
 
 .directory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   flex: 0 0 auto;
   font-family: var(--poppins);
   font-size: 1.1rem;
@@ -297,7 +364,22 @@ body.pro-page .page-container {
   letter-spacing: 0.08em;
   color: var(--editorMuted);
   padding: 0.6rem 0.9rem;
-  border-bottom: 0.1rem solid #3c3c3c;
+  border-bottom: 0.1rem solid var(--borderDark);
+}
+
+.directory-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0.1rem;
+  cursor: pointer;
+  color: var(--editorMuted);
+}
+
+.directory-toggle:hover {
+  color: var(--accentPrimary);
 }
 
 .directory-tree {
@@ -314,9 +396,9 @@ body.pro-page .page-container {
   gap: 0.5rem;
   flex: 0 0 auto;
   border: none;
-  border-top: 0.1rem solid #3c3c3c;
-  background-color: #2d2d30;
-  color: #ffffff;
+  border-top: 0.1rem solid var(--borderDark);
+  background-color: var(--borderPanel);
+  color: var(--accentLight);
   font-family: var(--poppins);
   font-size: 1.33rem;
   padding: 0.6rem 0.9rem;
@@ -327,11 +409,11 @@ body.pro-page .page-container {
 
 .directory-back-icon {
   flex-shrink: 0;
-  fill: #ff5f56;
+  fill: var(--red);
 }
 
 .directory-back:hover {
-  background-color: #35353a;
+  background-color: var(--explorerHover);
 }
 
 .directory-file {
@@ -350,17 +432,17 @@ body.pro-page .page-container {
 }
 
 .directory-file:hover {
-  background-color: #2d2d30;
+  background-color: var(--borderPanel);
 }
 
 .directory-file.active {
-  background-color: #1e1e1e;
-  color: #ffffff;
-  box-shadow: inset 0.15rem 0 0 #4ec9b0;
+  background-color: var(--editorBg);
+  color: var(--accentLight);
+  box-shadow: inset 0.15rem 0 0 var(--accentPrimary);
 }
 
 .directory-file.active .directory-file-icon {
-  background-color: #569cd6;
+  background-color: var(--tokenKeyword);
 }
 
 .directory-file-icon {
@@ -368,7 +450,7 @@ body.pro-page .page-container {
   width: 0.6rem;
   height: 0.6rem;
   border-radius: 0.15rem;
-  background-color: #4ec9b0;
+  background-color: var(--accentPrimary);
 }
 
 .editor-main {
@@ -376,7 +458,7 @@ body.pro-page .page-container {
   min-width: 0;
   overflow-y: scroll;
   scrollbar-width: auto;
-  scrollbar-color: #4ec9b0 var(--editorBgAlt);
+  scrollbar-color: var(--accentPrimary) var(--editorBgAlt);
   padding: 0 1rem 1rem;
 }
 
@@ -389,13 +471,13 @@ body.pro-page .page-container {
 }
 
 .editor-main::-webkit-scrollbar-thumb {
-  background-color: #3c3c3c;
+  background-color: var(--borderDark);
   border-radius: 0.4rem;
   border: 0.15rem solid var(--editorBgAlt);
 }
 
 .editor-main::-webkit-scrollbar-thumb:hover {
-  background-color: #4ec9b0;
+  background-color: var(--accentPrimary);
 }
 
 .editor-panel {
@@ -411,7 +493,7 @@ body.pro-page .page-container {
   gap: 0.63rem;
   padding: 0.56rem 1.13rem;
   background-color: var(--editorBgAlt);
-  border-bottom: 0.1rem solid #3c3c3c;
+  border-bottom: 0.1rem solid var(--borderDark);
 }
 
 .editor-dot {
@@ -421,9 +503,9 @@ body.pro-page .page-container {
   border-radius: 50%;
 }
 
-.dot-red    { background-color: #ff5f56; }
-.dot-yellow { background-color: #ffbd2e; }
-.dot-green  { background-color: #27c93f; }
+.dot-red    { background-color: var(--red); }
+.dot-yellow { background-color: var(--yellow); }
+.dot-green  { background-color: var(--green); }
 
 /* Red traffic-light dot doubles as a back control */
 .editor-dot-back {
@@ -443,7 +525,7 @@ body.pro-page .page-container {
 }
 
 .editor-dot-back:focus-visible {
-  outline: 0.15rem solid #4ec9b0;
+  outline: 0.15rem solid var(--accentPrimary);
   outline-offset: 0.15rem;
 }
 
@@ -453,7 +535,7 @@ body.pro-page .page-container {
   overflow-x: auto;
   scrollbar-width: thin;
   background-color: var(--editorBgAlt);
-  border-bottom: 0.1rem solid #3c3c3c;
+  border-bottom: 0.1rem solid var(--borderDark);
 }
 
 .editor-tab {
@@ -462,7 +544,7 @@ body.pro-page .page-container {
   color: var(--editorMuted);
   background: none;
   border: none;
-  border-right: 0.1rem solid #3c3c3c;
+  border-right: 0.1rem solid var(--borderDark);
   padding: 0.6rem 1.1rem;
   cursor: pointer;
   white-space: nowrap;
@@ -478,7 +560,7 @@ body.pro-page .page-container {
   width: 0.6rem;
   height: 0.6rem;
   border-radius: 0.15rem;
-  background-color: #4ec9b0;
+  background-color: var(--accentPrimary);
 }
 
 .editor-tab-close {
@@ -494,19 +576,19 @@ body.pro-page .page-container {
 }
 
 .editor-tab:hover .editor-tab-close {
-  color: #ffffff;
+  color: var(--accentLight);
   background-color: rgba(255, 255, 255, 0.1);
 }
 
 .editor-tab:hover {
-  background-color: #2d2d30;
+  background-color: var(--borderPanel);
   color: var(--editorText);
 }
 
 .editor-tab.active {
   color: var(--editorText);
   background-color: var(--editorBg);
-  box-shadow: inset 0 0.15rem 0 #4ec9b0;
+  box-shadow: inset 0 0.15rem 0 var(--accentPrimary);
 }
 
 .editor-views {
@@ -526,14 +608,14 @@ body.pro-page .page-container {
 .editor-comment {
   font-family: var(--poppins);
   font-size: 1.06rem;
-  color: #6a9955;
+  color: var(--commentGreen);
   margin: 0 0 0.6rem 0;
 }
 
 .editor-title {
   font-family: var(--headings);
   font-size: 1.63rem;
-  color: #4ec9b0;
+  color: var(--accentPrimary);
   margin: 0 0 0.3rem 0;
 }
 
@@ -555,15 +637,15 @@ body.pro-page .page-container {
 .editor-link {
   font-family: var(--poppins);
   font-size: 1.19rem;
-  color: #569cd6;
+  color: var(--tokenKeyword);
   text-decoration: none;
   border-bottom: 0.1rem solid transparent;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
 .editor-link:hover {
-  color: #4ec9b0;
-  border-bottom-color: #4ec9b0;
+  color: var(--accentPrimary);
+  border-bottom-color: var(--accentPrimary);
 }
 
 .editor-statusbar {
@@ -571,8 +653,8 @@ body.pro-page .page-container {
   justify-content: flex-end;
   gap: 1rem;
   padding: 0.25rem 1rem;
-  background-color: #007acc;
-  color: #ffffff;
+  background-color: var(--statusBarBlue);
+  color: var(--accentLight);
   font-family: var(--poppins);
   font-size: 0.94rem;
   white-space: nowrap;
@@ -628,7 +710,7 @@ body.pro-page .page-container {
   padding: 2rem;
   color: var(--editorText);
   font-family: var(--poppins);
-  border: 0.1rem dashed #4a4a4a;
+  border: 0.1rem dashed var(--borderError);
   border-radius: 0.4rem;
 }
 
@@ -656,20 +738,31 @@ body.pro-page footer #footer_nav li svg path {
 
 /* Responsive: max-width 720px */
 @media (max-width: 720px) {
+  .launch-banner {
+    justify-content: flex-start;
+    padding: 2.5rem 0;
+    overflow-y: auto;
+  }
+
   .launch-banner h1 {
-    font-size: 1.6rem;
+    font-size: clamp(2.25rem, 24vw, 4rem);
+    padding-inline: 0.75rem;
   }
 
   .launch-banner .role {
-    font-size: 1rem;
+    font-size: clamp(1.1rem, 6vw, 1.75rem);
+    padding-inline: 0.75rem;
   }
 
   .launch-banner .profiles {
-    font-size: 0.7rem;
+    font-size: 1rem;
   }
 
   .launch-banner .hero-summary {
-    font-size: 0.85rem;
+    font-size: clamp(0.8rem, 4vw, 1rem);
+    max-width: 100%;
+    padding-inline: 1.25rem;
+    text-align: center;
   }
 
   .editor-tab {
@@ -681,17 +774,40 @@ body.pro-page footer #footer_nav li svg path {
     padding: 1rem;
   }
 
-  .editor-window-body {
+  .activity-bar {
+    display: flex;
+  }
+
+  .editor-content {
     flex-direction: column;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
   }
 
   .directory {
-    flex: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
     width: 100%;
-    max-height: 30vh;
-    position: static;
+    z-index: 5;
     border-right: none;
-    border-bottom: 0.1rem solid #3c3c3c;
+    border-bottom: 0.1rem solid var(--borderDark);
+    transition: transform 0.35s ease;
+  }
+
+  .directory.open {
+    transform: translateX(-100%);
+  }
+
+  .directory-back {
+    display: none;
+  }
+
+  .directory-toggle {
+    display: flex;
   }
 
   .page-container {
