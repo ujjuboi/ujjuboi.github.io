@@ -53,6 +53,8 @@ Making my own dynamic blogging website!
 │   └── Resume/
 │       └── Resume.html
 ├── scripts/
+│   ├── lib/
+│   │   └── marked.min.js
 │   ├── blog.js
 │   ├── home.js
 │   ├── myspace.js
@@ -72,6 +74,7 @@ Making my own dynamic blogging website!
 │   │   ├── posts.json
 │   │   └── template.md
 │   ├── cv.md
+│   ├── professionalResume.md
 │   └── study-plan.md
 ├── styles/
 │   ├── Blog.css
