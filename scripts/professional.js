@@ -88,95 +88,6 @@ function mdBlock(text) {
   return html;
 }
 
-function parsePostParagraphs(text) {
-  const lines = text.split('\n');
-  const bodyStart = lines.findIndex(l => l.startsWith('## Paragraphs'));
-  if (bodyStart === -1) return [];
-  return lines.slice(bodyStart + 1)
-    .filter(line => line.startsWith('- '))
-    .map(line => line.slice(2).trim());
-}
-
-var TOKEN_MAP = {
-  'next.js': 'tk-kw', 'nextjs': 'tk-kw', 'express.js': 'tk-kw',
-  'expressjs': 'tk-kw', 'express js': 'tk-kw', 'springboot': 'tk-kw', 'spring boot': 'tk-kw',
-  'django': 'tk-kw', 'react flow': 'tk-kw', 'react': 'tk-kw', 'chartjs': 'tk-kw',
-  'javascript': 'tk-kw', 'typescript': 'tk-kw', 'java': 'tk-kw', 'python': 'tk-kw',
-  'html': 'tk-kw', 'css': 'tk-kw', 'mongodb': 'tk-kw', 'redis': 'tk-kw', 'mysql': 'tk-kw',
-  'postgres': 'tk-kw', 's3': 'tk-kw', 'gridfs': 'tk-kw', 'aws': 'tk-kw', 'gcp': 'tk-kw',
-  'docker': 'tk-kw', 'kubernetes': 'tk-kw', 'langchain': 'tk-kw', 'spacy 3': 'tk-kw',
-  'spacy': 'tk-kw', 'nltk': 'tk-kw', 'hadoop': 'tk-kw', 'pyspark': 'tk-kw',
-  'tableau': 'tk-kw', 'vertex ai': 'tk-kw', 'numpy': 'tk-kw', 'pandas': 'tk-kw',
-  'github actions': 'tk-kw', 'mqtt': 'tk-kw', 'websockets': 'tk-kw', 'sailpoint': 'tk-kw',
-  'okta': 'tk-kw', 'pingfederate': 'tk-kw', 'active directory': 'tk-kw', 'entra id': 'tk-kw',
-  'ldif': 'tk-kw', 'bootstrap': 'tk-kw', 'playwright': 'tk-kw', 'cognito': 'tk-kw',
-  'bash': 'tk-kw', 'git': 'tk-kw', 'linux': 'tk-kw', 'kafka': 'tk-kw',
-  'tdengine': 'tk-kw', 'influxdb': 'tk-kw', 'grafana': 'tk-kw', 'mosquitto': 'tk-kw',
-  'golang': 'tk-kw', 'jenkins': 'tk-kw', 'react native': 'tk-kw', 'figma': 'tk-kw',
-  'deloitte': 'tk-co', 'ddpx': 'tk-co',
-  'software engineer': 'tk-role', 'associate software developer': 'tk-role',
-  'ai': 'tk-fn', 'ci/cd': 'tk-fn', 'rbac': 'tk-fn', 'saml': 'tk-fn', 'oauth': 'tk-fn',
-  'oauth2': 'tk-fn', 'sso': 'tk-fn', 'ldap': 'tk-fn', 'api gateway': 'tk-fn',
-  'rest': 'tk-fn', 'api': 'tk-fn', 'graphql': 'tk-fn', 'microservices': 'tk-fn',
-  'ml': 'tk-fn', 'nlp': 'tk-fn', 'llm': 'tk-fn', 'llmops': 'tk-fn', 'mcp': 'tk-fn',
-  'modular monolith': 'tk-fn', 'monolith': 'tk-fn'
-};
-
-var TOKEN_RE = new RegExp(
-  '\\b(' + Object.keys(TOKEN_MAP).sort(function (a, b) { return b.length - a.length; }).join('|') + ')\\b',
-  'gi'
-);
-
-var NUM_RE = /\b(\d+(?:,\d{3})*(?:\.\d+)?%?[Kk]?)(?![.,\d])/g;
-
-function applyRegexToNode(textNode, regex, classFor) {
-  var original = textNode.data;
-  var parts = [];
-  var last = 0;
-  var match;
-  regex.lastIndex = 0;
-  while ((match = regex.exec(original)) !== null) {
-    if (match.index > last) {
-      parts.push(document.createTextNode(original.slice(last, match.index)));
-    }
-    var span = document.createElement('span');
-    span.className = classFor(match);
-    span.textContent = match[0];
-    parts.push(span);
-    last = match.index + match[0].length;
-    if (match[0].length === 0) regex.lastIndex++;
-  }
-  if (parts.length === 0) return;
-  if (last < original.length) parts.push(document.createTextNode(original.slice(last)));
-  var parent = textNode.parentNode;
-  var frag = document.createDocumentFragment();
-  parts.forEach(function (p) { frag.appendChild(p); });
-  parent.replaceChild(frag, textNode);
-}
-
-function textNodesIn(root) {
-  var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-    acceptNode: function (node) {
-      if (node.parentElement && node.parentElement.closest('a, code, .tk-kw, .tk-co, .tk-role, .tk-num, .tk-fn, .tk-lg')) {
-        return NodeFilter.FILTER_REJECT;
-      }
-      return NodeFilter.FILTER_ACCEPT;
-    }
-  });
-  var nodes = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode);
-  return nodes;
-}
-
-function highlightTokens(root) {
-  textNodesIn(root).forEach(function (node) {
-    applyRegexToNode(node, TOKEN_RE, function (m) { return TOKEN_MAP[m[0].toLowerCase()]; });
-  });
-  textNodesIn(root).forEach(function (node) {
-    applyRegexToNode(node, NUM_RE, function () { return 'tk-num'; });
-  });
-}
-
 function showLoading() {
   const container = document.getElementById('pro-container');
   container.innerHTML = '<p class="loading-placeholder">Loading<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span></p>';
@@ -264,6 +175,12 @@ function parseCV(text) {
             }
           } else if (t.startsWith('- ')) {
             job.bullets.push({ kind: 'bullet', text: t.slice(2), sub: [] });
+          } else if (/^>\s*\[([^\]]+)\]\(([^)]+)\)/.test(t)) {
+            const m = t.match(/^>\s*\[([^\]]+)\]\(([^)]+)\)/);
+            job.readMore = { label: m[1], url: m[2] };
+          } else if (/^!\[[^\]]*\]\(([^)]+)\)/.test(t)) {
+            const m = t.match(/^!\[[^\]]*\]\(([^)]+)\)/);
+            job.banner = m[1].trim();
           } else if (t && !job.date) {
             job.date = t;
             job.sortKey = parseStartSortKey(t);
@@ -277,15 +194,27 @@ function parseCV(text) {
 
     if (section === 'Projects') {
       const block = sectionLines(lines, i + 1);
+      let proj = null;
       for (const line of block) {
         const t = line.trim();
+        if (/^>\s*\[([^\]]+)\]\(([^)]+)\)/.test(t)) {
+          const m = t.match(/^>\s*\[([^\]]+)\]\(([^)]+)\)/);
+          if (proj) proj.readMore = { label: m[1], url: m[2] };
+          continue;
+        }
+        if (/^!\[[^\]]*\]\(([^)]+)\)/.test(t)) {
+          const m = t.match(/^!\[[^\]]*\]\(([^)]+)\)/);
+          if (proj) proj.banner = m[1].trim();
+          continue;
+        }
         if (!t.startsWith('- ')) continue;
         const content = t.slice(2);
         const name = content.split('**')[1] || '';
         const afterName = content.split(')')[0] || '';
         const tag = afterName.split('(')[1] || '';
         const desc = content.split('--')[1] || '';
-        data.projects.push({ name: name.trim(), tag: tag.trim(), desc: desc.trim() });
+        proj = { name: name.trim(), tag: tag.trim(), desc: desc.trim() };
+        data.projects.push(proj);
       }
       i += block.length;
       continue;
@@ -321,7 +250,6 @@ function loadCV() {
     .then(text => {
       const data = parseCV(text);
       renderProfessional(data);
-      loadBlogPosts();
     })
     .catch(e => {
       console.error('Error loading CV:', e);
@@ -455,9 +383,9 @@ function setupEditorWindow() {
 var SHORT_NAMES = {
   'Software Engineer 2 - DI App Factory': 'swe-2',
   'Software Engineer 1 - DI App Factory': 'swe-1',
-  'Associate Software Developer - DI App Factory': 'asoc-dev',
-  'Associate Software Developer - DDPX': 'asoc-ddpx',
-  'Risk & Financial Advisory Analyst - DDPX': 'risk-analyst',
+  'Associate Software Developer - DI App Factory': 'asoc-dev-sc',
+  'Associate Software Developer - DDPX': 'asoc-dev-ddpx',
+  'Risk & Financial Advisory Analyst - DDPX': 'iam-risk-analyst',
   'Frontend/Backend': 'frontend',
   'Languages/Tools': 'languages',
   'Databases': 'databases',
@@ -483,22 +411,27 @@ function setActiveFolderHeader() {
   });
 }
 
-function activateSection(sectionEl, item) {
+function setActiveTreeItem(item) {
   if (!editorWindow) return;
-  if (editorWindow.sidebar) editorWindow.sidebar.classList.add('open');
-  editorWindow.main.querySelectorAll('.pro-section').forEach(function (s) {
-    s.style.display = 'none';
-  });
   editorWindow.entries.forEach(entry => {
     entry.item.classList.remove('active');
   });
-  sectionEl.style.display = 'block';
   if (item) item.classList.add('active');
   setActiveFolderHeader();
   if (item && item.parentElement && item.parentElement.classList.contains('directory-folder-body')) {
     const folder = item.parentElement.parentElement;
     if (folder && folder.__setActive) folder.__setActive(true);
   }
+}
+
+function activateSection(sectionEl, item) {
+  if (!editorWindow) return;
+  if (editorWindow.sidebar) editorWindow.sidebar.classList.add('open');
+  editorWindow.main.querySelectorAll('.pro-section').forEach(function (s) {
+    s.style.display = 'none';
+  });
+  sectionEl.style.display = 'block';
+  setActiveTreeItem(item);
 }
 
 function registerDirectoryEntry(title, sectionEl, item) {
@@ -566,6 +499,7 @@ function registerSectionFolder(name, sectionEl, tabRefs) {
     };
     body.appendChild(item);
     ref.item = item;
+    if (ref.view) ref.view.__treeItem = item;
   });
 
   function toggle(force) {
@@ -619,10 +553,6 @@ function renderProfessional(data) {
   if (exp.tabRefs[0] && exp.tabRefs[0].item) {
     activateSection(expSection, exp.tabRefs[0].item);
   }
-
-  container.querySelectorAll('.editor-bullets, .editor-excerpt').forEach(content => {
-    highlightTokens(content);
-  });
 }
 
 function renderSection(title, contentEl) {
@@ -680,6 +610,14 @@ function renderExperience(jobs) {
     comment.textContent = '// Experience/' + short + '.md';
     view.appendChild(comment);
 
+    if (job.banner) {
+      const banner = document.createElement('img');
+      banner.className = 'editor-banner';
+      banner.src = job.banner;
+      banner.alt = job.role || 'banner';
+      view.appendChild(banner);
+    }
+
     if (job.role) {
       const title = document.createElement('h3');
       title.className = 'editor-title';
@@ -712,24 +650,34 @@ function renderExperience(jobs) {
           currentUl = null;
           const h = document.createElement('div');
           h.className = 'editor-subheading';
-          h.textContent = bullet.text;
+          h.innerHTML = mdInline(bullet.text);
           wrap.appendChild(h);
           return;
         }
         const li = document.createElement('li');
-        li.textContent = bullet.text;
+        li.innerHTML = mdInline(bullet.text);
         ensureUl().appendChild(li);
         if (bullet.sub && bullet.sub.length) {
           const subUl = document.createElement('ul');
           bullet.sub.forEach(s => {
             const sl = document.createElement('li');
-            sl.textContent = s;
+            sl.innerHTML = mdInline(s);
             subUl.appendChild(sl);
           });
           li.appendChild(subUl);
         }
       });
       view.appendChild(wrap);
+
+      if (job.readMore) {
+        const readMore = document.createElement('a');
+        readMore.className = 'editor-read-more';
+        readMore.href = job.readMore.url;
+        readMore.textContent = job.readMore.label;
+        readMore.target = '_blank';
+        readMore.rel = 'noopener';
+        view.appendChild(readMore);
+      }
 
       const preview = document.createElement('div');
       preview.className = 'editor-preview';
@@ -743,6 +691,10 @@ function renderExperience(jobs) {
           (bullet.sub || []).forEach(s => lines.push('  - ' + s));
         }
       });
+      lines.push('');
+      if (job.readMore) {
+        lines.push('> [' + job.readMore.label + '](' + job.readMore.url + ')');
+      }
       preview.innerHTML = mdBlock(lines.join('\n'));
       view.appendChild(preview);
     }
@@ -791,6 +743,14 @@ function renderProjects(projects) {
     comment.textContent = '// Projects/' + short + '.md';
     view.appendChild(comment);
 
+    if (proj.banner) {
+      const banner = document.createElement('img');
+      banner.className = 'editor-banner';
+      banner.src = proj.banner;
+      banner.alt = fullName || 'banner';
+      view.appendChild(banner);
+    }
+
     const title = document.createElement('h3');
     title.className = 'editor-title';
     title.textContent = fullName;
@@ -806,14 +766,38 @@ function renderProjects(projects) {
     if (proj.desc) {
       const desc = document.createElement('p');
       desc.className = 'editor-excerpt';
-      desc.textContent = proj.desc;
+      desc.innerHTML = mdInline(proj.desc);
       view.appendChild(desc);
+
+      if (proj.readMore) {
+        const readMore = document.createElement('a');
+        readMore.className = 'editor-read-more';
+        readMore.href = proj.readMore.url;
+        readMore.textContent = proj.readMore.label;
+        readMore.target = '_blank';
+        readMore.rel = 'noopener';
+        view.appendChild(readMore);
+      }
 
       const preview = document.createElement('div');
       preview.className = 'editor-preview';
       const p = document.createElement('p');
       p.innerHTML = mdInline(proj.desc);
       preview.appendChild(p);
+
+      if (proj.readMore) {
+        const bq = document.createElement('blockquote');
+        const bqP = document.createElement('p');
+        const readMore2 = document.createElement('a');
+        readMore2.href = proj.readMore.url;
+        readMore2.textContent = proj.readMore.label;
+        readMore2.target = '_blank';
+        readMore2.rel = 'noopener';
+        bqP.appendChild(readMore2);
+        bq.appendChild(bqP);
+        preview.appendChild(bq);
+      }
+
       view.appendChild(preview);
     }
 
@@ -838,171 +822,88 @@ function renderSkills(categories) {
   const editor = createEditorPanel(wrapper);
   const tabRefs = [];
 
-  (categories || []).forEach((cat, index) => {
-    const fullName = cat.category || ('skills_' + index);
-    const short = shortName(fullName);
+  const fullName = 'Skills';
+  const short = shortName(fullName);
 
-    const tab = document.createElement('button');
-    tab.type = 'button';
-    tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(short + '.md'));
-    tab.title = fullName;
+  const tab = document.createElement('button');
+  tab.type = 'button';
+  tab.className = 'editor-tab';
+  tab.appendChild(document.createTextNode(short + '.md'));
+  tab.title = fullName;
 
-    const close = document.createElement('span');
-    close.className = 'editor-tab-close';
-    close.textContent = '\u00D7';
-    tab.appendChild(close);
+  const close = document.createElement('span');
+  close.className = 'editor-tab-close';
+  close.textContent = '\u00D7';
+  tab.appendChild(close);
 
-    const view = document.createElement('div');
-    view.className = 'editor-view';
+  const view = document.createElement('div');
+  view.className = 'editor-view';
 
-    const comment = document.createElement('p');
-    comment.className = 'editor-comment';
-    comment.textContent = '// Skills/' + short + '.md';
-    view.appendChild(comment);
+  const comment = document.createElement('p');
+  comment.className = 'editor-comment';
+  comment.textContent = '// Skills/' + short + '.md';
+  view.appendChild(comment);
 
-    const title = document.createElement('h3');
-    title.className = 'editor-title';
-    title.textContent = fullName;
-    view.appendChild(title);
+  const title = document.createElement('h3');
+  title.className = 'editor-title';
+  title.textContent = fullName;
+  view.appendChild(title);
 
-    const ul = document.createElement('ul');
-    ul.className = 'editor-bullets';
-    (cat.items || []).forEach(skill => {
-      const li = document.createElement('li');
-      li.textContent = skill;
-      ul.appendChild(li);
-    });
-    view.appendChild(ul);
+  const ul = document.createElement('ul');
+  ul.className = 'editor-bullets';
+  (categories || []).forEach(cat => {
+    const li = document.createElement('li');
+    li.textContent = (cat.category || '') + ': ' + (cat.items || []).join(', ');
+    ul.appendChild(li);
+  });
+  view.appendChild(ul);
 
-    const preview = document.createElement('div');
-    preview.className = 'editor-preview';
+  const preview = document.createElement('div');
+  preview.className = 'editor-preview skills-preview';
+
+  const table = document.createElement('table');
+  table.className = 'skills-table';
+
+  const thead = document.createElement('thead');
+  const headRow = document.createElement('tr');
+  headRow.appendChild(document.createElement('th')).textContent = 'Category';
+  headRow.appendChild(document.createElement('th')).textContent = 'Skills';
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  (categories || []).forEach(cat => {
+    const tr = document.createElement('tr');
+    const catTd = document.createElement('td');
+    catTd.className = 'skills-category';
+    catTd.textContent = cat.category || '';
+    tr.appendChild(catTd);
+    const skillsTd = document.createElement('td');
     (cat.items || []).forEach(skill => {
       const chip = document.createElement('span');
       chip.className = 'tag';
       chip.textContent = skill;
-      preview.appendChild(chip);
+      skillsTd.appendChild(chip);
     });
-    view.appendChild(preview);
-
-    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
-
-    tab.onclick = function () { selectEditorFile(editor, tab, view); };
-
-    editor.tabs.appendChild(tab);
-    editor.views.appendChild(view);
-
-    if (!editor.activeTab) selectEditorFile(editor, tab, view);
+    tr.appendChild(skillsTd);
+    tbody.appendChild(tr);
   });
+  table.appendChild(tbody);
+  preview.appendChild(table);
+  view.appendChild(preview);
+
+  tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
+
+  tab.onclick = function () { selectEditorFile(editor, tab, view); };
+
+  editor.tabs.appendChild(tab);
+  editor.views.appendChild(view);
+
+  if (!editor.activeTab) selectEditorFile(editor, tab, view);
 
   addPreviewToggle(wrapper, editor.modebar);
 
   return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
-}
-
-function loadBlogPosts() {
-  fetch('../../src/Blogs/posts.json')
-    .then(res => {
-      if (!res.ok) throw new Error('Failed to fetch posts.json');
-      return res.json();
-    })
-    .then(filenames => {
-      const blogSection = renderSection('Latest Posts', null);
-      const grid = document.createElement('div');
-      grid.className = 'editor-panel';
-      grid.id = 'blog-grid';
-      blogSection.querySelector('.section-content').appendChild(grid);
-      if (editorWindow) {
-        editorWindow.main.appendChild(blogSection);
-      } else {
-        document.getElementById('pro-container').appendChild(blogSection);
-      }
-
-      const editor = createEditorPanel(grid);
-      const blogTabRefs = [];
-      showLoadingPlaceholder(editor.views);
-
-      const postFiles = filenames.slice(0, 2);
-      let loaded = 0;
-      let error = false;
-
-      postFiles.forEach((file, index) => {
-        fetch('../../src/Blogs/' + file)
-          .then(res => {
-            if (!res.ok) throw new Error('Failed to fetch ' + file);
-            return res.text();
-          })
-          .then(text => {
-            const meta = parsePostHeaders(text);
-            const post = {
-              title: meta.title || file,
-              category: meta.category || '',
-              date: meta.date || '',
-              excerpt: meta.excerpt || '',
-              paragraphs: parsePostParagraphs(text),
-              file: file,
-              index: index
-            };
-            renderBlogCard(editor, post, blogTabRefs);
-            loaded++;
-            if (loaded === postFiles.length) {
-              removeLoading(editor.views);
-              
-              addPreviewToggle(grid, editor.modebar);
-              if (editorWindow && blogTabRefs.length) {
-                registerSectionFolder('Latest Posts', blogSection, blogTabRefs);
-              }
-              if (error) showBlogError(grid, 'Some posts could not be loaded.');
-            }
-          })
-          .catch(e => {
-            console.error('Error loading blog post:', file, e);
-            error = true;
-            loaded++;
-            if (loaded === postFiles.length) {
-              removeLoading(editor.views);
-              
-              addPreviewToggle(grid, editor.modebar);
-              if (editorWindow && blogTabRefs.length) {
-                registerSectionFolder('Latest Posts', blogSection, blogTabRefs);
-              }
-              showBlogError(grid, 'Some posts could not be loaded.');
-            }
-          });
-      });
-    })
-    .catch(e => {
-      console.error('Error loading posts manifest:', e);
-      showBlogError(null, 'Unable to load latest posts.');
-    });
-}
-
-function showBlogError(grid, message) {
-  const container = editorWindow ? editorWindow.main : document.getElementById('pro-container');
-  if (!grid) {
-    const p = document.createElement('p');
-    p.className = 'blog-error';
-    p.textContent = message;
-    container.appendChild(p);
-    return;
-  }
-  const p = document.createElement('p');
-  p.className = 'blog-error';
-  p.textContent = message;
-  grid.appendChild(p);
-}
-
-function parsePostHeaders(text) {
-  const meta = {};
-  const lines = text.split('\n');
-  for (const line of lines) {
-    if (line.startsWith('## Paragraphs')) break;
-    const match = line.match(/^## (\w+):\s*(.+)/);
-    if (match) {
-      meta[match[1].toLowerCase()] = match[2].trim();
-    }
-  }
-  return meta;
 }
 
 function createEditorPanel(grid) {
@@ -1067,90 +968,7 @@ function selectEditorFile(editor, tab, view) {
   editor.activeTab = tab;
   tab.classList.add('active');
   view.classList.add('active');
-}
-
-function renderBlogCard(editor, post, tabRefs) {
-  const tab = document.createElement('button');
-  tab.type = 'button';
-  tab.className = 'editor-tab';
-  const short = shortName(post.title);
-  tab.appendChild(document.createTextNode(short + '.md'));
-  tab.title = post.title;
-
-  const close = document.createElement('span');
-  close.className = 'editor-tab-close';
-  close.textContent = '\u00D7';
-  tab.appendChild(close);
-
-  const view = document.createElement('div');
-  view.className = 'editor-view';
-
-  if (post.file) {
-    const comment = document.createElement('p');
-    comment.className = 'editor-comment';
-    comment.textContent = '// "Latest Posts"/' + post.file;
-    view.appendChild(comment);
-  }
-
-  const title = document.createElement('h3');
-  title.className = 'editor-title';
-  title.textContent = post.title;
-  view.appendChild(title);
-
-  const meta = document.createElement('p');
-  meta.className = 'editor-meta';
-  meta.textContent = [post.category, post.date].filter(Boolean).join(' · ');
-  view.appendChild(meta);
-
-  const excerpt = document.createElement('p');
-  excerpt.className = 'editor-excerpt';
-  excerpt.textContent = post.excerpt;
-  view.appendChild(excerpt);
-
-  if (post.paragraphs && post.paragraphs.length) {
-    const preview = document.createElement('div');
-    preview.className = 'editor-preview';
-    post.paragraphs.forEach(paragraph => {
-      const para = document.createElement('div');
-      para.className = 'preview-paragraph';
-      para.innerHTML = paragraph;
-      preview.appendChild(para);
-    });
-    view.appendChild(preview);
-  }
-
-  const link = document.createElement('a');
-  link.className = 'editor-link';
-  link.href = '../Blog/Blog.html#post-' + post.index;
-  link.textContent = 'open in full editor \u2192';
-  view.appendChild(link);
-
-  tab.onclick = function () { selectEditorFile(editor, tab, view); };
-
-  if (tabRefs) {
-    tabRefs.push({ label: post.title, fileName: short, tab: tab, view: view, editor: editor });
-  }
-
-  editor.tabs.appendChild(tab);
-  editor.views.appendChild(view);
-
-  if (!editor.activeTab) selectEditorFile(editor, tab, view);
-}
-
-function showLoadingPlaceholder(grid) {
-  if (!grid) return;
-  const p = document.createElement('p');
-  p.className = 'loading-placeholder';
-  p.id = 'blog-loading';
-  p.innerHTML = 'Loading<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>';
-  grid.appendChild(p);
-}
-
-function removeLoading(grid) {
-  const loading = grid ? grid.querySelector('#blog-loading') : null;
-  if (loading) {
-    loading.remove();
-  }
+  setActiveTreeItem(view && view.__treeItem);
 }
 
 loadCV();
