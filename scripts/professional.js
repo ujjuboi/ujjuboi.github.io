@@ -226,7 +226,7 @@ function parseCV(text) {
         const t = line.trim();
         if (!t.startsWith('- ')) continue;
         const content = t.slice(2);
-        const category = content.split('**')[1] || '';
+        const category = (content.split('**')[1] || '').replace(/:$/, '');
         const items = (content.split(':**')[1] || '').split(',').map(s => s.trim());
         data.skills.push({ category, items });
       }
@@ -879,12 +879,8 @@ function renderSkills(categories) {
     catTd.textContent = cat.category || '';
     tr.appendChild(catTd);
     const skillsTd = document.createElement('td');
-    (cat.items || []).forEach(skill => {
-      const chip = document.createElement('span');
-      chip.className = 'tag';
-      chip.textContent = skill;
-      skillsTd.appendChild(chip);
-    });
+    skillsTd.className = 'skills-items';
+    skillsTd.textContent = (cat.items || []).join(', ');
     tr.appendChild(skillsTd);
     tbody.appendChild(tr);
   });

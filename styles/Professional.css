@@ -1161,19 +1161,6 @@ body.pro-page .page-container {
 }
 
 /* Skill tag chips */
-.tag {
-  display: inline-block;
-  font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 0.95rem;
-  color: var(--editorText);
-  background-color: var(--borderPanel);
-  border: 0.1rem solid var(--borderDark);
-  border-radius: 2rem;
-  padding: 0.35rem 0.9rem;
-  margin: 0 0.5rem 0.5rem 0;
-  box-shadow: 0 0.15rem 0.3rem rgba(0, 0, 0, 0.25);
-}
-
 .skills-preview {
   width: 100%;
   max-width: 100%;
@@ -1431,11 +1418,6 @@ body.pro-page footer #footer_nav {
   .editor-subheading {
     font-size: clamp(0.72rem, 3.4vw, 1rem);
     margin-top: 0.9rem;
-  }
-
-  .tag {
-    font-size: 0.78rem;
-    padding: 0.25rem 0.7rem;
   }
 
   .skills-table th,
