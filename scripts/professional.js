@@ -300,6 +300,13 @@ function setupModebarPlacement() {
   refreshModebarVisibility();
 }
 
+function showBanner() {
+  const banner = document.getElementById('launch-banner');
+  if (!banner) return;
+  banner.classList.remove('launched');
+  if (banner.__setEyesVisible) banner.__setEyesVisible(true);
+}
+
 function exitFullscreen() {
   if (document.fullscreenElement) {
     if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
@@ -324,8 +331,7 @@ function setupEditorWindow() {
     dot.setAttribute('aria-label', label);
     dot.addEventListener('click', function () {
       exitFullscreen();
-      const banner = document.getElementById('launch-banner');
-      if (banner) banner.classList.remove('launched');
+      showBanner();
       this.blur();
     });
     return dot;
@@ -396,8 +402,7 @@ function setupEditorWindow() {
   backBtn.title = 'Back';
   backBtn.addEventListener('click', function () {
     exitFullscreen();
-    const banner = document.getElementById('launch-banner');
-    if (banner) banner.classList.remove('launched');
+    showBanner();
   });
   titlebar.appendChild(backBtn);
 
@@ -1116,14 +1121,18 @@ function selectEditorFile(editor, tab, view) {
     });
   });
 
+  banner.__setEyesVisible = function (visible) {
+    eyes.forEach(function (eye) {
+      eye.sclera.style.display = visible ? '' : 'none';
+      eye.pupil.style.display = visible ? '' : 'none';
+      eye.lid.style.display = visible ? '' : 'none';
+    });
+  };
+
   var launchBtn = document.getElementById('launch-btn');
   if (launchBtn) {
     launchBtn.addEventListener('click', function () {
-      eyes.forEach(function (eye) {
-        eye.sclera.style.display = 'none';
-        eye.pupil.style.display = 'none';
-        eye.lid.style.display = 'none';
-      });
+      banner.__setEyesVisible(false);
     });
   }
 })();
