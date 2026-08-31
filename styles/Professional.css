@@ -26,13 +26,9 @@ body.pro-page {
   --borderColor: #000000;
   --bulletGray: #808080;
 
-  /* Syntax highlighting tokens */
   --tokenKeyword: #569cd6;
-  --tokenCompany: #ce9178;
-  --tokenRole: #4ec9b0;
   --tokenNumber: #f2961f;
   --tokenFunction: #dcdcaa;
-  --tokenLanguage: #c586c0;
 
   /* UI chrome */
   --red: #ff5f56;
@@ -368,43 +364,6 @@ body.pro-page .page-container {
   color: var(--editorText);
 }
 
-/* Token colors (syntax highlighting palette) */
-.tk-kw {
-  color: var(--tokenKeyword);
-  font-weight: 600;
-}
-
-/* keywords / tech */
-.tk-co {
-  color: var(--tokenCompany);
-  font-weight: 600;
-}
-
-/* companies */
-.tk-role {
-  color: var(--tokenRole);
-  font-weight: 600;
-}
-
-/* roles */
-.tk-num {
-  color: var(--tokenNumber);
-  font-weight: 600;
-}
-
-/* numbers / percents */
-.tk-fn {
-  color: var(--tokenFunction);
-}
-
-/* functions / acronyms */
-.tk-lg {
-  color: var(--tokenLanguage);
-  font-weight: 600;
-}
-
-/* language/library identifiers */
-
 /* Experience editor bullets */
 .editor-bullets {
   list-style: none;
@@ -442,6 +401,22 @@ body.pro-page .page-container {
   margin-bottom: 0.35rem;
 }
 
+.editor-bullets strong,
+.editor-excerpt strong {
+  color: var(--accentPrimary);
+}
+
+.editor-bullets code,
+.editor-excerpt code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.92em;
+  color: var(--tokenFunction);
+  background-color: var(--editorBgAlt);
+  border: 0.1rem solid var(--borderDark);
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.35rem;
+}
+
 .editor-subheading {
   font-family: var(--poppins);
   font-size: 1.15rem;
@@ -450,6 +425,40 @@ body.pro-page .page-container {
   letter-spacing: 0.02em;
   text-transform: uppercase;
   margin: 1.1rem 0 0.25rem 0;
+}
+
+.editor-read-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  padding: 0.35rem 0.75rem;
+  font-family: var(--poppins);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accentPrimary);
+  border: 0.1rem solid var(--accentPrimary);
+  border-radius: 0.3rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.editor-read-more:hover {
+  background: var(--accentPrimary);
+  color: var(--editorBg);
+}
+
+.editor-banner {
+  display: block;
+  width: 240px;
+  max-width: 100%;
+  height: auto;
+  margin: 0.5rem 0 0.25rem 0;
+}
+
+.editor-panel.is-preview .editor-banner {
+  width: 240px;
 }
 
 /* Latest Posts - VS Code style editor panel */
@@ -931,7 +940,8 @@ body.pro-page .page-container {
 /* Markdown Preview / Source mode */
 .editor-panel.is-preview .editor-comment,
 .editor-panel.is-preview .editor-excerpt,
-.editor-panel.is-preview .editor-bullets {
+.editor-panel.is-preview .editor-bullets,
+.editor-panel.is-preview .editor-read-more {
   display: none;
 }
 
@@ -947,16 +957,22 @@ body.pro-page .page-container {
 
 .editor-panel.is-preview .editor-title {
   font-family: var(--previewFont);
+  font-size: 1.6rem;
   font-weight: 600;
+  margin-bottom: 0.2rem;
 }
 
 .editor-panel.is-preview .editor-meta {
   font-family: var(--previewFont);
+  font-size: 1rem;
+  opacity: 0.7;
+  margin-bottom: 1rem;
 }
 
 .editor-preview {
   display: none;
   font-family: var(--previewFont);
+  font-size: 1.05rem;
   max-width: 70ch;
   color: var(--editorText);
   line-height: 1.7;
@@ -992,11 +1008,17 @@ body.pro-page .page-container {
 .editor-preview h3 {
   font-size: 1.25em;
   color: var(--accentPrimary);
+  margin-top: 2rem;
 }
 
 .editor-preview h4 {
-  font-size: 1em;
-  color: var(--editorText);
+  font-size: 0.95em;
+  font-weight: 700;
+  color: var(--tokenFunction);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-top: 1.8rem;
+  margin-bottom: 0.5rem;
 }
 
 .editor-preview h5 {
@@ -1019,7 +1041,7 @@ body.pro-page .page-container {
 }
 
 .editor-preview p {
-  margin: 0;
+  margin: 0.4em 0;
 }
 
 .editor-preview ul {
@@ -1032,6 +1054,7 @@ body.pro-page .page-container {
   position: relative;
   padding-left: 1.2rem;
   margin-bottom: 0.6rem;
+  font-size: 0.98em;
 }
 
 .editor-preview ul li::before {
@@ -1083,6 +1106,20 @@ body.pro-page .page-container {
   color: var(--editorMuted);
 }
 
+.editor-preview blockquote a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accentPrimary);
+  text-decoration: none;
+}
+
+.editor-preview blockquote a::after {
+  content: '\2192';
+}
+
 .editor-preview strong {
   color: var(--accentPrimary);
 }
@@ -1109,6 +1146,11 @@ body.pro-page .page-container {
   border-bottom-color: var(--accentPrimary);
 }
 
+.editor-preview blockquote a:hover {
+  border-bottom-color: transparent;
+  text-decoration: underline;
+}
+
 /* Blog preview paragraphs */
 .preview-paragraph {
   margin: 0 0 0.9rem 0;
@@ -1119,16 +1161,44 @@ body.pro-page .page-container {
 }
 
 /* Skill tag chips */
-.tag {
-  display: inline-block;
-  font-family: 'Consolas', 'Courier New', monospace;
+.skills-preview {
+  width: 100%;
+  max-width: 100%;
+}
+
+.skills-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 0.95rem;
-  color: var(--editorText);
-  background-color: var(--borderPanel);
+}
+
+.skills-table th,
+.skills-table td {
+  text-align: left;
+  padding: 0.6rem 0.9rem;
   border: 0.1rem solid var(--borderDark);
-  border-radius: 2rem;
-  padding: 0.35rem 0.9rem;
-  margin: 0 0.5rem 0.5rem 0;
+  vertical-align: top;
+}
+
+.skills-table thead th {
+  font-family: var(--previewFont);
+  color: var(--editorMuted);
+  background-color: var(--editorBgAlt);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.8rem;
+  border-bottom: 0.1rem solid var(--borderDark);
+}
+
+.skills-table .skills-category {
+  font-weight: 700;
+  color: var(--accentPrimary);
+  white-space: nowrap;
+  width: 1%;
+}
+
+.skills-table td.skills-category {
+  font-family: var(--previewFont);
 }
 
 .editor-statusbar {
@@ -1350,9 +1420,14 @@ body.pro-page footer #footer_nav {
     margin-top: 0.9rem;
   }
 
-  .tag {
-    font-size: 0.78rem;
-    padding: 0.25rem 0.7rem;
+  .skills-table th,
+  .skills-table td {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.82rem;
+  }
+
+  .skills-table .skills-category {
+    white-space: normal;
   }
 
   .editor-modebar {

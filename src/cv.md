@@ -16,43 +16,45 @@ Full-stack developer with 4+ years of experience in building enterprise-scale ap
 **Software Engineer 2 - DI App Factory**
 June 2026 - Present
 
+![banner](../../Images/Graphics/MongoDB.svg)
+
 #### Ingestion architecture
-- Conducted architectural design study comparing DDX and Service Center data ingestion approaches, identifying that DDX's `S3 + MongoDB GridFS` architecture enabled faster and more scalable processing
-- Enhanced data ingestion capabilities by developing configurable API integration for trusted data sources with custom mapping functionality to align client data points with internal schema attributes
-- Implemented LDIF data ingestion for users, computers, and groups, with architectural redesign to handle group memberships more efficiently by creating a dedicated group membership collection with object references between groups, users, and applications
-  - Designed and implemented schema attributes to establish relationships between SailPoint, Okta, and PingFederate data points (applications, accounts, identities, entitlements, workstations) and directory users, groups, and computers
-- Led architectural decision-making process to balance system performance with compliance requirements, determining that while S3 uploads would provide better scalability, the additional AWS compliance overhead made optimizing existing MongoDB operations a more practical solution
-  - Identified data upload bottleneck between the EC2 instance server on which the app image was deployed and the MongoDB server instance; moved the DB server to the same location to reduce network latency during import
+- Designed configurable API ingestion pipeline for trusted data sources with custom schema mapping, supporting LDIF data for users, computers, and groups
+- Redesigned group membership handling into a dedicated collection with cross-entity references, linking SailPoint, Okta, and PingFederate data to directory objects
+- Identified and resolved data upload bottleneck by relocating the MongoDB instance to reduce network latency
 
 #### Performance optimization
-- Improved bulk import performance from **100K → 400K records per batch**, enabling processing of large-scale datasets with a **500% increase in throughput**
-- Optimized MongoDB data ingestion from 10 to **1,500 records/sec** through comprehensive performance profiling, new indexing strategies, batch size optimization, and bulk write operations instead of findOneAndUpdate, enabling ingestion of **18 million group membership records** in just 3-4 hours (**90% reduction in processing time**)
+- Improved bulk import throughput from **100K → 400K records/batch** through indexing, batch tuning, and replacing `findOneAndUpdate` with bulk writes — achieving **1,500 records/sec** and ingesting **18M records in 3-4 hours**
 
-#### Platform & governance features
-- Migrated DDX's data classification, definition and usecases feature into app factory to identify orphan groups, inactive service accounts making it cross platform instead of DDX's specific directory data, creating correlation between inactive service accounts in business application, groups and entitlements
-- Extended the existing feature to track and alert on data ingestion errors, creating a quality gate check feature to create custom business rulesets that the data is ran upon and is staged before writing it to the db
-- Created business application specific workflows to resolve shared groups, identify potential owners of orphan groups, generate description for entitlements based on metadata
+> [Read more: Scaling Identity Data Ingestion at Enterprise Scale](../Blog/Blog.html#post-0)
+
+#### Platform & governance
+- Migrated cross-platform data classification features to identify orphan groups and inactive service accounts across business applications
+- Built quality gate check feature with custom business rulesets for staging data before write
+- Created workflows to resolve shared groups, identify orphan owners, and auto-generate entitlement descriptions
 
 ### Deloitte USI -- Gurugram
 
 **Software Engineer 1 - DI App Factory**
 Dec 2025 - June 2026
 
+![banner](../../Images/Graphics/GithubActions.svg)
+
 #### Microservices & platform
 - Developed, tested, and documented features for a large-scale enterprise onboarding and governance platform.
 - Designed migration roadmap from modular monolith to microservices architecture by defining bounded contexts and service communication patterns.
 
 #### GitHub agentic workflows
-- Built AI-powered GitHub Agentic Workflows using `GitHub Actions`, markdown-defined workflows, `gh CLI`, and GitHub Copilot / Claude / Codex engines for autonomous pull request automation with secure guardrails.
-- Implemented Grumpy Code Reviewer using tools.github and LLM agents to review PRs, detect maintainability issues, and improve code review turnaround time.
-- Added intelligent lint-check workflows using bash tools, repository context tools, and PR triggers to validate coding standards and prevent unnecessary code changes.
-- Created automated jobs to generate PR descriptions from linked issues using GitHub issues + pull_requests toolsets, contextual summarization agents, and safe outputs.
-- Configured PR-triggered CI/CD pipelines so all review, documentation, testing, and quality workflows executed automatically on pull request creation.
+- Built AI-powered GitHub Agentic Workflows using `GitHub Actions` and LLM engines (Copilot / Claude / Codex) for autonomous PR automation with secure guardrails.
+- Built Grumpy Code Reviewer and lint-check workflows to review PRs and enforce coding standards.
+- Created automated jobs to generate PR descriptions from linked issues using contextual summarization agents.
+- Configured PR-triggered CI/CD pipelines so review, documentation, testing, and quality workflows ran automatically on PR creation.
 
 #### Documentation & QA automation
-- Built Continuous AI workflows to automatically update Confluence documentation using web-fetch / web-search tools, external integrations, and scheduled GitHub Actions pipelines.
-- Developed AI-assisted Playwright regression test generation workflows using playwright tools, issue context, PR metadata, and browser automation for release validation.
-  - Built both high-code and low-code AI agents using LangChain, integrating prompt chains, tool-calling flows, retrieval pipelines, and enterprise automation use cases.
+- Built Continuous AI workflows to auto-update Confluence documentation via web-fetch/web-search tools and scheduled GitHub Actions pipelines.
+- Developed AI-assisted Playwright regression test generation workflows using issue context, PR metadata, and browser automation for release validation.
+
+> [Read more: Teaching Machines to Read Legal Documents](../Blog/Blog.html#post-1)
 
 ### Deloitte USI -- Gurugram
 
@@ -67,6 +69,8 @@ July 2025 - Dec 2025
 
 **Associate Software Developer - DDPX**
 Nov 2023 - July 2025
+
+![banner](../../Images/Graphics/ActiveDirectory.svg)
 
 #### Full-stack development
 - Worked as a full stack developer on a large-scale identity data analytics tool (DDPX), involving design, development, testing, and documentation.
@@ -83,6 +87,8 @@ Nov 2023 - July 2025
 - Created algorithms for ownership attribution in privileged entities with **95% accuracy**, blending deterministic methods and Llama-powered probabilistic approaches.
 - Directed client engagements involving analysis of **100,000+ records** across multiple domains, uncovering vulnerabilities and flagging **80% of the data**.
 
+> [Read more: Directory Data Analytics and Identity Correlation at Scale](../Blog/Blog.html#post-6)
+
 ### Deloitte USI -- Gurugram
 
 **Risk & Financial Advisory Analyst - DDPX**
@@ -94,7 +100,11 @@ June 2022 - Nov 2023
 
 ## Projects
 
-- **Sensor Data Communication** (Open Source) -- Real-time dashboard with 0.3ms downtime to display remote sensor data using MQTT, WebSockets - Pub/Sub, and Django.
+- **Sensor Data Communication** (Open Source) -- Real-time monitoring system achieving **0.3ms downtime** for remote sensor data streaming. Built on an MQTT Pub/Sub broker with WebSockets bridging the Django backend (Django Channels) to the dashboard. Handles high-throughput message queuing via a Redis priority queue that delivers critical alerts immediately while batching routine telemetry.
+
+![banner](../../Images/Graphics/SensorData.svg)
+
+> [Read more: Real-time Sensor Dashboards w/ MQTT & WebSockets](../Blog/Blog.html#post-5)
 
 ## Education
 
