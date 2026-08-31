@@ -188,6 +188,7 @@ body.pro-page {
   font-weight: 500;
   color: var(--editorText);
   text-align: center;
+  position: relative;
 }
 
 .launch-banner .role {
