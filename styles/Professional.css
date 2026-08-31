@@ -53,12 +53,16 @@ body.pro-page {
   left: 0;
   width: 100vw;
   min-height: 100vh;
+  min-height: 100dvh;
   z-index: 2000;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   background-color: var(--editorBg);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   transition: transform 0.6s ease;
 }
 
@@ -67,34 +71,44 @@ body.pro-page {
 }
 
 .launch-banner .hero-block {
-  margin: 3rem 0;
+  margin: clamp(1.5rem, 4vh, 3rem) 0;
 }
 
 .launch-banner .profiles-block {
   width: 100%;
-  margin: 2.5rem 0;
+  margin: clamp(1rem, 3vh, 2.5rem) 0;
 }
 
 .launch-banner .summary-block {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 2.5rem 0;
+  margin: clamp(1rem, 3vh, 2.5rem) 0;
+  padding-inline: 1rem;
 }
 
 .launch-banner .links-block {
-  margin: 2.5rem 0;
+  margin: clamp(1rem, 3vh, 2.5rem) 0;
+}
+
+/* Centered when there's room; scroll-safe so top isn't clipped on short screens */
+.launch-banner>*:first-child {
+  margin-top: auto;
+}
+
+.launch-banner>*:last-child {
+  margin-bottom: auto;
 }
 
 .launch-btn {
   font-family: var(--poppins);
-  font-size: 1.5rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
   font-weight: 700;
   color: var(--accentDark);
   background-color: var(--accentPrimary);
   border: none;
   border-radius: 0.4rem;
-  padding: 1.25rem 2rem 1.25rem 2rem;
+  padding: clamp(0.9rem, 2vh, 1.25rem) clamp(1.25rem, 4vw, 2rem);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -118,8 +132,13 @@ body.pro-page {
 
 .launch-banner .banner-links {
   display: flex;
-  gap: 4rem;
+  flex-wrap: wrap;
+  gap: clamp(1.5rem, 5vw, 4rem);
   align-items: center;
+  justify-content: center;
+  padding-inline: 1rem;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .launch-banner .banner-links a {
@@ -182,7 +201,7 @@ body.pro-page {
 
 .launch-banner h1 {
   font-family: var(--headings);
-  font-size: 8rem;
+  font-size: clamp(2.5rem, 10vw, 8rem);
   margin-bottom: 0;
   margin-top: 0;
   font-weight: 500;
@@ -193,7 +212,7 @@ body.pro-page {
 
 .launch-banner .role {
   font-family: var(--poppins);
-  font-size: 2.5rem;
+  font-size: clamp(1.2rem, 4vw, 2.5rem);
   font-weight: 500;
   color: var(--accentPrimary);
   margin: 0;
@@ -202,12 +221,12 @@ body.pro-page {
 
 .launch-banner .profiles {
   font-family: var(--poppins);
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 3vw, 1.5rem);
   font-weight: 500;
   color: var(--editorBg);
   margin: 0;
-  height: 3rem;
-  line-height: 3rem;
+  height: clamp(2.5rem, 7vh, 3rem);
+  line-height: clamp(2.5rem, 7vh, 3rem);
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -246,8 +265,8 @@ body.pro-page {
 
 .profiles-item {
   flex: 0 0 auto;
-  height: 3rem;
-  line-height: 3rem;
+  height: clamp(2.5rem, 7vh, 3rem);
+  line-height: clamp(2.5rem, 7vh, 3rem);
   white-space: nowrap;
   display: flex;
   align-items: center;
@@ -304,13 +323,15 @@ body.pro-page {
 
 .launch-banner .hero-summary {
   font-family: var(--poppins);
-  font-size: 1.5rem;
+  font-size: clamp(0.9rem, 2.5vw, 1.5rem);
   color: var(--editorMuted);
   line-height: 1.6;
   margin: 0;
   max-width: 100ch;
-  margin-bottom: 2rem;
+  width: 100%;
+  margin-bottom: clamp(1rem, 3vh, 2rem);
   text-align: center;
+  box-sizing: border-box;
 }
 
 .launch-banner h1 {
@@ -808,12 +829,12 @@ body.pro-page .page-container {
 
 .mode-btn {
   font-family: var(--poppins);
-  font-size: 0.82rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--editorMuted);
   background: none;
   border: none;
-  padding: 0.35rem 0.7rem;
+  padding: 0.4rem 0.8rem;
   cursor: pointer;
   border-radius: 0.25rem;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -1327,15 +1348,10 @@ body.pro-page footer #footer_nav {
 /* Responsive: max-width 720px */
 @media (max-width: 720px) {
   .launch-banner {
-    justify-content: flex-start;
     box-sizing: border-box;
     padding: 2.5rem 0;
     height: 100vh;
     height: 100dvh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
   }
 
@@ -1345,25 +1361,26 @@ body.pro-page footer #footer_nav {
     flex-shrink: 0;
   }
 
-  .launch-banner h1 {
-    font-size: clamp(2.25rem, 24vw, 4rem);
-    padding-inline: 0.75rem;
+  .launch-banner .hero-block,
+  .launch-banner .profiles-block,
+  .launch-banner .summary-block,
+  .launch-banner .links-block {
+    width: 100%;
+    box-sizing: border-box;
+    padding-inline: 1.25rem;
   }
 
-  .launch-banner .role {
-    font-size: clamp(1.1rem, 6vw, 1.75rem);
+  .launch-banner .banner-links {
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .launch-banner h1 {
     padding-inline: 0.75rem;
   }
 
   .launch-banner .profiles {
-    font-size: 1rem;
-  }
-
-  .launch-banner .hero-summary {
-    font-size: clamp(0.8rem, 4vw, 1rem);
-    max-width: 100%;
-    padding-inline: 1.25rem;
-    text-align: center;
+    padding-inline: 0;
   }
 
   .editor-tab {
@@ -1431,13 +1448,12 @@ body.pro-page footer #footer_nav {
     white-space: normal;
   }
 
-  .editor-modebar {
-    padding: 0.25rem 0.4rem;
+  .editor-tabsbar .editor-modebar {
+    display: none;
   }
 
   .mode-btn {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
+    padding: 0.4rem 0.7rem;
   }
 
   /* Sidebar toggle becomes a slim header row so content can use the full width */
@@ -1458,6 +1474,13 @@ body.pro-page footer #footer_nav {
 
   .activity-bar .directory-toggle {
     padding: 0;
+  }
+
+  .activity-bar .editor-modebar {
+    display: flex;
+    margin-left: auto;
+    flex: 0 0 auto;
+    padding: 0.1rem 0 0.1rem 0.5rem;
   }
 
   .editor-content {

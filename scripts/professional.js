@@ -259,6 +259,47 @@ function loadCV() {
 
 var editorWindow = null;
 
+var MOBILE_MQ = null;
+
+function refreshModebarVisibility() {
+  if (!editorWindow || !editorWindow.modebars) return;
+  var mobile = MOBILE_MQ && MOBILE_MQ.matches;
+  editorWindow.modebars.forEach(function (entry) {
+    var modebar = entry.modebar;
+    var section = entry.panel.closest('.pro-section');
+    if (mobile) {
+      var visible = !section || section.style.display !== 'none';
+      modebar.style.display = visible ? '' : 'none';
+    } else {
+      modebar.style.display = '';
+    }
+  });
+}
+
+function placeModebar(modebar) {
+  if (!editorWindow || !editorWindow.activityBar) return;
+  var mobile = MOBILE_MQ && MOBILE_MQ.matches;
+  var target = mobile ? editorWindow.activityBar : modebar.__desktopParent;
+  if (modebar.parentNode !== target) target.appendChild(modebar);
+  modebar.classList.toggle('modebar-mobile', mobile);
+}
+
+function setupModebarPlacement() {
+  if (!editorWindow || !MOBILE_MQ) return;
+  editorWindow.modebars = editorWindow.modebars || [];
+  editorWindow.main.querySelectorAll('.editor-panel').forEach(function (panel) {
+    var modebar = panel.querySelector('.editor-modebar');
+    if (!modebar) return;
+    if (!modebar.__placed) {
+      modebar.__placed = true;
+      modebar.__desktopParent = modebar.parentNode;
+      editorWindow.modebars.push({ modebar: modebar, panel: panel });
+    }
+    placeModebar(modebar);
+  });
+  refreshModebarVisibility();
+}
+
 function exitFullscreen() {
   if (document.fullscreenElement) {
     if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
@@ -376,7 +417,7 @@ function setupEditorWindow() {
   container.appendChild(body);
   container.appendChild(statusbar);
 
-  editorWindow = { sidebar: sidebar, tree: tree, main: main, entries: [] };
+  editorWindow = { sidebar: sidebar, tree: tree, main: main, entries: [], activityBar: activityBar };
   return editorWindow;
 }
 
@@ -432,6 +473,7 @@ function activateSection(sectionEl, item) {
   });
   sectionEl.style.display = 'block';
   setActiveTreeItem(item);
+  refreshModebarVisibility();
 }
 
 function registerDirectoryEntry(title, sectionEl, item) {
@@ -553,6 +595,8 @@ function renderProfessional(data) {
   if (exp.tabRefs[0] && exp.tabRefs[0].item) {
     activateSection(expSection, exp.tabRefs[0].item);
   }
+
+  setupModebarPlacement();
 }
 
 function renderSection(title, contentEl) {
@@ -1083,6 +1127,17 @@ function selectEditorFile(editor, tab, view) {
     });
   }
 })();
+
+MOBILE_MQ = window.matchMedia('(max-width: 720px)');
+if (MOBILE_MQ.addEventListener) {
+  MOBILE_MQ.addEventListener('change', function () {
+    setupModebarPlacement();
+  });
+} else {
+  MOBILE_MQ.addListener(function () {
+    setupModebarPlacement();
+  });
+}
 
 loadCV();
 
