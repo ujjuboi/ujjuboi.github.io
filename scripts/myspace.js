@@ -714,7 +714,21 @@ function openStudyDrawer(node, triggerBtn) {
       const mark = item.done ? '&#10003;' : '&#9744;';
       html += '<li class="drawer-checklist-item ' + doneClass + '">';
       html += '<span class="check-mark">' + mark + '</span>';
-      html += '<span>' + escapeHtml(item.text) + '</span>';
+      html += '<span class="drawer-item-main">';
+      html += escapeHtml(item.text);
+      if (item.subs && item.subs.length > 0) {
+        html += '<span class="drawer-item-subs">';
+        for (const sub of item.subs) {
+          if (sub.url) {
+            const linkLabel = sub.label ? escapeHtml(sub.label) + ': ' : '';
+            html += '<a class="drawer-item-sub" href="' + escapeHtml(sub.url) + '" target="_blank" rel="noopener">' + linkLabel + escapeHtml(sub.text) + '</a>';
+          } else {
+            html += '<span class="drawer-item-sub">' + escapeHtml(sub.text) + '</span>';
+          }
+        }
+        html += '</span>';
+      }
+      html += '</span>';
       html += '</li>';
     }
     html += '</ul>';
@@ -747,15 +761,17 @@ function openStudyDrawer(node, triggerBtn) {
  * @returns {HTMLElement} The completed leaf button.
  */
 function renderStudyNode(phase, node, isActive) {
+  const done = node.items ? node.items.filter(i => i.done).length : 0;
+  const total = node.items ? node.items.length : 0;
+  const isComplete = total > 0 && done === total;
+
   const leafEl = document.createElement('button');
   leafEl.type = 'button';
-  leafEl.className = 'wt-leaf' + (isActive ? ' is-active' : '');
+  leafEl.className = 'wt-leaf' + (isActive ? ' is-active' : '') + (isComplete ? ' is-complete' : '');
 
   const kicker = document.createElement('span');
   kicker.className = 'wt-leaf-kicker';
   const wordLabel = (node.kind === 'project' ? 'Project ' : 'Week ') + node.number;
-  const done = node.items ? node.items.filter(i => i.done).length : 0;
-  const total = node.items ? node.items.length : 0;
   kicker.textContent = wordLabel + (total > 0 ? ' · ' + done + '/' + total : '');
 
   const text = document.createElement('span');
@@ -798,6 +814,7 @@ function parseStudyPlan(text) {
 
   let currentPhase = null;
   let currentGroup = null;
+  let currentItem = null;
   let phaseNum = 0;
   let titleParsed = false;
 
@@ -820,6 +837,7 @@ function parseStudyPlan(text) {
       };
       result.phases.push(currentPhase);
       currentGroup = null;
+      currentItem = null;
       continue;
     }
 
@@ -838,19 +856,42 @@ function parseStudyPlan(text) {
         items: []
       };
       currentPhase.weeks.push(currentGroup);
+      currentItem = null;
       continue;
     }
 
     if (!currentGroup) continue;
 
+    const subLink = line.match(/^\s+-\s+(.+?):\s*\[([^\]]+)\]\(([^)]+)\)\s*$/);
+    if (subLink) {
+      if (currentItem) {
+        currentItem.subs.push({
+          label: subLink[1].trim(),
+          text: subLink[2].trim(),
+          url: subLink[3].trim()
+        });
+      }
+      continue;
+    }
+
+    const subText = line.match(/^\s+-\s+(.+)$/);
+    if (subText && !line.trim().startsWith('- [')) {
+      if (currentItem) {
+        currentItem.subs.push({ label: '', text: subText[1].trim(), url: null });
+      }
+      continue;
+    }
+
     if (line.match(/^- \[x\]/)) {
       const itemText = line.replace(/^- \[x\]\s*/, '').trim();
-      currentGroup.items.push({ text: itemText, done: true });
+      currentItem = { text: itemText, done: true, subs: [] };
+      currentGroup.items.push(currentItem);
       result.done++;
       result.total++;
     } else if (line.match(/^- \[ \]/)) {
       const itemText = line.replace(/^- \[ \]\s*/, '').trim();
-      currentGroup.items.push({ text: itemText, done: false });
+      currentItem = { text: itemText, done: false, subs: [] };
+      currentGroup.items.push(currentItem);
       result.total++;
 
       if (!result.focus) {
@@ -891,7 +932,7 @@ async function renderStudyPlan() {
   if (!treeEl) return;
 
   try {
-    const res = await fetch('../../src/study-plan.md');
+    const res = await fetch('../../src/networking.md');
     if (!res.ok) throw new Error('Failed to fetch study plan');
     const text = await res.text();
     const plan = parseStudyPlan(text);
@@ -903,7 +944,9 @@ async function renderStudyPlan() {
     const focusEl = document.getElementById('study-focus');
 
     if (progressFill) progressFill.style.width = plan.pct + '%';
-    if (progressLabel) progressLabel.textContent = plan.done + '/' + plan.total;
+    if (progressLabel) progressLabel.textContent = plan.pct + '%';
+    const titleEl = document.getElementById('study-title');
+    if (titleEl && plan.title) titleEl.textContent = plan.title;
     if (focusEl && plan.focus) {
       focusEl.textContent = plan.focus.phase + ' · ' + plan.focus.label + ' — ' + plan.focus.topic;
     }

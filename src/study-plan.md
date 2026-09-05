@@ -1,154 +1,101 @@
-# Study Plan: Networking, Browsers, HTML Servers & GitHub Pages
+# Study Plan: [Subject Title]
 
-## Phase 1: Networking Fundamentals
+## Phase 1: [Phase Title]
 
-### Week 1: Core Concepts
-- [ ] OSI Model (7 layers) — focus on Layers 3, 4, 5, 7
-  - Video: [NetworkChuck's networking playlist](https://www.youtube.com/playlist?list=PLIhvC56v63IJVXv0GJcl9vO5Z6znCVb1P)
-- [ ] TCP/IP model and how it maps to OSI
-- [ ] HTTP/1.1 vs HTTP/2 vs HTTP/3 — key differences
-- [ ] DNS resolution process (recursive, root, TLD servers)
-- [ ] How a request travels from browser to server and back
-- [ ] TCP handshake (3-way handshake) and teardown
-- [ ] UDP vs TCP — when to use each
+### Week 1: [Week Topic]
+- [ ] Task or topic description
+  - Book: "[Book Title]" by Author Name
+  - Site: [Resource Name](https://example.com)
+  - Video: [Video Title](https://example.com)
+- [ ] Another task or topic
+- [ ] Another task or topic
 
-### Week 2: HTTP Deep Dive
-- [ ] Request methods: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS
-- [ ] Status codes: 1xx, 2xx, 3xx, 4xx, 5xx — memorize key ones
-- [ ] Headers: Common request headers (Authorization, Content-Type, Accept, Cache-Control, Cookie)
-- [ ] Headers: Common response headers (Location, Set-Cookie, Cache-Control, ETag, Content-Encoding)
-- [ ] Idempotency — which methods are idempotent
-- [ ] Safe methods — which ones don't modify state
-- [ ] HTTP Pipelining and Multiplexing
-- [ ] URL encoding and query string format
-  - Book: "HTTP: The Definitive Guide" by David Gourley
+### Week 2: [Week Topic]
+- [ ] Task or topic description
+  - Optional sub-link: [Label](https://example.com)
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-### Week 3: Security
-- [ ] HTTPS — TLS handshake process
-- [ ] SSL/TLS certificates and CA chain
-- [ ] Same-origin policy (SOP)
-- [ ] CORS (Cross-Origin Resource Sharing) — preflight, credentials, headers
-- [ ] CSRF vs XSS — differences and prevention
-- [ ] Content Security Policy (CSP)
-- [ ] HTTP Strict Transport Security (HSTS)
+### Week 3: [Week Topic]
+- [ ] Task or topic description
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-### Week 4: Network Protocols
-- [ ] WebSocket protocol and connection lifecycle
-  - Book: "High Performance Browser Networking" by Google
-- [ ] Server-Sent Events (SSE)
-- [ ] gRPC overview
-- [ ] CDN (Content Delivery Network) — how it works, why it matters
-- [ ] Load balancing — round-robin, least-connection, IP hash
-- [ ] Reverse proxy vs forward proxy
+### Week 4: [Week Topic]
+- [ ] Task or topic description
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-## Phase 2: HTML & Web Standards
+## Phase 2: [Phase Title]
 
-### Week 5: HTML Semantic Deep Dive
-- [ ] Semantic elements: article, section, nav, aside, header, footer, main
-  - Site: [MDN Web Docs](https://developer.mozilla.org/)
-- [ ] Accessibility (a11y) — ARIA roles, labels, landmarks
-- [ ] Forms — input types, validation attributes, constraint validation API
-- [ ] Media elements: img, video, audio, picture, source
-- [ ] Web standards bodies: W3C, WHATWG, IETF
-- [ ] HTML5 features: LocalStorage, SessionStorage, IndexedDB, Web Workers
+### Week 5: [Week Topic]
+- [ ] Task or topic description
+  - Site: [Resource Name](https://example.com)
+- [ ] Task or topic description
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-### Week 6: CSS & Rendering
-- [ ] CSS specificity and cascade rules
-- [ ] Box model — content, padding, border, margin, box-sizing
-- [ ] Layout models: Flow, Flexbox, Grid, Tables
-  - Module: [Web.dev learn module](https://web.dev/learn/css)
-- [ ] Positioning: static, relative, absolute, fixed, sticky, inherit
-- [ ] Responsive design: media queries, fluid grids, clamp(), container queries
-  - Video: [Kevin Powell (CSS/Responsive Design)](https://www.youtube.com/@KevinPowell)
-- [ ] CSS custom properties (variables)
-- [ ] CSS animations vs transitions
+### Week 6: [Week Topic]
+- [ ] Task or topic description
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-## Phase 3: Browser Architecture
+### Week 7: [Week Topic]
+- [ ] Task or topic description
+  - Book: "[Book Title]" by Author Name
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-### Week 7: How Browsers Work
-- [ ] Browser architecture: UI, browser engine, rendering engine
-- [ ] Rendering pipeline: DOM construction → CSSOM → Render Tree → Layout → Paint
-- [ ] Critical rendering path optimization
-- [ ] JavaScript engine (V8 overview: JIT compilation, garbage collection)
-  - Site: [developer.chrome.com (browser internals)](https://developer.chrome.com/)
-- [ ] Event loop: macrotasks, microtasks, requestAnimationFrame
-- [ ] Hoisting, closures, and execution context
-  - Book: "You Don't Know JS" series by Kyle Simpson
-- [ ] Call stack and event queue
+### Week 8: [Week Topic]
+- [ ] Task or topic description
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-### Week 8: Browser APIs & Storage
-- [ ] localStorage vs sessionStorage — differences, limits, security
-- [ ] IndexedDB — when to use it, basic API
-- [ ] Cache API and Service Workers (offline support)
-- [ ] Web Storage event and storage events
-- [ ] Geolocation API
-- [ ] Fetch API vs XMLHttpRequest
-- [ ] Async/Await patterns and Promise mechanics
-- [ ] Performance APIs: Navigation Timing, Resource Timing, Performance Observer
+## Phase 3: [Phase Title]
 
-### Week 9: Browser-Specific Coding
-- [ ] Cross-browser compatibility: browsers to support, can I use
-  - Site: [caniuse.com (browser compatibility)](https://caniuse.com/)
-- [ ] Feature detection (modernizr) vs browser sniffing
-- [ ] Polyfills and transpilers (Babel, core-js)
-- [ ] Browser devtools: Network tab, Performance tab, Memory tab, Application tab
-- [ ] Debugging techniques: breakpoints, conditional breakpoints, watch expressions
-- [ ] Testing: Lighthouse, WebPageTest, browser compatibility testing tools
+### Week 9: [Week Topic]
+- [ ] Task or topic description
+  - Site: [Resource Name](https://example.com)
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-## Phase 4: Servers & Hosting
+### Week 10: [Week Topic]
+- [ ] Task or topic description
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-### Week 10: Server Fundamentals
-- [ ] Client-server model overview
-- [ ] Web servers: Nginx, Apache, Caddy — key differences
-- [ ] Static vs dynamic content delivery
-- [ ] Web server request lifecycle
-- [ ] Reverse proxy configuration
-- [ ] SSL/TLS termination at reverse proxy level
-- [ ] Rate limiting and DDoS protection basics
+### Week 11: [Week Topic]
+- [ ] Task or topic description
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-### Week 11: Hosting Platforms
-- [ ] GitHub Pages — what it is, limitations, features
-- [ ] GitHub Pages: custom domains, SSL, redirects, pages.yaml
-- [ ] GitHub Pages: Jekyll integration and build process
-- [ ] Vercel, Netlify, Cloudflare Pages — comparison
-- [ ] Serverless hosting concepts
-- [ ] CI/CD pipelines for static sites (GitHub Actions)
+### Week 12: [Week Topic]
+- [ ] Task or topic description
+- [ ] Task or topic description
+- [ ] Task or topic description
 
-### Week 12: Deployment & DevOps Basics
-- [ ] Git workflows: trunk-based vs GitFlow
-- [ ] Environment variables in deployment
-- [ ] Build processes: bundling (Webpack, Vite), minification, tree-shaking
-- [ ] Asset optimization: image compression, font optimization, code splitting
-- [ ] Monitoring: uptime monitoring, error tracking (Sentry)
-- [ ] Domain names and DNS records (A, CNAME, AAAA, MX, TXT, NS)
+## Phase 4: Hands-On Projects
 
-## Phase 5: Hands-On Projects
+### Project 1: [Project Name]
+- [ ] Task or milestone description
+- [ ] Task or milestone description
+- [ ] Task or milestone description
 
-### Project 1: Static Site from Scratch
-- [ ] Build a portfolio site with semantic HTML and CSS Grid
-- [ ] Host on GitHub Pages
-- [ ] Add custom domain with DNS configuration
-- [ ] Set up HTTPS (automatic on GitHub Pages)
+### Project 2: [Project Name]
+- [ ] Task or milestone description
+  - Site: [Resource Name](https://example.com)
+- [ ] Task or milestone description
+- [ ] Task or milestone description
 
-### Project 2: Dynamic Content with APIs
-- [ ] Fetch data from GitHub API, external APIs
-- [ ] Implement caching (localStorage, Service Worker)
-- [ ] Add CORS handling and error boundaries
-- [ ] Deploy to GitHub Pages
+### Project 3: [Project Name]
+- [ ] Task or milestone description
+- [ ] Task or milestone description
+- [ ] Task or milestone description
 
-### Project 3: Progressive Web App
-- [ ] Add Service Worker for offline support
-- [ ] Implement app shell architecture
-- [ ] Add manifest.json for installability
-- [ ] Test with Lighthouse
-
-### Project 4: Performance Optimization
-- [ ] Audit existing site with Lighthouse and WebPageTest
-  - Site: [web.dev (performance, accessibility, best practices)](https://web.dev/)
-- [ ] Optimize critical rendering path
-- [ ] Implement lazy loading, code splitting
-- [ ] Measure and document improvements
-  - Site: [HTTP Archive (web performance research)](https://httparchive.org/)
+### Project 4: [Project Name]
+- [ ] Task or milestone description
+- [ ] Task or milestone description
+- [ ] Task or milestone description
 
 ## Weekly Schedule Suggestion
 - 3 hours theory per week
