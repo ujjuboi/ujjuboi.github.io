@@ -49,6 +49,7 @@ Static portfolio site. Plain HTML + external vanilla JS/CSS. **No build system, 
 - No linter, test suite, or build step exists.
 - Run `node --check` on any modified JS file to catch syntax errors.
 - Manually verify by opening the affected page(s) in a browser.
+- `.mjs` files expect for `.opencode/skills/quick-test/test.mjs` are used only for testing — never commit or push them. Delete after testing is done. DO NOT DELETE `.opencode/skills/quick-test/test.mjs`.
 
 ## Out of scope
 
