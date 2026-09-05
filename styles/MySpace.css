@@ -644,7 +644,7 @@
   left: 0;
   right: 0;
   z-index: 2;
-  height: 1.4rem;
+  height: 2rem;
   background-color: var(--backgroundColor);
   border-top: 0.1rem solid var(--borderColor);
 }
@@ -667,25 +667,24 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 0.7rem;
+  font-size: 1rem;
   font-family: var(--poppins);
   font-weight: bold;
   color: var(--borderColor);
   background-color: var(--backgroundColor);
   border: 0.1rem solid var(--borderColor);
-  border-radius: 0.25rem;
+  border-radius: 1rem;
   padding: 0 0.35rem;
   line-height: 1;
   white-space: nowrap;
 }
 
 .book-progress-meta {
-  font-size: 0.7rem;
   color: var(--borderColor);
   padding: 0.35rem 0.6rem;
   background-color: var(--backgroundColor);
   border-top: 0.1rem solid var(--borderColor);
-  opacity: 0.9;
+  font-size: 0.75rem;
   line-height: 1.3;
 }
 
