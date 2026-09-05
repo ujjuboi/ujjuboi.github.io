@@ -638,7 +638,8 @@
   display: block;
 }
 
-#book-back-btn {
+#book-back-btn,
+#study-plan-back-btn {
   background-color: var(--shadowColor);
   color: var(--backgroundColor);
   border: 0.2rem solid var(--borderColor);
@@ -652,7 +653,8 @@
   margin-bottom: 1.5rem;
 }
 
-#book-back-btn:hover {
+#book-back-btn:hover,
+#study-plan-back-btn:hover {
   transform: translateY(-0.1rem) translateX(0.1rem);
   box-shadow: 0.3rem 0.3rem var(--shadowColor);
   background-color: var(--backgroundColor);
@@ -755,6 +757,10 @@
     gap: 1.25rem;
   }
 
+  .study-plans-grid {
+    grid-template-columns: 1fr;
+  }
+
   .book-detail {
     grid-template-columns: 1fr;
   }
@@ -811,11 +817,11 @@
   font-weight: bold;
   color: var(--borderColor);
   background-color: var(--backgroundColor);
+  border: 0.1rem solid var(--borderColor);
   border-radius: 1rem;
-  padding: 0.05rem 0.5rem;
+  padding: 0 0.35rem;
   line-height: 1;
   white-space: nowrap;
-  z-index: 2;
 }
 
 .study-focus {
@@ -825,6 +831,73 @@
   font-family: var(--poppins);
   font-style: italic;
   text-align: center;
+}
+
+.study-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.study-plan-card {
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--poppins);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.25rem;
+}
+
+.study-plan-card-title {
+  font-family: var(--headings);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--shadowColor);
+  line-height: 1.3;
+}
+
+.study-plan-card-focus {
+  font-size: var(--text-sm);
+  color: var(--borderColor);
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+.study-plan-card-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: auto;
+}
+
+.study-plan-card-track {
+  flex: 1;
+  height: 0.7rem;
+  background-color: var(--contentColor);
+  border: 0.1rem solid var(--borderColor);
+  border-radius: 0.2rem;
+  overflow: hidden;
+}
+
+.study-plan-card-fill {
+  height: 100%;
+  background-color: var(--linkColor);
+  border-radius: 0.15rem;
+  transition: width 0.3s ease;
+}
+
+.study-plan-card-pct {
+  font-family: var(--headings);
+  font-size: var(--text-sm);
+  color: var(--shadowColor);
+  white-space: nowrap;
+}
+
+.study-plan-card-meta {
+  font-size: var(--text-xs);
+  color: var(--borderColor);
+  opacity: 0.8;
 }
 
 .word-tree {

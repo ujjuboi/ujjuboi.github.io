@@ -922,103 +922,211 @@ function parseStudyPlan(text) {
 }
 
 /**
- * Fetches and renders the study plan as a word tree on the page.
+ * Parsed study plans loaded from the manifest.
  */
-async function renderStudyPlan() {
-  const treeEl = document.getElementById('study-tree');
-  const loadingEl = document.getElementById('study-loading');
-  const fallbackEl = document.getElementById('study-fallback');
+const studyPlans = [];
 
-  if (!treeEl) return;
+/**
+ * Builds the word-tree DOM for a study plan's phases, weeks, and projects.
+ * Leaves are clickable and open the detail drawer.
+ *
+ * @param {Object} plan Parsed study plan object.
+ * @returns {HTMLElement} The completed word-tree element.
+ */
+function buildWordTree(plan) {
+  const wordTree = document.createElement('div');
+  wordTree.style.marginTop = '0.5rem';
 
-  try {
-    const res = await fetch('../../src/networking.md');
-    if (!res.ok) throw new Error('Failed to fetch study plan');
-    const text = await res.text();
-    const plan = parseStudyPlan(text);
+  for (const phase of plan.phases) {
+    const branch = document.createElement('div');
+    branch.className = 'wt-branch';
 
-    loadingEl.style.display = 'none';
+    const root = document.createElement('div');
+    root.className = 'wt-root';
 
-    const progressFill = document.getElementById('study-progress-fill');
-    const progressLabel = document.getElementById('study-progress-label');
-    const focusEl = document.getElementById('study-focus');
+    const rootNum = document.createElement('span');
+    rootNum.className = 'wt-root-num';
+    rootNum.textContent = phase.name;
 
-    if (progressFill) progressFill.style.width = plan.pct + '%';
-    if (progressLabel) progressLabel.textContent = plan.pct + '%';
-    const titleEl = document.getElementById('study-title');
-    if (titleEl && plan.title) titleEl.textContent = plan.title;
-    if (focusEl && plan.focus) {
-      focusEl.textContent = plan.focus.phase + ' · ' + plan.focus.label + ' — ' + plan.focus.topic;
+    const rootName = document.createElement('span');
+    rootName.className = 'wt-root-name';
+    rootName.textContent = phase.label;
+
+    let phaseDone = 0;
+    let phaseTotal = 0;
+    for (const week of phase.weeks) {
+      if (!week.items) continue;
+      phaseDone += week.items.filter(i => i.done).length;
+      phaseTotal += week.items.length;
     }
 
-    if (plan.phases.length === 0) {
-      throw new Error('No phases found');
+    const rootMeta = document.createElement('span');
+    rootMeta.className = 'wt-root-meta';
+    rootMeta.textContent = phaseTotal > 0 ? phaseDone + '/' + phaseTotal + ' items' : '';
+
+    root.appendChild(rootNum);
+    root.appendChild(rootName);
+    root.appendChild(rootMeta);
+
+    const branchLine = document.createElement('span');
+    branchLine.className = 'wt-branch-line';
+
+    const leaves = document.createElement('div');
+    leaves.className = 'wt-leaves';
+
+    for (const week of phase.weeks) {
+      const isActive = plan.focus && plan.focus.label === week.label;
+      leaves.appendChild(renderStudyNode(phase, week, isActive));
     }
 
-    const wordTree = document.createElement('div');
-    wordTree.style.marginTop = '0.5rem';
+    branch.appendChild(root);
+    branch.appendChild(branchLine);
+    branch.appendChild(leaves);
 
-    for (const phase of plan.phases) {
-      const branch = document.createElement('div');
-      branch.className = 'wt-branch';
-
-      const root = document.createElement('div');
-      root.className = 'wt-root';
-
-      const rootNum = document.createElement('span');
-      rootNum.className = 'wt-root-num';
-      rootNum.textContent = phase.name;
-
-      const rootName = document.createElement('span');
-      rootName.className = 'wt-root-name';
-      rootName.textContent = phase.label;
-
-      let phaseDone = 0;
-      let phaseTotal = 0;
-      for (const week of phase.weeks) {
-        if (!week.items) continue;
-        phaseDone += week.items.filter(i => i.done).length;
-        phaseTotal += week.items.length;
-      }
-
-      const rootMeta = document.createElement('span');
-      rootMeta.className = 'wt-root-meta';
-      rootMeta.textContent = phaseTotal > 0 ? phaseDone + '/' + phaseTotal + ' items' : '';
-
-      root.appendChild(rootNum);
-      root.appendChild(rootName);
-      root.appendChild(rootMeta);
-
-      const branchLine = document.createElement('span');
-      branchLine.className = 'wt-branch-line';
-
-      const leaves = document.createElement('div');
-      leaves.className = 'wt-leaves';
-
-      for (const week of phase.weeks) {
-        const isActive = plan.focus && plan.focus.label === week.label;
-        leaves.appendChild(renderStudyNode(phase, week, isActive));
-      }
-
-      branch.appendChild(root);
-      branch.appendChild(branchLine);
-      branch.appendChild(leaves);
-
-      wordTree.appendChild(branch);
-    }
-
-    treeEl.appendChild(wordTree);
-
-    const node = wordTree.querySelector('.wt-leaf.is-active .wt-leaf-text');
-    if (node) {
-      node.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-  } catch (error) {
-    console.error('Study plan error:', error);
-    loadingEl.style.display = 'none';
-    fallbackEl.style.display = 'block';
+    wordTree.appendChild(branch);
   }
+
+  return wordTree;
+}
+
+/**
+ * Returns a plan's title with the "Study Plan:" prefix stripped.
+ *
+ * @param {object} plan Parsed study plan object.
+ * @returns {string} Display title.
+ */
+function studyPlanDisplayTitle(plan) {
+  return plan.title.replace(/^Study Plan:\s*/i, '');
+}
+
+/**
+ * Loads all study plans from the manifest and parses each markdown file.
+ */
+async function loadStudyPlans() {
+  try {
+    const res = await fetch('../../src/StudyPlans/plans.json');
+    if (!res.ok) throw new Error('Failed to fetch plans.json');
+    const filenames = await res.json();
+
+    for (const file of filenames) {
+      try {
+        const mdRes = await fetch('../../src/StudyPlans/' + file);
+        if (!mdRes.ok) throw new Error('Failed to fetch ' + file);
+        const text = await mdRes.text();
+        const plan = parseStudyPlan(text);
+        if (plan.phases.length > 0) {
+          studyPlans.push(plan);
+        }
+      } catch (e) {
+        console.error('Error loading study plan:', file, e);
+      }
+    }
+  } catch (e) {
+    console.error('Error loading study plans manifest:', e);
+  }
+}
+
+/**
+ * Renders the list of study plan cards into the plans grid.
+ */
+function renderStudyPlans() {
+  const container = document.getElementById('study-plans-grid');
+  container.innerHTML = '';
+
+  const loading = document.getElementById('study-loading');
+  if (loading) {
+    loading.classList.add('fade-out');
+    loading.addEventListener('animationend', () => loading.remove(), { once: true });
+  }
+
+  const fallback = document.getElementById('study-fallback');
+  const grid = document.createElement('div');
+  grid.className = 'study-plans-grid';
+
+  if (studyPlans.length === 0) {
+    fallback.style.display = 'block';
+    return;
+  }
+
+  fallback.style.display = 'none';
+
+  studyPlans.forEach((plan, index) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'study-plan-card card';
+    card.onclick = () => showStudyPlan(index);
+
+    const title = studyPlanDisplayTitle(plan);
+    const focus = plan.focus
+      ? plan.focus.phase + ' · ' + plan.focus.label + ' — ' + plan.focus.topic
+      : '';
+
+    card.innerHTML = `
+      <span class="study-plan-card-title">${escapeHtml(title)}</span>
+      <span class="study-plan-card-focus">${escapeHtml(focus)}</span>
+      <div class="study-plan-card-progress">
+        <div class="study-plan-card-track">
+          <div class="study-plan-card-fill" style="width: ${plan.pct}%"></div>
+        </div>
+        <span class="study-plan-card-pct">${plan.pct}%</span>
+      </div>
+      <span class="study-plan-card-meta">${plan.done}/${plan.total} items · ${plan.phases.length} phases</span>
+    `;
+
+    grid.appendChild(card);
+  });
+
+  container.appendChild(grid);
+}
+
+/**
+ * Shows a single study plan's full detail view by index.
+ *
+ * @param {number} index Index of the plan in the studyPlans array.
+ */
+function showStudyPlan(index) {
+  const plan = studyPlans[index];
+  if (!plan) return;
+
+  document.getElementById('study-plans-grid').style.display = 'none';
+  const view = document.getElementById('study-plan-view');
+  view.style.display = 'block';
+
+  document.getElementById('study-title').textContent = studyPlanDisplayTitle(plan);
+
+  const progressFill = document.getElementById('study-progress-fill');
+  const progressLabel = document.getElementById('study-progress-label');
+  if (progressFill) progressFill.style.width = plan.pct + '%';
+  if (progressLabel) progressLabel.textContent = plan.pct + '%';
+
+  const focusEl = document.getElementById('study-focus');
+  if (focusEl) {
+    focusEl.textContent = plan.focus
+      ? plan.focus.phase + ' · ' + plan.focus.label + ' — ' + plan.focus.topic
+      : '';
+  }
+
+  const treeEl = document.getElementById('study-tree');
+  treeEl.innerHTML = '';
+  treeEl.appendChild(buildWordTree(plan));
+
+  const activeText = treeEl.querySelector('.wt-leaf.is-active .wt-leaf-text');
+  if (activeText) {
+    activeText.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  history.replaceState(null, '', '#plan-' + index);
+  view.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/**
+ * Returns to the study plans list and clears the plan hash from the URL.
+ */
+function showStudyPlansList() {
+  document.getElementById('study-plan-view').style.display = 'none';
+  document.getElementById('study-plans-grid').style.removeProperty('display');
+  history.replaceState(null, '', window.location.pathname);
+  document.getElementById('study-plans-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /**
@@ -1064,6 +1172,16 @@ loadBooks().then(() => {
     }
   }
 });
-renderStudyPlan();
+loadStudyPlans().then(() => {
+  renderStudyPlans();
+
+  const hash = window.location.hash;
+  if (hash && hash.startsWith('#plan-')) {
+    const idx = parseInt(hash.replace('#plan-', ''), 10);
+    if (!isNaN(idx) && idx >= 0 && idx < studyPlans.length) {
+      showStudyPlan(idx);
+    }
+  }
+});
 initStudyDrawerHandlers();
 initMenuToggle('#myspace-container');

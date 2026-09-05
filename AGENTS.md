@@ -12,6 +12,7 @@ Static portfolio site. Plain HTML + external vanilla JS/CSS. **No build system, 
 | Shared JS | `scripts/shared.js` | — |
 | Shared theme/components | `styles/styles.css` (custom properties + shared classes) | — |
 | Blog post | `src/Blogs/NN-slug-title.md` (zero-padded number + kebab slug) | `08-legacy-stacks.md` |
+| Study plan | `src/StudyPlans/<slug>.md` + `src/StudyPlans/plans.json` (plan manifest) | `networking.md` |
 | Content source | `src/cv.md` (canonical resume), `src/Blogs/posts.json` (blog manifest) | — |
 
 ## HTML

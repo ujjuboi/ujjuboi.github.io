@@ -38,20 +38,24 @@
           <span class="toggle-icon">-</span>
         </h2>
         <div class="section-content" style="display: block;">
-          <div class="study-summary">
-            <h3 class="study-title" id="study-title"></h3>
-            <div class="study-progress-track">
-              <div class="study-progress-fill" id="study-progress-fill" style="width: 0%"></div>
-              <span class="study-progress-label" id="study-progress-label">0/0</span>
-            </div>
-            <div class="study-focus" id="study-focus"></div>
-          </div>
           <div id="study-loading" class="loading-placeholder">
-            Loading study plan<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+            Loading study plans<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
           </div>
-          <div id="study-tree" class="word-tree"></div>
+          <div id="study-plans-grid"></div>
           <div id="study-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
-            Unable to load study plan
+            Unable to load study plans
+          </div>
+          <div id="study-plan-view" style="display: none;">
+            <button id="study-plan-back-btn" type="button" onclick="showStudyPlansList()">← Back to study plans</button>
+            <div class="study-summary">
+              <h3 class="study-title" id="study-title"></h3>
+              <div class="study-progress-track">
+                <div class="study-progress-fill" id="study-progress-fill" style="width: 0%"></div>
+                <span class="study-progress-label" id="study-progress-label">0/0</span>
+              </div>
+              <div class="study-focus" id="study-focus"></div>
+            </div>
+            <div id="study-tree" class="word-tree"></div>
           </div>
         </div>
       </div>
