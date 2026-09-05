@@ -4,7 +4,7 @@
 body {
   padding: 1%;
   font-size: var(--text-base);
-  font-family: var(--poppins);
+  font-family: var(--theme-content-font);
   display: -ms-grid;
   display: grid;
   -ms-grid-rows: 15vh 60vh auto;
@@ -61,7 +61,7 @@ header nav ul li :hover {
 }
 
 header nav ul li a {
-  font-family: var(--poppins);
+  font-family: var(--theme-content-font);
   text-decoration: none;
   color: var(--shadowColor);
 }
@@ -103,6 +103,7 @@ section #hero p {
 }
 
 section #hero p {
+  font-family: var(--theme-content-font);
   text-align: justify;
   font-size: var(--text-base);
 }
@@ -199,8 +200,12 @@ footer #footer_nav li a {
 }
 
 #brand {
-  font-family: var(--headings);
+  font-family: var(--theme-heading-font);
   color: var(--borderColor);
+}
+
+footer h1 {
+  font-family: var(--theme-heading-font);
 }
 
 

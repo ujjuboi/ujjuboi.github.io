@@ -317,3 +317,52 @@ function parseCV(text) {
 
   return data;
 }
+
+/**
+ * Font themes selectable in the switcher, keyed by the data attribute value.
+ */
+const fontThemes = ['default', 'sans', 'ebook', 'scholarly'];
+
+/**
+ * Initializes the bottom-right font switcher: restores the saved theme
+ * and wires up the toggle plus selection handlers.
+ */
+function initFontSwitcher() {
+  const toggle = document.getElementById('font-switcher-toggle');
+  const menu = document.getElementById('font-switcher-menu');
+  if (!toggle || !menu) return;
+
+  const saved = localStorage.getItem('font-theme');
+  if (saved && fontThemes.includes(saved)) {
+    document.body.dataset.fontTheme = saved;
+  }
+  updateThemeButtons();
+
+  toggle.addEventListener('click', () => {
+    const open = menu.hidden;
+    menu.hidden = !open;
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  menu.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-font-theme]');
+    if (!button) return;
+    document.body.dataset.fontTheme = button.dataset.fontTheme;
+    localStorage.setItem('font-theme', button.dataset.fontTheme);
+    updateThemeButtons();
+    menu.hidden = true;
+    toggle.setAttribute('aria-expanded', 'false');
+  });
+}
+
+/**
+ * Highlights the active theme option in the switcher menu.
+ */
+function updateThemeButtons() {
+  const active = document.body.dataset.fontTheme || 'default';
+  document.querySelectorAll('#font-switcher-menu button[data-font-theme]').forEach(button => {
+    button.classList.toggle('active', button.dataset.fontTheme === active);
+  });
+}
+
+initFontSwitcher();

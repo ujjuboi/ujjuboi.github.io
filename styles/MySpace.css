@@ -645,7 +645,7 @@
   border: 0.2rem solid var(--borderColor);
   border-radius: 0.3rem;
   padding: 0.6rem 1.2rem;
-  font-family: var(--poppins);
+  font-family: var(--theme-content-font);
   font-size: var(--text-base);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -693,7 +693,7 @@
 }
 
 #book-title {
-  font-family: var(--headings);
+  font-family: var(--theme-heading-font);
   color: var(--shadowColor);
   font-size: var(--text-3xl);
   margin: 0 0 0.5rem 0;
@@ -704,7 +704,7 @@
   color: var(--shadowColor);
   font-size: var(--text-base);
   margin: 0 0 0.4rem 0;
-  font-family: var(--poppins);
+  font-family: var(--theme-content-font);
   opacity: 0.85;
 }
 
@@ -712,7 +712,7 @@
   color: var(--borderColor);
   font-size: var(--text-sm);
   margin: 0 0 1.2rem 0;
-  font-family: var(--poppins);
+  font-family: var(--theme-content-font);
   opacity: 0.8;
 }
 
