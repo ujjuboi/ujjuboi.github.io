@@ -106,8 +106,11 @@ Making my own dynamic blogging website!
 │   │   ├── the-bhagavad-gita.md
 │   │   ├── the-new-encyclopedia-of-modern-bodybuilding.md
 │   │   └── who-moved-my-cheese.md
-│   ├── cv.md
-│   └── study-plan.md
+│   ├── StudyPlans/
+│   │   ├── networking.md
+│   │   ├── plans.json
+│   │   └── template.md
+│   └── cv.md
 ├── styles/
 │   ├── Blog.css
 │   ├── Home.css
