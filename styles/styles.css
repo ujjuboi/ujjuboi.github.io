@@ -10,6 +10,7 @@
   --linkHover: #000000;
   --errorColor: #b3261e;
   --errorTextColor: #ffffff;
+  --bannerDim: rgba(0, 0, 0, 0.35);
 
   --headings: 'Raleway', sans-serif;
   --poppins: 'Poppins', sans-serif;

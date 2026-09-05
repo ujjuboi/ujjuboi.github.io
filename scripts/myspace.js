@@ -441,9 +441,236 @@ async function fetchGitHubIssues() {
   }
 }
 
+/**
+ * Parsed books loaded from the manifest.
+ */
+const books = [];
+
+/**
+ * Parses a book markdown file into a structured object.
+ *
+ * @param {string} text Raw markdown source.
+ * @param {string} filename The filename (used as book key).
+ * @returns {Object|null} Parsed book object or null on failure.
+ */
+function parseBook(text, filename) {
+  const meta = {};
+  const lines = text.split('\n');
+  let inChapters = false;
+  const chapterLines = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    if (inChapters) {
+      if (line.startsWith('## ')) {
+        inChapters = false;
+        continue;
+      }
+      chapterLines.push(line);
+      continue;
+    }
+
+    if (line.startsWith('## Chapters:')) {
+      inChapters = true;
+      continue;
+    }
+
+    const match = line.match(/^## (\w+):\s*(.+)/);
+    if (match) {
+      meta[match[1].toLowerCase()] = match[2].trim();
+    }
+  }
+
+  const chapters = [];
+  let currentChapter = null;
+
+  for (const line of chapterLines) {
+    const trimmed = line.trim();
+
+    const chapterMatch = trimmed.match(/^-\s+\[([ x])\]\s+(.+?):?\s*$/);
+    if (chapterMatch) {
+      if (currentChapter) {
+        chapters.push(currentChapter);
+      }
+      currentChapter = {
+        name: chapterMatch[2].trim(),
+        done: chapterMatch[1] === 'x'
+      };
+    }
+  }
+
+  if (currentChapter) {
+    chapters.push(currentChapter);
+  }
+
+  const totalChapters = chapters.length;
+  const doneChapters = chapters.filter(c => c.done).length;
+  const progress = totalChapters > 0 ? Math.round((doneChapters / totalChapters) * 100) : 0;
+
+  let status = meta.status || 'Interested';
+  let progressText = 'Not started';
+
+  if (status === 'Read' || progress >= 100) {
+    status = 'Read';
+    progressText = 'Finished';
+  } else if (progress > 0) {
+    status = 'Currently Reading';
+    const nextUp = chapters.find(c => !c.done);
+    if (nextUp) {
+      progressText = 'Currently on: ' + nextUp.name + ' · ' + progress + '%';
+    } else {
+      progressText = progress + '%';
+    }
+  }
+
+  return {
+    title: meta.title || filename.replace(/\.md$/, ''),
+    author: meta.author || '',
+    excerpt: meta.excerpt || '',
+    thoughts: meta.thoughts || '',
+    banner: meta.banner || '',
+    category: meta.category || '',
+    status: status,
+    progress: progress,
+    progressText: progressText,
+    chapters: chapters,
+    filename: filename
+  };
+}
+
+/**
+ * Loads all books from the manifest and parses each markdown file.
+ */
+async function loadBooks() {
+  try {
+    const res = await fetch('../../src/Books/books.json');
+    if (!res.ok) throw new Error('Failed to fetch books.json');
+    const filenames = await res.json();
+
+    for (const file of filenames) {
+      try {
+        const mdRes = await fetch('../../src/Books/' + file);
+        if (!mdRes.ok) throw new Error('Failed to fetch ' + file);
+        const text = await mdRes.text();
+        const book = parseBook(text, file);
+        if (book) {
+          books.push(book);
+        }
+      } catch (e) {
+        console.error('Error loading book:', file, e);
+      }
+    }
+  } catch (e) {
+    console.error('Error loading books manifest:', e);
+  }
+}
+
+/**
+ * Renders the list of book cards into the books grid.
+ */
+function renderBooks() {
+  const container = document.getElementById('books-grid');
+  container.innerHTML = '';
+
+  const loading = document.getElementById('books-loading');
+  if (loading) {
+    loading.classList.add('fade-out');
+    loading.addEventListener('animationend', () => loading.remove(), { once: true });
+  }
+
+  const fallback = document.getElementById('books-fallback');
+  const grid = document.createElement('div');
+  grid.className = 'books-grid';
+
+  if (books.length === 0) {
+    fallback.style.display = 'block';
+    return;
+  }
+
+  fallback.style.display = 'none';
+
+  books.forEach((book, index) => {
+    const card = document.createElement('div');
+    card.className = 'book-card';
+    card.onclick = () => showBook(index);
+
+    const statusBadge = book.status === 'Read'
+      ? '<span class="book-status">✓ ' + escapeHtml(book.status) + '</span>'
+      : book.progress > 0
+        ? '<span class="book-status">Currently Reading</span>'
+        : '<span class="book-status">Interested</span>';
+
+    card.innerHTML = `
+      <div class="book-banner-wrap">
+        <img class="book-banner" src="${escapeHtml(book.banner)}" alt="${escapeHtml(book.title)} banner">
+        ${statusBadge}
+        <div class="book-progress">
+          <div class="book-progress-bar">
+            <div class="book-progress-fill" style="width: ${book.progress}%"></div>
+            <span class="book-progress-pct">${book.progress}%</span>
+          </div>
+        </div>
+      </div>
+      <div class="book-progress-meta">${escapeHtml(book.progressText)}</div>
+    `;
+
+    grid.appendChild(card);
+  });
+
+  container.appendChild(grid);
+}
+
+/**
+ * Shows a single book's full detail view by index.
+ *
+ * @param {number} index Index of the book in the books array.
+ */
+function showBook(index) {
+  const book = books[index];
+  if (!book) return;
+
+  document.getElementById('books-grid').style.display = 'none';
+  const bookView = document.getElementById('book-view');
+  bookView.style.display = 'block';
+
+  document.getElementById('book-banner').src = book.banner;
+  document.getElementById('book-banner').alt = book.title + ' banner';
+  document.getElementById('book-title').textContent = book.title;
+  document.getElementById('book-author').textContent = book.author;
+  document.getElementById('book-meta').textContent =
+    book.category + ' · ' + book.status + ' · ' + book.progressText;
+  document.getElementById('book-excerpt').textContent = book.excerpt;
+  document.getElementById('book-thoughts').textContent = book.thoughts;
+
+  history.replaceState(null, '', '#book-' + index);
+  bookView.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/**
+ * Returns to the books list and clears the book hash from the URL.
+ */
+function showBooksList() {
+  document.getElementById('book-view').style.display = 'none';
+  document.getElementById('books-grid').style.removeProperty('display');
+  history.replaceState(null, '', window.location.pathname);
+  document.getElementById('books-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 fetchGitHubStats();
 fetchRecentActivity();
 fetchLeetCodeStats();
 loadLatestPost();
 fetchGitHubIssues();
+loadBooks().then(() => {
+  renderBooks();
+
+  const hash = window.location.hash;
+  if (hash && hash.startsWith('#book-')) {
+    const idx = parseInt(hash.replace('#book-', ''), 10);
+    if (!isNaN(idx) && idx >= 0 && idx < books.length) {
+      showBook(idx);
+    }
+  }
+});
 initMenuToggle('#myspace-container');
