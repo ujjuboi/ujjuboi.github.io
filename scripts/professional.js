@@ -1,33 +1,17 @@
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function mdInline(text) {
-  let html = escapeHtml(String(text || ''));
-  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (match, label, url) {
-    const trimmed = url.trim();
-    const scheme = trimmed.match(/^([a-z][a-z0-9+.-]*):/i);
-    if (scheme && ['http', 'https', 'mailto', '#'].indexOf(scheme[1].toLowerCase()) === -1) {
-      return match;
-    }
-    return '<a href="' + escapeHtml(trimmed) + '" target="_blank" rel="noopener">' + label + '</a>';
-  });
-  html = html.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
-  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/(^|[^*])\*([^*]+)\*/g, function (match, pre, italic) {
-    return pre + '<em>' + italic + '</em>';
-  });
-  return html;
-}
-
+/**
+ * Converts a block of markdown (headings, lists, quotes, rulers) into HTML.
+ *
+ * @param {string} text Markdown source to render.
+ * @returns {string} Rendered HTML.
+ */
 function mdBlock(text) {
   const lines = String(text || '').split('\n');
   let html = '';
   const stack = [];
 
+  /**
+   * Closes every list element still open on the tag stack.
+   */
   function closeAll() {
     while (stack.length) {
       const tag = stack.pop();
@@ -88,187 +72,35 @@ function mdBlock(text) {
   return html;
 }
 
+/**
+ * Replaces the professional container with a loading placeholder.
+ */
 function showLoading() {
   const container = document.getElementById('pro-container');
   container.innerHTML = '<p class="loading-placeholder">Loading<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span></p>';
 }
 
+/**
+ * Replaces the professional container with an error message.
+ *
+ * @param {string} message Error text to display.
+ */
 function showError(message) {
   const container = document.getElementById('pro-container');
   container.innerHTML = '<p class="error-message">' + escapeHtml(message) + '</p>';
 }
 
-function nextNonBlank(lines, start) {
-  let j = start;
-  while (j < lines.length && lines[j].trim() === '') j++;
-  return j;
-}
-
-function sectionLines(lines, start) {
-  const result = [];
-  let j = start;
-  while (j < lines.length && !lines[j].startsWith('## ')) {
-    result.push(lines[j]);
-    j++;
-  }
-  return result;
-}
-
-var SORT_MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
-var SORT_MONTH_LABELS = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-function parseStartSortKey(dateStr) {
-  const m = String(dateStr || '').trim().match(/^([A-Za-z]+)\s+(\d{4})/);
-  if (!m) return 0;
-  const mon = SORT_MONTHS[m[1].toLowerCase().slice(0, 3)];
-  if (!mon) return 0;
-  return parseInt(m[2], 10) * 100 + mon;
-}
-
-function sortKeyToLabel(key) {
-  if (!key) return '';
-  const year = Math.floor(key / 100);
-  const mon = key % 100;
-  return SORT_MONTH_LABELS[mon] ? SORT_MONTH_LABELS[mon] + ' ' + year : '';
-}
-
-function parseCV(text) {
-  const lines = text.split('\n');
-  const data = { summary: '', experience: [], projects: [], skills: [] };
-
-  let i = 0;
-  while (i < lines.length && !lines[i].startsWith('## ')) i++;
-
-  while (i < lines.length) {
-    const section = lines[i].replace(/^## /, '').trim();
-
-    if (section === 'Professional Summary') {
-      i = nextNonBlank(lines, i + 1);
-      const end = sectionLines(lines, i);
-      data.summary = end.filter(l => l.trim()).join(' ');
-      i += end.length;
-      continue;
-    }
-
-    if (section === 'Work Experience') {
-      const block = sectionLines(lines, i + 1);
-      let job = null;
-      for (const line of block) {
-        if (line.startsWith('### ')) {
-          if (job) data.experience.push(job);
-          job = { company: line.replace(/^### /, '').trim(), role: '', date: '', bullets: [] };
-        } else if (job) {
-          const t = line.trim();
-          if (t === '') continue;
-          if (t.startsWith('**') && t.endsWith('**') && !job.role) {
-            job.role = t.slice(2, -2);
-          } else if (/^#{3,6}\s/.test(t)) {
-            job.bullets.push({
-              kind: 'heading',
-              level: t.match(/^#+/)[0].length,
-              text: t.replace(/^#+\s*/, '')
-            });
-          } else if (/^[-+*]\s/.test(t) && line !== t) {
-            const last = job.bullets[job.bullets.length - 1];
-            if (last && last.kind === 'bullet') {
-              last.sub.push(t.replace(/^[-+*]\s*/, ''));
-            }
-          } else if (t.startsWith('- ')) {
-            job.bullets.push({ kind: 'bullet', text: t.slice(2), sub: [] });
-          } else if (/^>\s*\[([^\]]+)\]\(([^)]+)\)/.test(t)) {
-            const m = t.match(/^>\s*\[([^\]]+)\]\(([^)]+)\)/);
-            job.readMore = { label: m[1], url: m[2] };
-          } else if (/^!\[[^\]]*\]\(([^)]+)\)/.test(t)) {
-            const m = t.match(/^!\[[^\]]*\]\(([^)]+)\)/);
-            job.banner = m[1].trim();
-          } else if (t && !job.date) {
-            job.date = t;
-            job.sortKey = parseStartSortKey(t);
-          }
-        }
-      }
-      if (job) data.experience.push(job);
-      i += block.length;
-      continue;
-    }
-
-    if (section === 'Projects') {
-      const block = sectionLines(lines, i + 1);
-      let proj = null;
-      for (const line of block) {
-        const t = line.trim();
-        if (/^>\s*\[([^\]]+)\]\(([^)]+)\)/.test(t)) {
-          const m = t.match(/^>\s*\[([^\]]+)\]\(([^)]+)\)/);
-          if (proj) proj.readMore = { label: m[1], url: m[2] };
-          continue;
-        }
-        if (/^!\[[^\]]*\]\(([^)]+)\)/.test(t)) {
-          const m = t.match(/^!\[[^\]]*\]\(([^)]+)\)/);
-          if (proj) proj.banner = m[1].trim();
-          continue;
-        }
-        if (!t.startsWith('- ')) continue;
-        const content = t.slice(2);
-        const name = content.split('**')[1] || '';
-        const afterName = content.split(')')[0] || '';
-        const tag = afterName.split('(')[1] || '';
-        const desc = content.split('--')[1] || '';
-        proj = { name: name.trim(), tag: tag.trim(), desc: desc.trim() };
-        data.projects.push(proj);
-      }
-      i += block.length;
-      continue;
-    }
-
-    if (section === 'Skills') {
-      const block = sectionLines(lines, i + 1);
-      for (const line of block) {
-        const t = line.trim();
-        if (!t.startsWith('- ')) continue;
-        const content = t.slice(2);
-        const category = (content.split('**')[1] || '').replace(/:$/, '');
-        const items = (content.split(':**')[1] || '').split(',').map(s => s.trim());
-        data.skills.push({ category, items });
-      }
-      i += block.length;
-      continue;
-    }
-
-    i++;
-  }
-
-  return data;
-}
-
-function loadCV() {
-  showLoading();
-  fetch('../../src/cv.md')
-    .then(res => {
-      if (!res.ok) throw new Error('Failed to fetch CV');
-      return res.text();
-    })
-    .then(text => {
-      const data = parseCV(text);
-      renderProfessional(data);
-    })
-    .catch(e => {
-      console.error('Error loading CV:', e);
-      showError('Failed to load CV data.');
-    });
-}
-
-var editorWindow = null;
-
-var MOBILE_MQ = null;
-
+/**
+ * Toggles whether editor modebars are shown, hiding them when their section is collapsed on mobile.
+ */
 function refreshModebarVisibility() {
   if (!editorWindow || !editorWindow.modebars) return;
-  var mobile = MOBILE_MQ && MOBILE_MQ.matches;
+  const mobile = MOBILE_MQ && MOBILE_MQ.matches;
   editorWindow.modebars.forEach(function (entry) {
-    var modebar = entry.modebar;
-    var section = entry.panel.closest('.pro-section');
+    const modebar = entry.modebar;
+    const section = entry.panel.closest('.pro-section');
     if (mobile) {
-      var visible = !section || section.style.display !== 'none';
+      const visible = !section || section.style.display !== 'none';
       modebar.style.display = visible ? '' : 'none';
     } else {
       modebar.style.display = '';
@@ -276,19 +108,27 @@ function refreshModebarVisibility() {
   });
 }
 
+/**
+ * Moves a modebar into the activity bar on mobile, or back to its desktop parent.
+ *
+ * @param {HTMLElement} modebar The modebar element to place.
+ */
 function placeModebar(modebar) {
   if (!editorWindow || !editorWindow.activityBar) return;
-  var mobile = MOBILE_MQ && MOBILE_MQ.matches;
-  var target = mobile ? editorWindow.activityBar : modebar.__desktopParent;
+  const mobile = MOBILE_MQ && MOBILE_MQ.matches;
+  const target = mobile ? editorWindow.activityBar : modebar.__desktopParent;
   if (modebar.parentNode !== target) target.appendChild(modebar);
   modebar.classList.toggle('modebar-mobile', mobile);
 }
 
+/**
+ * Locates every editor modebar and records its desktop parent before placing it.
+ */
 function setupModebarPlacement() {
   if (!editorWindow || !MOBILE_MQ) return;
   editorWindow.modebars = editorWindow.modebars || [];
   editorWindow.main.querySelectorAll('.editor-panel').forEach(function (panel) {
-    var modebar = panel.querySelector('.editor-modebar');
+    const modebar = panel.querySelector('.editor-modebar');
     if (!modebar) return;
     if (!modebar.__placed) {
       modebar.__placed = true;
@@ -300,6 +140,9 @@ function setupModebarPlacement() {
   refreshModebarVisibility();
 }
 
+/**
+ * Restores the launch banner overlay to its visible, unlaunched state.
+ */
 function showBanner() {
   const banner = document.getElementById('launch-banner');
   if (!banner) return;
@@ -307,6 +150,9 @@ function showBanner() {
   if (banner.__setEyesVisible) banner.__setEyesVisible(true);
 }
 
+/**
+ * Exits fullscreen mode across standard and legacy webkit prefixes.
+ */
 function exitFullscreen() {
   if (document.fullscreenElement) {
     if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
@@ -315,6 +161,11 @@ function exitFullscreen() {
   }
 }
 
+/**
+ * Builds the VS Code-style editor chrome (titlebar, sidebar, tabs, statusbar) in place.
+ *
+ * @returns {Object} References to the editor's interactive regions.
+ */
 function setupEditorWindow() {
   const container = document.getElementById('pro-container');
   container.classList.add('editor-window');
@@ -323,6 +174,13 @@ function setupEditorWindow() {
   const titlebar = document.createElement('div');
   titlebar.className = 'editor-titlebar';
 
+  /**
+   * Creates a traffic-light dot that doubles as a back control.
+   *
+   * @param {string} colorClass Dot color class.
+   * @param {string} label Accessible label and tooltip.
+   * @returns {HTMLButtonElement} Dot button element.
+   */
   function makeBackDot(colorClass, label) {
     const dot = document.createElement('button');
     dot.type = 'button';
@@ -426,7 +284,10 @@ function setupEditorWindow() {
   return editorWindow;
 }
 
-var SHORT_NAMES = {
+/**
+ * Maps long section/role labels to short folder names.
+ */
+const SHORT_NAMES = {
   'Software Engineer 2 - DI App Factory': 'swe-2',
   'Software Engineer 1 - DI App Factory': 'swe-1',
   'Associate Software Developer - DI App Factory': 'asoc-dev-sc',
@@ -439,8 +300,17 @@ var SHORT_NAMES = {
   'Infrastructure': 'infra'
 };
 
-var ICON_SRC = '../../Images/information-svgrepo-com.svg';
+/**
+ * Icon shown for directory tree files.
+ */
+const ICON_SRC = '../../Images/information-svgrepo-com.svg';
 
+/**
+ * Shortens an arbitrary label into a filename-safe slug.
+ *
+ * @param {string} label Label to shorten.
+ * @returns {string} Slugged name, or the mapped short name when one exists.
+ */
 function shortName(label) {
   const clean = String(label || '').replace(/:$/, '');
   if (SHORT_NAMES[clean] !== undefined) return SHORT_NAMES[clean];
@@ -450,6 +320,9 @@ function shortName(label) {
   return parts.slice(0, 2).join('-');
 }
 
+/**
+ * Deactivates every folder header in the directory tree.
+ */
 function setActiveFolderHeader() {
   if (!editorWindow || !editorWindow.folders) return;
   editorWindow.folders.forEach(folder => {
@@ -457,6 +330,11 @@ function setActiveFolderHeader() {
   });
 }
 
+/**
+ * Marks a single directory tree item as selected and highlights its parent folder.
+ *
+ * @param {HTMLElement} [item] Tree item to mark active, or null to clear all.
+ */
 function setActiveTreeItem(item) {
   if (!editorWindow) return;
   editorWindow.entries.forEach(entry => {
@@ -470,6 +348,12 @@ function setActiveTreeItem(item) {
   }
 }
 
+/**
+ * Shows one professional section and hides the others.
+ *
+ * @param {HTMLElement} sectionEl Section to reveal.
+ * @param {HTMLElement} [item] Tree item to sync the selection to.
+ */
 function activateSection(sectionEl, item) {
   if (!editorWindow) return;
   if (editorWindow.sidebar) editorWindow.sidebar.classList.add('open');
@@ -481,6 +365,14 @@ function activateSection(sectionEl, item) {
   refreshModebarVisibility();
 }
 
+/**
+ * Adds a file entry to the directory tree that activates a section on click.
+ *
+ * @param {string} title Display name for the entry.
+ * @param {HTMLElement} sectionEl Section the entry opens.
+ * @param {HTMLElement} [item] Existing tree item to reuse.
+ * @returns {HTMLElement} The tree item element.
+ */
 function registerDirectoryEntry(title, sectionEl, item) {
   if (!editorWindow) return;
   item = item || document.createElement('div');
@@ -505,6 +397,13 @@ function registerDirectoryEntry(title, sectionEl, item) {
   return item;
 }
 
+/**
+ * Groups directory entries under a collapsible folder in the tree.
+ *
+ * @param {string} name Folder label.
+ * @param {HTMLElement} sectionEl Section the folder belongs to.
+ * @param {Object[]} tabRefs Tab references to list inside the folder.
+ */
 function registerSectionFolder(name, sectionEl, tabRefs) {
   if (!editorWindow) return;
 
@@ -549,6 +448,12 @@ function registerSectionFolder(name, sectionEl, tabRefs) {
     if (ref.view) ref.view.__treeItem = item;
   });
 
+  /**
+   * Opens or closes the folder, optionally forcing a state.
+   *
+   * @param {boolean} [force] Desired open state when provided.
+   * @returns {boolean} Whether the folder is now open.
+   */
   function toggle(force) {
     const open = typeof force === 'boolean' ? force : !folder.classList.contains('open');
     folder.classList.toggle('open', open);
@@ -566,6 +471,11 @@ function registerSectionFolder(name, sectionEl, tabRefs) {
   editorWindow.tree.appendChild(folder);
   sectionEl.style.display = 'none';
 
+  /**
+   * Sets whether the folder appears active and opens it when activated.
+   *
+   * @param {boolean} active Whether the folder should be marked active.
+   */
   folder.__setActive = function (active) {
     header.classList.toggle('active', active);
     if (active) toggle(true);
@@ -575,6 +485,11 @@ function registerSectionFolder(name, sectionEl, tabRefs) {
   editorWindow.folders.push(folder);
 }
 
+/**
+ * Renders the full professional page from parsed CV data.
+ *
+ * @param {Object} data Structured CV from parseCV().
+ */
 function renderProfessional(data) {
   const container = document.getElementById('pro-container');
   container.innerHTML = '';
@@ -596,14 +511,18 @@ function renderProfessional(data) {
   editorWindow.main.appendChild(skillsSection);
   registerSectionFolder('Skills', skillsSection, skills.tabRefs);
 
-  activateSection(expSection);
-  if (exp.tabRefs[0] && exp.tabRefs[0].item) {
-    activateSection(expSection, exp.tabRefs[0].item);
-  }
+  activateSection(expSection, exp.tabRefs[0] && exp.tabRefs[0].item);
 
   setupModebarPlacement();
 }
 
+/**
+ * Builds a full-width professional section wrapper.
+ *
+ * @param {string} title Section title (used for the element id).
+ * @param {Node} contentEl Content node to place inside the section.
+ * @returns {HTMLDivElement} Section element ready to append.
+ */
 function renderSection(title, contentEl) {
   const section = document.createElement('div');
   section.className = 'pro-section';
@@ -621,6 +540,12 @@ function renderSection(title, contentEl) {
   return section;
 }
 
+/**
+ * Builds the experience panel with a tab bar, source/preview views, and preview toggle.
+ *
+ * @param {Object[]} jobs Parsed job entries.
+ * @returns {Object} Panel wrapper, editor, and per-job tab refs.
+ */
 function renderExperience(jobs) {
   const wrapper = document.createElement('div');
   wrapper.className = 'editor-panel experience-panel';
@@ -686,6 +611,11 @@ function renderExperience(jobs) {
       wrap.className = 'editor-bullets';
       let currentUl = null;
 
+      /**
+       * Returns the active bullet list, creating one when needed.
+       *
+       * @returns {HTMLUListElement} The current list element.
+       */
       function ensureUl() {
         if (!currentUl) {
           currentUl = document.createElement('ul');
@@ -708,9 +638,9 @@ function renderExperience(jobs) {
         ensureUl().appendChild(li);
         if (bullet.sub && bullet.sub.length) {
           const subUl = document.createElement('ul');
-          bullet.sub.forEach(s => {
+          bullet.sub.forEach(sub => {
             const sl = document.createElement('li');
-            sl.innerHTML = mdInline(s);
+            sl.innerHTML = mdInline(sub);
             subUl.appendChild(sl);
           });
           li.appendChild(subUl);
@@ -737,7 +667,7 @@ function renderExperience(jobs) {
           lines.push('#'.repeat(bullet.level || 4) + ' ' + bullet.text);
         } else {
           lines.push('- ' + bullet.text);
-          (bullet.sub || []).forEach(s => lines.push('  - ' + s));
+          (bullet.sub || []).forEach(sub => lines.push('  - ' + sub));
         }
       });
       lines.push('');
@@ -763,6 +693,12 @@ function renderExperience(jobs) {
   return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
 
+/**
+ * Builds the projects panel with a tab bar, source/preview views, and preview toggle.
+ *
+ * @param {Object[]} projects Parsed project entries.
+ * @returns {Object} Panel wrapper, editor, and per-project tab refs.
+ */
 function renderProjects(projects) {
   const wrapper = document.createElement('div');
   wrapper.className = 'editor-panel';
@@ -865,6 +801,12 @@ function renderProjects(projects) {
   return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
 
+/**
+ * Builds the skills panel with a tab, source/preview views, and preview toggle.
+ *
+ * @param {Object[]} categories Parsed skill categories.
+ * @returns {Object} Panel wrapper, editor, and tab refs.
+ */
 function renderSkills(categories) {
   const wrapper = document.createElement('div');
   wrapper.className = 'editor-panel';
@@ -951,6 +893,12 @@ function renderSkills(categories) {
   return { wrapper: wrapper, editor: editor, tabRefs: tabRefs };
 }
 
+/**
+ * Creates the tabsbar / tabs / modebar / views skeleton for an editor panel.
+ *
+ * @param {HTMLElement} grid Element to attach the panel chrome to.
+ * @returns {Object} References to the created regions.
+ */
 function createEditorPanel(grid) {
   const tabsbar = document.createElement('div');
   tabsbar.className = 'editor-tabsbar';
@@ -975,6 +923,12 @@ function createEditorPanel(grid) {
   return { tabs: tabs, views: views, modebar: modebar, activeTab: null };
 }
 
+/**
+ * Adds a Preview | Source toggle to an editor panel's modebar.
+ *
+ * @param {HTMLElement} panel The editor panel to style on toggle.
+ * @param {HTMLElement} modebar The modebar to attach the buttons to.
+ */
 function addPreviewToggle(panel, modebar) {
   const previewBtn = document.createElement('button');
   previewBtn.type = 'button';
@@ -988,6 +942,11 @@ function addPreviewToggle(panel, modebar) {
   sourceBtn.textContent = 'Source';
   sourceBtn.setAttribute('aria-pressed', 'false');
 
+  /**
+   * Switches the panel between preview and source rendering.
+   *
+   * @param {boolean} preview Whether to show preview mode.
+   */
   function setMode(preview) {
     panel.classList.toggle('is-preview', preview);
     previewBtn.classList.toggle('active', preview);
@@ -1004,6 +963,13 @@ function addPreviewToggle(panel, modebar) {
   setMode(true);
 }
 
+/**
+ * Selects a tab within its editor panel and syncs the directory tree.
+ *
+ * @param {Object} editor Editor panel references.
+ * @param {HTMLButtonElement} tab Tab to activate.
+ * @param {HTMLElement} view View to show for the tab.
+ */
 function selectEditorFile(editor, tab, view) {
   if (editor.activeTab === tab) return;
   const previousTab = editor.activeTab;
@@ -1016,14 +982,17 @@ function selectEditorFile(editor, tab, view) {
   setActiveTreeItem(view && view.__treeItem);
 }
 
+/**
+ * Wraps the 'j' characters in the banner heading and animates them as eyes that track the cursor.
+ */
 (function initBannerEyes() {
-  var banner = document.querySelector('.launch-banner');
-  var h1 = banner && banner.querySelector('h1');
+  const banner = document.querySelector('.launch-banner');
+  const h1 = banner && banner.querySelector('h1');
   if (!h1) return;
 
-  var text = h1.textContent;
-  var wrapped = '';
-  for (var i = 0; i < text.length; i++) {
+  const text = h1.textContent;
+  let wrapped = '';
+  for (let i = 0; i < text.length; i++) {
     if (text[i] === 'j') {
       wrapped += '<span class="j-char">' + text[i] + '</span>';
     } else {
@@ -1032,10 +1001,10 @@ function selectEditorFile(editor, tab, view) {
   }
   h1.innerHTML = wrapped;
 
-  var chars = h1.querySelectorAll('.j-char');
-  var eyes = [];
+  const chars = h1.querySelectorAll('.j-char');
+  const eyes = [];
 
-  var style = document.createElement('style');
+  const style = document.createElement('style');
   style.textContent =
     '@keyframes jLidBlink {' +
     '0%,88%,100%{transform:translateX(-50%) scaleY(0)}' +
@@ -1045,21 +1014,21 @@ function selectEditorFile(editor, tab, view) {
   document.head.appendChild(style);
 
   chars.forEach(function (ch) {
-    var sclera = document.createElement('span');
+    const sclera = document.createElement('span');
     sclera.style.cssText =
-      'position:absolute;background:#fff;border-radius:50%;pointer-events:none;z-index:9;' +
+      'position:absolute;background:var(--accentLight);border-radius:50%;pointer-events:none;z-index:9;' +
       'transform:translate(-50%,-50%);';
     h1.appendChild(sclera);
 
-    var pupil = document.createElement('span');
+    const pupil = document.createElement('span');
     pupil.style.cssText =
-      'position:absolute;background:#000;border-radius:50%;pointer-events:none;z-index:10;' +
+      'position:absolute;background:var(--borderColor);border-radius:50%;pointer-events:none;z-index:10;' +
       'transform:translate(-50%,-50%);';
     h1.appendChild(pupil);
 
-    var lid = document.createElement('span');
+    const lid = document.createElement('span');
     lid.style.cssText =
-      'position:absolute;background:#1e1e1e;border-radius:50%;pointer-events:none;z-index:11;' +
+      'position:absolute;background:var(--editorBg);border-radius:50%;pointer-events:none;z-index:11;' +
       'transform:translateX(-50%) scaleY(0);' +
       'transform-origin:top center;' +
       'animation:jLidBlink ' + (5000 / 1000) + 's infinite;';
@@ -1067,13 +1036,16 @@ function selectEditorFile(editor, tab, view) {
     eyes.push({ sclera: sclera, pupil: pupil, lid: lid, chEl: ch });
   });
 
+  /**
+   * Positions the eye elements over their host characters.
+   */
   function positionEyes() {
-    var h1Rect = h1.getBoundingClientRect();
-    var fs = parseFloat(getComputedStyle(h1).fontSize);
-    var scleraSize = Math.round(fs * 0.16);
-    var pupilW = Math.round(scleraSize * 0.6);
-    var pupilH = Math.round(scleraSize * 0.6);
-    var maxDisp = (scleraSize - pupilW) / 2 - 1;
+    const h1Rect = h1.getBoundingClientRect();
+    const fs = parseFloat(getComputedStyle(h1).fontSize);
+    const scleraSize = Math.round(fs * 0.16);
+    const pupilW = Math.round(scleraSize * 0.6);
+    const pupilH = Math.round(scleraSize * 0.6);
+    const maxDisp = (scleraSize - pupilW) / 2 - 1;
 
     eyes.forEach(function (eye) {
       eye.sclera.style.width = scleraSize + 'px';
@@ -1084,9 +1056,9 @@ function selectEditorFile(editor, tab, view) {
       eye.lid.style.height = scleraSize + 'px';
       eye.maxDisp = maxDisp;
 
-      var r = eye.chEl.getBoundingClientRect();
-      var dotX = r.left + r.width / 2 - h1Rect.left;
-      var dotY = r.top + r.height * 0.22 - h1Rect.top;
+      const r = eye.chEl.getBoundingClientRect();
+      const dotX = r.left + r.width / 2 - h1Rect.left;
+      const dotY = r.top + r.height * 0.22 - h1Rect.top;
       eye.sclera.style.left = dotX + 'px';
       eye.sclera.style.top = dotY + 'px';
       eye.pupil.style.left = dotX + 'px';
@@ -1099,19 +1071,19 @@ function selectEditorFile(editor, tab, view) {
   positionEyes();
   window.addEventListener('resize', positionEyes);
 
-  var rafId = null;
+  let rafId = null;
 
   banner.addEventListener('mousemove', function (e) {
     if (rafId) return;
     rafId = requestAnimationFrame(function () {
       rafId = null;
       eyes.forEach(function (eye) {
-        var r = eye.chEl.getBoundingClientRect();
-        var cx = r.left + r.width / 2;
-        var cy = r.top + r.height * 0.22;
-        var dx = e.clientX - cx;
-        var dy = e.clientY - cy;
-        var dist = Math.sqrt(dx * dx + dy * dy);
+        const r = eye.chEl.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height * 0.22;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist > eye.maxDisp) {
           dx = dx / dist * eye.maxDisp;
           dy = dy / dist * eye.maxDisp;
@@ -1121,6 +1093,11 @@ function selectEditorFile(editor, tab, view) {
     });
   });
 
+  /**
+   * Shows or hides the banner's eye elements.
+   *
+   * @param {boolean} visible Whether the eyes should be displayed.
+   */
   banner.__setEyesVisible = function (visible) {
     eyes.forEach(function (eye) {
       eye.sclera.style.display = visible ? '' : 'none';
@@ -1129,13 +1106,39 @@ function selectEditorFile(editor, tab, view) {
     });
   };
 
-  var launchBtn = document.getElementById('launch-btn');
+  const launchBtn = document.getElementById('launch-btn');
   if (launchBtn) {
     launchBtn.addEventListener('click', function () {
       banner.__setEyesVisible(false);
     });
   }
 })();
+
+/**
+ * Tracks the editor window and current mobile media query state.
+ */
+let editorWindow = null;
+let MOBILE_MQ = null;
+
+/**
+ * Loads and renders the CV into the professional editor layout.
+ */
+function loadCV() {
+  showLoading();
+  fetch('../../src/cv.md')
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to fetch CV');
+      return res.text();
+    })
+    .then(text => {
+      const data = parseCV(text);
+      renderProfessional(data);
+    })
+    .catch(e => {
+      console.error('Error loading CV:', e);
+      showError('Failed to load CV data.');
+    });
+}
 
 MOBILE_MQ = window.matchMedia('(max-width: 720px)');
 if (MOBILE_MQ.addEventListener) {
@@ -1150,6 +1153,9 @@ if (MOBILE_MQ.addEventListener) {
 
 loadCV();
 
+/**
+ * Profile headlines shown in the launching banners.
+ */
 const PROFILES = [
   'Full Stack Developer',
   'AI Developer',
@@ -1158,6 +1164,9 @@ const PROFILES = [
   'IAM/PAM Analyst'
 ];
 
+/**
+ * Tooltip copy shown when hovering each profile headline.
+ */
 const PROFILE_INFO = {
   'Full Stack Developer': 'I\u2019ve spent 4+ years building enterprise-scale applications end-to-end \u2014 Next.js, ExpressJS, and SpringBoot backed by MongoDB and Redis, from API-heavy features to data analytics platforms like DDPX.',
   'AI Developer': 'I\u2019ve built AI agents and workflows in production \u2014 autonomous GitHub agentic workflows that review PRs and update docs, LangChain high/low-code agents, and an NLTK/Spacy agent that identifies owners of IAM principals.',
@@ -1166,17 +1175,23 @@ const PROFILE_INFO = {
   'IAM/PAM Analyst': 'I\u2019ve worked hands-on across identity and access management \u2014 designing RBAC in Java, setting up SAML SSO with Okta and AWS Cognito, mapping SailPoint/Okta/PingFederate data, and building analytics for orphan groups and privileged entitlements with 95% ownership accuracy.'
 };
 
-const profilesEl = document.getElementById('profiles-strip');
-if (profilesEl) {
+/**
+ * Builds the scrolling profile strip with hover tooltips.
+ */
+function buildProfilesStrip() {
   const strip = document.createElement('div');
   strip.className = 'profiles-strip';
-  profilesEl.appendChild(strip);
 
   const tooltip = document.createElement('div');
   tooltip.className = 'profile-tooltip';
   tooltip.setAttribute('role', 'tooltip');
   document.body.appendChild(tooltip);
 
+  /**
+   * Positions the tooltip near an item, staying inside the viewport.
+   *
+   * @param {HTMLElement} item The hovered profile item.
+   */
   function positionTooltip(item) {
     const rect = item.getBoundingClientRect();
     const tipRect = tooltip.getBoundingClientRect();
@@ -1191,6 +1206,11 @@ if (profilesEl) {
     tooltip.style.opacity = '1';
   }
 
+  /**
+   * Builds a single marquee group of profile items.
+   *
+   * @returns {HTMLDivElement} The completed group element.
+   */
   function buildProfile() {
     const group = document.createElement('div');
     group.className = 'profiles-group';
@@ -1204,6 +1224,9 @@ if (profilesEl) {
       item.appendChild(sep);
       group.appendChild(item);
 
+      /**
+       * Shows the tooltip for the current profile item.
+       */
       function showTooltip() {
         tooltip.textContent = PROFILE_INFO[profile] || profile;
         tooltip.style.display = 'block';
@@ -1214,6 +1237,9 @@ if (profilesEl) {
         });
       }
 
+      /**
+       * Hides the tooltip.
+       */
       function hideTooltip() {
         tooltip.style.display = 'none';
       }
@@ -1239,15 +1265,26 @@ if (profilesEl) {
 
   strip.appendChild(buildProfile());
   strip.appendChild(buildProfile());
+  return strip;
 }
 
-const launchBtn = document.getElementById('launch-btn');
-if (launchBtn) {
-  launchBtn.addEventListener('click', function () {
-    const banner = document.getElementById('launch-banner');
-    if (banner) {
-      banner.classList.add('launched');
-      launchBtn.blur();
-    }
-  });
-}
+/**
+ * Injects the profile strips and launch button behavior once, at load time.
+ */
+(function initLaunchBanner() {
+  const profilesEl = document.getElementById('profiles-strip');
+  if (profilesEl) {
+    profilesEl.appendChild(buildProfilesStrip());
+  }
+
+  const launchBtn = document.getElementById('launch-btn');
+  if (launchBtn) {
+    launchBtn.addEventListener('click', function () {
+      const banner = document.getElementById('launch-banner');
+      if (banner) {
+        banner.classList.add('launched');
+        launchBtn.blur();
+      }
+    });
+  }
+})();

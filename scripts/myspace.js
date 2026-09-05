@@ -1,24 +1,14 @@
-function toggleSection(header) {
-  const content = header.nextElementSibling;
-  const icon = header.querySelector('.toggle-icon');
-  if (content.style.display === 'none') {
-    content.style.display = '';
-    icon.textContent = '-';
-  } else {
-    content.style.display = 'none';
-    icon.textContent = '+';
-  }
-  header.classList.toggle('active');
-}
-
+/**
+ * In-memory cache TTL (30 minutes) for external API responses.
+ */
 const CACHE_TTL = 30 * 60 * 1000;
 
-function escapeHtml(str) {
-  return String(str ?? '').replace(/[&<>"']/g, (c) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[c]));
-}
-
+/**
+ * Renders the LeetCode activity bar chart into the submissions card.
+ *
+ * @param {Object|string} submissionCalendar Day-timestamp to submissions map (or JSON string).
+ * @returns {boolean} Whether activity rendered successfully.
+ */
 function renderLeetCodeActivity(submissionCalendar) {
   const container = document.getElementById('lc-activity');
   if (!container) return false;
@@ -91,11 +81,17 @@ function renderLeetCodeActivity(submissionCalendar) {
   return true;
 }
 
+/**
+ * Fetches and renders the LeetCode submission activity heatmap.
+ */
 async function fetchLeetCodeActivity() {
   const container = document.getElementById('lc-activity');
   const card = document.getElementById('lc-submissions-card');
   if (!container) return;
 
+  /**
+   * Shows the loading state inside the activity card.
+   */
   const showLoading = () => {
     if (card) card.style.display = 'block';
     container.innerHTML = `
@@ -105,6 +101,11 @@ async function fetchLeetCodeActivity() {
       </div>`;
   };
 
+  /**
+   * Shows an error state inside the activity card.
+   *
+   * @param {string} message Error text to display.
+   */
   const showError = (message) => {
     if (card) card.style.display = 'block';
     container.innerHTML = `
@@ -139,6 +140,11 @@ async function fetchLeetCodeActivity() {
   }
 }
 
+/**
+ * Renders the recent LeetCode submissions list.
+ *
+ * @param {Object[]} submissions Recent submission objects.
+ */
 function renderRecentSubmissions(submissions) {
   const list = document.getElementById('lc-submissions');
   if (!list || !Array.isArray(submissions) || submissions.length === 0) return;
@@ -168,6 +174,9 @@ function renderRecentSubmissions(submissions) {
   list.innerHTML = items;
 }
 
+/**
+ * Fetches and renders recent LeetCode submissions.
+ */
 async function fetchRecentSubmissions() {
   const list = document.getElementById('lc-submissions');
   if (!list) return;
@@ -185,6 +194,12 @@ async function fetchRecentSubmissions() {
   }
 }
 
+/**
+ * Fetches JSON with a localStorage cache, storing each URL for CACHE_TTL milliseconds.
+ *
+ * @param {string} url Endpoint to fetch.
+ * @returns {Promise<Object>} The parsed JSON response.
+ */
 async function cachedFetch(url) {
   const cacheKey = 'gh_cache_' + url;
   const cached = localStorage.getItem(cacheKey);
@@ -199,6 +214,9 @@ async function cachedFetch(url) {
   return data;
 }
 
+/**
+ * Fetches and renders the user's most recently updated GitHub repositories.
+ */
 async function fetchGitHubStats() {
   try {
     const repos = await cachedFetch('https://api.github.com/users/ujjuboi/repos?sort=updated&per_page=6');
@@ -206,7 +224,13 @@ async function fetchGitHubStats() {
 
     const grid = document.getElementById('github-repos-grid');
 
-    const cards = await Promise.all(repos.map(async (repo) => {
+    /**
+     * Builds one repository card, preferring its README's first paragraph as the description.
+     *
+     * @param {Object} repo Repository object from the GitHub API.
+     * @returns {Promise<HTMLElement>} The completed card element.
+     */
+    const buildCard = async (repo) => {
       let description = repo.description || '';
       try {
         const readmeData = await cachedFetch(`https://api.github.com/repos/ujjuboi/${repo.name}/readme`);
@@ -228,7 +252,9 @@ async function fetchGitHubStats() {
         <span class="repo-card-lang">${repo.language || ''}</span>
       `;
       return card;
-    }));
+    };
+
+    const cards = await Promise.all(repos.map(buildCard));
 
     cards.forEach(c => grid.appendChild(c));
     document.getElementById('github-loading').style.display = 'none';
@@ -240,9 +266,15 @@ async function fetchGitHubStats() {
   }
 }
 
+/**
+ * Whether recent-activity widgets have loaded data successfully.
+ */
 let recentActivityOk = false;
 let gitHubIssuesOk = false;
 
+/**
+ * Shows the activity fallback message only when every activity widget failed.
+ */
 function syncActivityFallback() {
   const fallback = document.getElementById('activity-fallback');
   if (!recentActivityOk && !gitHubIssuesOk) {
@@ -252,6 +284,9 @@ function syncActivityFallback() {
   }
 }
 
+/**
+ * Fetches the most recent commit authored by the user and displays it as the current activity.
+ */
 async function fetchRecentActivity() {
   try {
     const repos = await cachedFetch('https://api.github.com/users/ujjuboi/repos?sort=updated&per_page=1');
@@ -281,6 +316,9 @@ async function fetchRecentActivity() {
   }
 }
 
+/**
+ * Fetches and renders the LeetCode solve statistics and recent activity.
+ */
 async function fetchLeetCodeStats() {
   try {
     const data = await cachedFetch('https://leetcode-stats.tashif.codes/ujjuboi');
@@ -310,6 +348,9 @@ async function fetchLeetCodeStats() {
   }
 }
 
+/**
+ * Loads the newest blog post from the manifest and shows it in the research card.
+ */
 async function loadLatestPost() {
   try {
     const manifestRes = await fetch('../../src/Blogs/posts.json');
@@ -320,12 +361,7 @@ async function loadLatestPost() {
     const mdRes = await fetch('../../src/Blogs/' + filenames[0]);
     if (!mdRes.ok) throw new Error('Failed to fetch ' + filenames[0]);
     const text = await mdRes.text();
-    const meta = {};
-    for (const line of text.split('\n')) {
-      if (line.startsWith('## Paragraphs')) break;
-      const match = line.match(/^## (\w+):\s*(.+)/);
-      if (match) meta[match[1].toLowerCase()] = match[2].trim();
-    }
+    const meta = parsePostHeaders(text);
 
     document.getElementById('research-banner').src = meta.banner || '';
     document.getElementById('research-banner').alt = meta.title || '';
@@ -339,6 +375,9 @@ async function loadLatestPost() {
   }
 }
 
+/**
+ * Fetches and renders the user's open issues and pull requests.
+ */
 async function fetchGitHubIssues() {
   try {
     const data = await cachedFetch('https://api.github.com/search/issues?q=author:ujjuboi+state:open&sort=created&order=desc&per_page=10');

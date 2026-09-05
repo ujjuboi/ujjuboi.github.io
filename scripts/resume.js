@@ -1,18 +1,6 @@
-function toggleSection(header) {
-  const content = header.nextElementSibling;
-  const icon = header.querySelector('.toggle-icon');
-
-  if (content.style.display === 'none') {
-    content.style.display = 'block';
-    icon.textContent = '-';
-  } else {
-    content.style.display = 'none';
-    icon.textContent = '+';
-  }
-
-  header.classList.toggle('active');
-}
-
+/**
+ * Loads `src/cv.md`, parses it, and renders the resume into the page container.
+ */
 async function loadCV() {
   const resumeContainer = document.getElementById('resume-container');
   try {
@@ -26,134 +14,11 @@ async function loadCV() {
   }
 }
 
-function parseCV(text) {
-  const lines = text.split('\n');
-  const data = { contact: {}, summary: '', experience: [], projects: [], education: [], skills: [] };
-  const fields = { Location: 'location', Email: 'email', LinkedIn: 'linkedin', Portfolio: 'portfolio', GitHub: 'github' };
-
-  function nextNonBlank(start) {
-    let j = start;
-    while (j < lines.length && lines[j].trim() === '') j++;
-    return j;
-  }
-
-  function sectionLines(start) {
-    const result = [];
-    let j = start;
-    while (j < lines.length && !lines[j].startsWith('## ')) {
-      result.push(lines[j]);
-      j++;
-    }
-    return result;
-  }
-
-  for (let i = 1; i < lines.length && !lines[i].startsWith('## '); i++) {
-    const line = lines[i].trim();
-    for (const [key, field] of Object.entries(fields)) {
-      if (line.startsWith('**' + key + ':**')) {
-        data.contact[field] = line.split('**' + key + ':**')[1].trim();
-      }
-    }
-  }
-
-  let i = 0;
-  while (i < lines.length && !lines[i].startsWith('## ')) i++;
-
-  while (i < lines.length) {
-    const section = lines[i].replace(/^## /, '').trim();
-
-    if (section === 'Professional Summary') {
-      i = nextNonBlank(i + 1);
-      const end = sectionLines(i);
-      data.summary = end.filter(l => l.trim()).join(' ');
-      i += end.length;
-      continue;
-    }
-
-    if (section === 'Work Experience') {
-      const block = sectionLines(i + 1);
-      let job = null;
-      for (const line of block) {
-        if (line.startsWith('### ')) {
-          if (job) data.experience.push(job);
-          job = { company: line.replace(/^### /, '').trim(), role: '', date: '', bullets: [] };
-        } else if (job) {
-          const t = line.trim();
-          if (t === '') continue;
-          if (t.startsWith('**') && t.endsWith('**') && !job.role) {
-            job.role = t.slice(2, -2);
-          } else if (/^#{3,6}\s/.test(t)) {
-            job.bullets.push({ kind: 'heading', text: t.replace(/^#+\s*/, '') });
-          } else if (/^[-+*]\s/.test(t) && line !== t) {
-            const last = job.bullets[job.bullets.length - 1];
-            if (last && last.kind === 'bullet') {
-              last.sub.push(t.replace(/^[-+*]\s*/, ''));
-            }
-          } else if (t.startsWith('- ')) {
-            job.bullets.push({ kind: 'bullet', text: t.slice(2), sub: [] });
-          } else if (t && !job.date) {
-            job.date = t;
-          }
-        }
-      }
-      if (job) data.experience.push(job);
-      i += block.length;
-      continue;
-    }
-
-    if (section === 'Projects') {
-      const block = sectionLines(i + 1);
-      for (const line of block) {
-        const t = line.trim();
-        if (!t.startsWith('- ')) continue;
-        const content = t.slice(2);
-        const name = content.split('**')[1] || '';
-        const afterName = content.split(')')[0] || '';
-        const tag = afterName.split('(')[1] || '';
-        const desc = content.split('--')[1] || '';
-        data.projects.push({ name: name.trim(), tag: tag.trim(), desc: desc.trim() });
-      }
-      i += block.length;
-      continue;
-    }
-
-    if (section === 'Education') {
-      const block = sectionLines(i + 1);
-      for (const line of block) {
-        const t = line.trim();
-        if (!t.startsWith('- ')) continue;
-        const content = t.slice(2);
-        const degree = content.split(',')[0].trim();
-        const rest = content.split(',')[1] || '';
-        const school = rest.split('(')[0].trim();
-        const cgpa = rest.includes('(') ? rest.split('(')[1].split(')')[0].trim() : '';
-        const dates = rest.includes(')') ? rest.split(')')[1].trim() : '';
-        data.education.push({ degree, school, cgpa, dates });
-      }
-      i += block.length;
-      continue;
-    }
-
-    if (section === 'Skills') {
-      const block = sectionLines(i + 1);
-      for (const line of block) {
-        const t = line.trim();
-        if (!t.startsWith('- ')) continue;
-        const content = t.slice(2);
-        const category = content.split('**')[1] || '';
-        const items = (content.split(':**')[1] || '').split(',').map(s => s.trim());
-        data.skills.push({ category, items });
-      }
-      i += block.length;
-      continue;
-    }
-
-    i++;
-  }
-
-  return data;
-}
-
+/**
+ * Renders the parsed CV into the resume container.
+ *
+ * @param {Object} data Structured CV from parseCV().
+ */
 function renderResume(data) {
   const container = document.getElementById('resume-container');
   container.innerHTML = '';
@@ -165,6 +30,12 @@ function renderResume(data) {
   container.appendChild(renderSection('Skills', renderSkills(data.skills), false));
 }
 
+/**
+ * Builds the resume header block with the parsed contact links.
+ *
+ * @param {Object} contact Contact fields parsed from the CV.
+ * @returns {HTMLDivElement} Header element ready to append.
+ */
 function renderHeader(contact) {
   const header = document.createElement('div');
   header.id = 'resume-header';
@@ -184,6 +55,14 @@ function renderHeader(contact) {
   return header;
 }
 
+/**
+ * Builds a collapsible resume section with heading and content.
+ *
+ * @param {string} title Section heading text.
+ * @param {Node} contentEl Content node to place inside the section.
+ * @param {boolean} active Whether the section starts expanded.
+ * @returns {HTMLDivElement} Section element ready to append.
+ */
 function renderSection(title, contentEl, active) {
   const section = document.createElement('div');
   section.className = 'resume-section';
@@ -193,7 +72,7 @@ function renderSection(title, contentEl, active) {
 
   const h2 = document.createElement('h2');
   h2.className = 'section-heading' + (active ? ' active' : '');
-  h2.onclick = function() { toggleSection(this); };
+  h2.onclick = function () { toggleSection(this); };
 
   const titleText = document.createElement('span');
   titleText.className = 'title-text';
@@ -219,12 +98,24 @@ function renderSection(title, contentEl, active) {
   return section;
 }
 
+/**
+ * Builds the professional summary paragraph.
+ *
+ * @param {string} text Summary sentence(s) from the CV.
+ * @returns {HTMLParagraphElement} Paragraph element ready to append.
+ */
 function renderSummary(text) {
   const p = document.createElement('p');
   p.textContent = text || '';
   return p;
 }
 
+/**
+ * Builds the work experience entries from parsed jobs.
+ *
+ * @param {Object[]} jobs Parsed job entries.
+ * @returns {DocumentFragment} Fragment ready to append.
+ */
 function renderExperience(jobs) {
   const wrapper = document.createDocumentFragment();
   jobs.forEach(job => {
@@ -258,9 +149,9 @@ function renderExperience(jobs) {
         li.innerHTML = mdInline(bullet.text);
         if (bullet.sub && bullet.sub.length) {
           const subUl = document.createElement('ul');
-          bullet.sub.forEach(s => {
+          bullet.sub.forEach(sub => {
             const sl = document.createElement('li');
-            sl.innerHTML = mdInline(s);
+            sl.innerHTML = mdInline(sub);
             subUl.appendChild(sl);
           });
           li.appendChild(subUl);
@@ -275,6 +166,12 @@ function renderExperience(jobs) {
   return wrapper;
 }
 
+/**
+ * Builds the projects entries from parsed projects.
+ *
+ * @param {Object[]} projects Parsed project entries.
+ * @returns {DocumentFragment} Fragment ready to append.
+ */
 function renderProjects(projects) {
   const wrapper = document.createDocumentFragment();
   projects.forEach(proj => {
@@ -302,6 +199,12 @@ function renderProjects(projects) {
   return wrapper;
 }
 
+/**
+ * Builds the education entries from parsed qualifications.
+ *
+ * @param {Object[]} items Parsed education entries.
+ * @returns {DocumentFragment} Fragment ready to append.
+ */
 function renderEducation(items) {
   const wrapper = document.createDocumentFragment();
   items.forEach(edu => {
@@ -328,6 +231,12 @@ function renderEducation(items) {
   return wrapper;
 }
 
+/**
+ * Builds the skills grid grouped by category.
+ *
+ * @param {Object[]} categories Parsed skill categories.
+ * @returns {HTMLDivElement} Skills grid element ready to append.
+ */
 function renderSkills(categories) {
   const div = document.createElement('div');
   div.className = 'skills-grid';
@@ -357,31 +266,6 @@ function renderSkills(categories) {
   });
 
   return div;
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function mdInline(text) {
-  let html = escapeHtml(String(text || ''));
-  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (match, label, url) {
-    const trimmed = url.trim();
-    const scheme = trimmed.match(/^([a-z][a-z0-9+.-]*):/i);
-    if (scheme && ['http', 'https', 'mailto', '#'].indexOf(scheme[1].toLowerCase()) === -1) {
-      return match;
-    }
-    return '<a href="' + escapeHtml(trimmed) + '" target="_blank" rel="noopener">' + label + '</a>';
-  });
-  html = html.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
-  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/(^|[^*])\*([^*]+)\*/g, function (match, pre, italic) {
-    return pre + '<em>' + italic + '</em>';
-  });
-  return html;
 }
 
 initMenuToggle('#resume-container');

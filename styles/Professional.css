@@ -36,6 +36,8 @@ body.pro-page {
   --green: #27c93f;
   --commentGreen: #6a9955;
   --statusBarBlue: #007acc;
+  --tooltipShadow: rgba(0, 0, 0, 0.45);
+  --tabHoverBg: rgba(255, 255, 255, 0.1);
 
   display: block;
   min-height: 100vh;
@@ -315,7 +317,7 @@ body.pro-page {
   font-size: 0.85rem;
   line-height: 1.5;
   color: var(--editorText);
-  box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0.4rem 1rem var(--tooltipShadow);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -889,7 +891,7 @@ body.pro-page .page-container {
 
 .editor-tab:hover .editor-tab-close {
   color: var(--accentLight);
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--tabHoverBg);
 }
 
 .editor-tab:hover {
