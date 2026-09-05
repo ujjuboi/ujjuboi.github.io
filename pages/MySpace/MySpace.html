@@ -33,7 +33,7 @@
     <div id="myspace-container" class="page-container">
 
       <div class="myspace-section">
-        <h2 class="section-heading active" onclick="toggleSection(this)">
+        <h2 class="section-heading collapsible active" onclick="toggleSection(this)">
           <span class="title-text">Currently Working On</span>
           <span class="toggle-icon">-</span>
         </h2>
@@ -57,11 +57,11 @@
       </div>
 
       <div class="myspace-section">
-        <h2 class="section-heading" onclick="toggleSection(this)">
+        <h2 class="section-heading collapsible active" onclick="toggleSection(this)">
           <span class="title-text">GitHub Repositories</span>
-          <span class="toggle-icon">+</span>
+          <span class="toggle-icon">-</span>
         </h2>
-        <div class="section-content" style="display: none;">
+        <div class="section-content" style="display: block;">
           <div id="github-repos-grid">
             <div class="loading-placeholder" id="github-loading">
               Fetching data<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
@@ -74,27 +74,11 @@
       </div>
 
       <div class="myspace-section">
-        <h2 class="section-heading" onclick="toggleSection(this)">
-          <span class="title-text">Latest from the Blog</span>
-          <span class="toggle-icon">+</span>
-        </h2>
-        <div class="section-content" style="display: none;">
-          <div id="research-card" class="card">
-            <img id="research-banner" src="" alt="">
-            <h3 id="research-title"></h3>
-            <p id="research-date"></p>
-            <p id="research-excerpt"></p>
-            <a id="research-link" href="#" target="_self">Read more →</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="myspace-section">
-        <h2 class="section-heading" onclick="toggleSection(this)">
+        <h2 class="section-heading collapsible active" onclick="toggleSection(this)">
           <span class="title-text">LeetCode Progress</span>
-          <span class="toggle-icon">+</span>
+          <span class="toggle-icon">-</span>
         </h2>
-        <div class="section-content" style="display: none;">
+        <div class="section-content" style="display: block;">
           <div id="leetcode-content">
             <div class="loading-placeholder" id="leetcode-loading">
               Fetching data<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
@@ -132,6 +116,39 @@
           </div>
           <div id="lc-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
             Unable to fetch LeetCode stats
+          </div>
+        </div>
+      </div>
+
+      <div class="myspace-section myspace-section--full">
+        <h2 class="section-heading collapsible active" onclick="toggleSection(this)">
+          <span class="title-text">My Library</span>
+          <span class="toggle-icon">-</span>
+        </h2>
+        <div class="section-content" style="display: block;">
+          <div id="books-loading" class="loading-placeholder">
+            Loading books<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+          </div>
+          <div id="books-grid"></div>
+          <div id="books-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+            No books to show
+          </div>
+          <div id="book-view" style="display: none;">
+            <button id="book-back-btn" onclick="showBooksList()">← Back to books</button>
+            <div class="book-detail">
+              <div class="book-detail-cover">
+                <img id="book-banner" src="" alt="Book cover">
+              </div>
+              <div class="book-detail-main">
+                <div class="book-detail-content">
+                  <h1 id="book-title"></h1>
+                  <p id="book-author"></p>
+                  <p id="book-meta"></p>
+                  <p id="book-excerpt"></p>
+                  <p id="book-thoughts"></p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
