@@ -3,7 +3,7 @@
 
 body {
   padding: 1%;
-  font-size: 130%;
+  font-size: var(--text-base);
   font-family: var(--poppins);
   display: -ms-grid;
   display: grid;
@@ -14,7 +14,7 @@ body {
 }
 
 #menuIcon {
-  font-size: 4rem;
+  font-size: var(--text-5xl);
   position: absolute;
   visibility: hidden;
 }
@@ -104,12 +104,12 @@ section #hero p {
 
 section #hero p {
   text-align: justify;
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
 section #info {
   text-align: left;
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
 }
 
 section #jobTitle {
@@ -256,7 +256,7 @@ footer #footer_nav li a {
   
   #hero p span{
     text-align: justify;
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     text-align: center;
   }
   
@@ -284,7 +284,7 @@ footer #footer_nav li a {
 
   #menuIcon {
     visibility: visible;
-    font-size: 2.5rem;
+    font-size: var(--text-4xl);
     z-index: 10;
   }
 
@@ -311,7 +311,7 @@ footer #footer_nav li a {
   
   header nav ul li a{
     color: var(--borderColor);
-    font-size: 1.2rem;
+    font-size: var(--text-lg);
   }
 
   footer h1{
@@ -337,7 +337,7 @@ footer #footer_nav li a {
 
 @media (max-width: 720px) and (max-height: 620px) {
   #info {
-    font-size: 0.7rem;
+    font-size: var(--text-xs);
   }
   section #hero #signature {
     height: min(10rem, 40vw);

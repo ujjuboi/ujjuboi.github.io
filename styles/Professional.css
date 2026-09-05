@@ -162,7 +162,7 @@ body.pro-page {
   background-color: var(--borderPanel);
   color: var(--editorText);
   font-family: var(--poppins);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   padding: 0.3rem 0.6rem;
   border-radius: 0.3rem;
   white-space: nowrap;
@@ -314,7 +314,7 @@ body.pro-page {
   border-radius: 0.4rem;
   padding: 0.6rem 0.8rem;
   font-family: var(--poppins);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
   color: var(--editorText);
   box-shadow: 0 0.4rem 1rem var(--tooltipShadow);
@@ -397,7 +397,7 @@ body.pro-page .page-container {
 
 .editor-bullets li {
   font-family: var(--poppins);
-  font-size: 1.19rem;
+  font-size: var(--text-lg);
   color: var(--editorText);
   line-height: 1.6;
   margin-bottom: 0.6rem;
@@ -443,7 +443,7 @@ body.pro-page .page-container {
 
 .editor-subheading {
   font-family: var(--poppins);
-  font-size: 1.15rem;
+  font-size: var(--text-lg);
   font-weight: 700;
   color: var(--tokenFunction);
   letter-spacing: 0.02em;
@@ -459,7 +459,7 @@ body.pro-page .page-container {
   margin-top: 1rem;
   padding: 0.35rem 0.75rem;
   font-family: var(--poppins);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--accentPrimary);
   border: 0.1rem solid var(--accentPrimary);
@@ -503,7 +503,7 @@ body.pro-page .page-container {
 
 .editor-filename {
   font-family: var(--poppins);
-  font-size: 1.06rem;
+  font-size: var(--text-base);
   color: var(--editorMuted);
   margin-left: 0.5rem;
   white-space: nowrap;
@@ -548,7 +548,7 @@ body.pro-page .page-container {
   justify-content: space-between;
   flex: 0 0 auto;
   font-family: var(--poppins);
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--editorMuted);
@@ -589,7 +589,7 @@ body.pro-page .page-container {
   background: none;
   color: var(--editorMuted);
   font-family: var(--poppins);
-  font-size: 1rem;
+  font-size: var(--text-base);
   padding: 0.2rem 0.5rem;
   cursor: pointer;
   border-radius: 0.3rem;
@@ -614,7 +614,7 @@ body.pro-page .page-container {
   gap: 0.5rem;
   padding: 0.4rem 0.9rem;
   font-family: var(--poppins);
-  font-size: 1rem;
+  font-size: var(--text-base);
   color: var(--editorText);
   cursor: pointer;
   white-space: nowrap;
@@ -685,7 +685,7 @@ body.pro-page .page-container {
   gap: 0.5rem;
   padding: 0.4rem 0.9rem;
   font-family: var(--poppins);
-  font-size: 1.15rem;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--editorText);
   cursor: pointer;
@@ -707,7 +707,7 @@ body.pro-page .page-container {
 .directory-caret {
   flex-shrink: 0;
   width: 0.8rem;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--editorMuted);
 }
 
@@ -742,7 +742,7 @@ body.pro-page .page-container {
 
 .directory-file-nested {
   padding-left: 2.1rem;
-  font-size: 0.95rem;
+  font-size: var(--text-base);
 }
 
 
@@ -831,7 +831,7 @@ body.pro-page .page-container {
 
 .mode-btn {
   font-family: var(--poppins);
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--editorMuted);
   background: none;
@@ -854,7 +854,7 @@ body.pro-page .page-container {
 
 .editor-tab {
   font-family: var(--poppins);
-  font-size: 1.06rem;
+  font-size: var(--text-base);
   color: var(--editorMuted);
   background: none;
   border: none;
@@ -883,7 +883,7 @@ body.pro-page .page-container {
   justify-content: center;
   width: 1rem;
   height: 1rem;
-  font-size: 1.06rem;
+  font-size: var(--text-base);
   line-height: 1;
   color: var(--editorMuted);
   border-radius: 0.2rem;
@@ -920,28 +920,28 @@ body.pro-page .page-container {
 
 .editor-comment {
   font-family: var(--poppins);
-  font-size: 1.06rem;
+  font-size: var(--text-base);
   color: var(--commentGreen);
   margin: 0 0 0.6rem 0;
 }
 
 .editor-title {
   font-family: var(--headings);
-  font-size: 1.63rem;
+  font-size: var(--text-2xl);
   color: var(--accentPrimary);
   margin: 0 0 0.3rem 0;
 }
 
 .editor-meta {
   font-family: var(--poppins);
-  font-size: 1.06rem;
+  font-size: var(--text-base);
   color: var(--editorMuted);
   margin: 0 0 0.8rem 0;
 }
 
 .editor-excerpt {
   font-family: var(--poppins);
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
   color: var(--editorText);
   line-height: 1.7;
   margin: 0 0 1.1rem 0;
@@ -949,7 +949,7 @@ body.pro-page .page-container {
 
 .editor-link {
   font-family: var(--poppins);
-  font-size: 1.19rem;
+  font-size: var(--text-lg);
   color: var(--tokenKeyword);
   text-decoration: none;
   border-bottom: 0.1rem solid transparent;
@@ -981,14 +981,14 @@ body.pro-page .page-container {
 
 .editor-panel.is-preview .editor-title {
   font-family: var(--previewFont);
-  font-size: 1.6rem;
+  font-size: var(--text-2xl);
   font-weight: 600;
   margin-bottom: 0.2rem;
 }
 
 .editor-panel.is-preview .editor-meta {
   font-family: var(--previewFont);
-  font-size: 1rem;
+  font-size: var(--text-base);
   opacity: 0.7;
   margin-bottom: 1rem;
 }
@@ -996,8 +996,8 @@ body.pro-page .page-container {
 .editor-preview {
   display: none;
   font-family: var(--previewFont);
-  font-size: 1.05rem;
-  max-width: 70ch;
+  font-size: var(--text-base);
+  max-width: var(--measure-normal);
   color: var(--editorText);
   line-height: 1.7;
 }
@@ -1134,7 +1134,7 @@ body.pro-page .page-container {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--accentPrimary);
   text-decoration: none;
@@ -1193,7 +1193,7 @@ body.pro-page .page-container {
 .skills-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: var(--text-base);
 }
 
 .skills-table th,
@@ -1210,7 +1210,7 @@ body.pro-page .page-container {
   background-color: var(--editorBgAlt);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   border-bottom: 0.1rem solid var(--borderDark);
 }
 
@@ -1233,7 +1233,7 @@ body.pro-page .page-container {
   background-color: var(--statusBarBlue);
   color: var(--accentLight);
   font-family: var(--poppins);
-  font-size: 0.94rem;
+  font-size: var(--text-sm);
   white-space: nowrap;
 }
 
@@ -1386,7 +1386,7 @@ body.pro-page footer #footer_nav {
   }
 
   .editor-tab {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
     padding: 0.5rem 0.8rem;
   }
 
@@ -1414,7 +1414,7 @@ body.pro-page footer #footer_nav {
   }
 
   .directory-folder-header {
-    font-size: 1rem;
+    font-size: var(--text-base);
     padding: 0.35rem 0.7rem;
   }
 
@@ -1443,7 +1443,7 @@ body.pro-page footer #footer_nav {
   .skills-table th,
   .skills-table td {
     padding: 0.4rem 0.5rem;
-    font-size: 0.82rem;
+    font-size: var(--text-sm);
   }
 
   .skills-table .skills-category {

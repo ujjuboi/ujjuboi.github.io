@@ -14,6 +14,25 @@
 
   --headings: 'Raleway', sans-serif;
   --poppins: 'Poppins', sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+  --leading-loose: 1.75;
+
+  --measure-narrow: 45ch;
+  --measure-normal: 66ch;
+  --measure-wide: 75ch;
 }
 
 @keyframes fadeIn {
@@ -59,7 +78,7 @@ body.sub-page section {
 
 .section-heading {
   font-family: var(--headings);
-  font-size: 1.6rem;
+  font-size: var(--text-2xl);
   color: var(--backgroundColor);
   padding: 1.2% 2%;
   background-color: var(--shadowColor);
@@ -94,7 +113,7 @@ body.sub-page section {
 }
 
 .toggle-icon {
-  font-size: 1.4rem;
+  font-size: var(--text-xl);
   font-weight: bold;
   transition: transform 0.3s ease;
   min-width: 2rem;
@@ -105,14 +124,14 @@ body.sub-page section {
 .card-title {
   font-family: var(--headings);
   color: var(--shadowColor);
-  font-size: 1.3rem;
+  font-size: var(--text-xl);
   margin: 0 0 0.5rem 0;
 }
 
 .card-excerpt {
-  font-size: 1rem;
+  font-size: var(--text-base);
   color: var(--borderColor);
-  line-height: 1.6;
+  line-height: var(--leading-relaxed);
   margin: 0;
 }
 
@@ -122,7 +141,7 @@ body.sub-page section {
   color: var(--linkColor);
   text-decoration: none;
   border-bottom: 0.1rem solid var(--linkColor);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   transition: all 0.2s ease;
 }
 
@@ -181,13 +200,13 @@ body.sub-page section {
     visibility: visible;
     position: absolute;
     color: var(--shadowColor);
-    font-size: 2.5rem;
+    font-size: var(--text-4xl);
   }
 
   footer {
     position: relative;
     text-align: left;
-    font-size: 0.7rem;
+    font-size: var(--text-xs);
     width: 100%;
   }
 }
