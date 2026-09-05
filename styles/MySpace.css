@@ -512,8 +512,8 @@
 }
 
 .lc-submission-status.is-wronganswer {
-  background-color: #b3261e;
-  color: #ffffff;
+  background-color: var(--errorColor);
+  color: var(--errorTextColor);
 }
 
 .lc-submission-lang {

@@ -1,6 +1,16 @@
+/**
+ * Blog post categories, shown as collapsible sections in order.
+ */
 const categories = ['Deloitte', 'Personal Projects', 'Research'];
+
+/**
+ * Parsed posts loaded from the manifest.
+ */
 const posts = [];
 
+/**
+ * Loads all posts from the manifest and parses each markdown file.
+ */
 async function loadPosts() {
   try {
     const res = await fetch('../../src/Blogs/posts.json');
@@ -31,28 +41,9 @@ async function loadPosts() {
   }
 }
 
-function parsePostHeaders(text) {
-  const meta = {};
-  const lines = text.split('\n');
-  for (const line of lines) {
-    if (line.startsWith('## Paragraphs')) break;
-    const match = line.match(/^## (\w+):\s*(.+)/);
-    if (match) {
-      meta[match[1].toLowerCase()] = match[2].trim();
-    }
-  }
-  return meta;
-}
-
-function parsePostBody(text) {
-  const lines = text.split('\n');
-  const bodyStart = lines.findIndex(l => l.startsWith('## Paragraphs'));
-  if (bodyStart === -1) return [];
-  return lines.slice(bodyStart + 1)
-    .filter(line => line.startsWith('- '))
-    .map(line => line.slice(2).trim());
-}
-
+/**
+ * Renders the list of posts grouped by category.
+ */
 function renderBlogList() {
   const container = document.getElementById('blog-list');
   container.innerHTML = '';
@@ -109,6 +100,11 @@ function renderBlogList() {
   });
 }
 
+/**
+ * Toggles a blog category section open/closed.
+ *
+ * @param {HTMLElement} header The section heading that was clicked.
+ */
 function toggleBlogSection(header) {
   const content = header.nextElementSibling;
   const icon = header.querySelector('.toggle-icon');
@@ -122,6 +118,11 @@ function toggleBlogSection(header) {
   header.classList.toggle('active');
 }
 
+/**
+ * Shows a single post's full view by index.
+ *
+ * @param {number} index Index of the post in the posts array.
+ */
 function showPost(index) {
   const post = posts[index];
   document.getElementById('blog-list').style.display = 'none';
@@ -146,6 +147,9 @@ function showPost(index) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/**
+ * Returns to the post list and clears the post hash from the URL.
+ */
 function showBlogList() {
   document.getElementById('post-view').style.display = 'none';
   document.getElementById('blog-list').style.removeProperty('display');
@@ -153,12 +157,15 @@ function showBlogList() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/**
+ * Loads posts, renders the list, then honors an incoming `#post-N` hash.
+ */
 loadPosts().then(() => {
   renderBlogList();
 
-  var hash = window.location.hash;
+  const hash = window.location.hash;
   if (hash && hash.startsWith('#post-')) {
-    var idx = parseInt(hash.replace('#post-', ''), 10);
+    const idx = parseInt(hash.replace('#post-', ''), 10);
     if (!isNaN(idx) && idx >= 0 && idx < posts.length) {
       showPost(idx);
     }

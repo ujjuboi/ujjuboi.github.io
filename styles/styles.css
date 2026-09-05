@@ -1,3 +1,20 @@
+:root {
+  font-size: 16px;
+
+  --borderColor: #000000;
+  --backgroundColor: #F9F3EF;
+  --shadowColor: #09382F;
+  --contentColor: #F6DBDB;
+  --contrastText: #09382F;
+  --linkColor: #09382F;
+  --linkHover: #000000;
+  --errorColor: #b3261e;
+  --errorTextColor: #ffffff;
+
+  --headings: 'Raleway', sans-serif;
+  --poppins: 'Poppins', sans-serif;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
