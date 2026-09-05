@@ -1,3 +1,13 @@
+#post-title {
+  font-family: var(--theme-heading-font);
+}
+
+.card-date,
+.post-paragraph,
+#post-date {
+  font-family: var(--theme-content-font);
+}
+
 #blog-list {
   display: flex;
   flex-direction: column;
@@ -80,7 +90,6 @@
   color: var(--shadowColor);
   font-size: var(--text-sm);
   margin: 0 0 0.8rem 0;
-  font-family: var(--poppins);
   font-weight: normal;
   opacity: 0.85;
 }
@@ -122,7 +131,6 @@
 }
 
 #post-title {
-  font-family: var(--headings);
   color: var(--shadowColor);
   font-size: var(--text-3xl);
   margin: 0 0 0.5rem 0;
@@ -133,7 +141,6 @@
   color: var(--shadowColor);
   font-size: var(--text-base);
   margin: 0 0 2rem 0;
-  font-family: var(--poppins);
   font-weight: normal;
   opacity: 0.85;
 }
