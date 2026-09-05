@@ -656,6 +656,356 @@ function showBooksList() {
   document.getElementById('books-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+/**
+ * Closes the study plan drawer, restores body scroll, and returns focus to the trigger node.
+ *
+ * @param {HTMLElement} [previousFocus] Element to restore focus to on close.
+ */
+function closeStudyDrawer(previousFocus) {
+  const drawer = document.getElementById('study-drawer');
+  const overlay = document.getElementById('study-overlay');
+
+  drawer.classList.remove('is-open');
+  drawer.setAttribute('aria-hidden', 'true');
+  overlay.classList.remove('is-visible');
+  overlay.hidden = true;
+  document.body.style.overflow = '';
+
+  if (previousFocus) {
+    setTimeout(() => previousFocus.focus(), 100);
+  }
+}
+
+/**
+ * Opens the study plan drawer with node details, showing overlay and locking body scroll.
+ *
+ * @param {Object} node Parsed study node object.
+ * @param {HTMLElement} triggerBtn The button that opened the drawer (for focus restoration).
+ */
+function openStudyDrawer(node, triggerBtn) {
+  const drawer = document.getElementById('study-drawer');
+  const overlay = document.getElementById('study-overlay');
+  const body = document.getElementById('study-drawer-body');
+
+  if (!node || !body) return;
+
+  let html = '';
+
+  html += '<p class="drawer-breadcrumb">' + escapeHtml(node.phaseBreadCrumb) + '</p>';
+  html += '<h2 class="drawer-title">' + escapeHtml(node.title) + '</h2>';
+
+  if (node.items && node.items.length > 0) {
+    const done = node.items.filter(i => i.done).length;
+    const total = node.items.length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    html += '<div class="drawer-mini-progress">';
+    html += '<div class="drawer-mini-progress-track">';
+    html += '<div class="drawer-mini-progress-fill" style="width: ' + pct + '%"></div>';
+    html += '</div>';
+    html += '<span class="drawer-mini-progress-label">' + done + '/' + total + ' (' + pct + '%)</span>';
+    html += '</div>';
+  }
+
+  if (node.items && node.items.length > 0) {
+    html += '<ul class="drawer-checklist">';
+    for (const item of node.items) {
+      const doneClass = item.done ? 'is-done' : '';
+      const mark = item.done ? '&#10003;' : '&#9744;';
+      html += '<li class="drawer-checklist-item ' + doneClass + '">';
+      html += '<span class="check-mark">' + mark + '</span>';
+      html += '<span>' + escapeHtml(item.text) + '</span>';
+      html += '</li>';
+    }
+    html += '</ul>';
+  }
+
+  body.innerHTML = html;
+
+  overlay.hidden = false;
+  requestAnimationFrame(() => {
+    overlay.classList.add('is-visible');
+  });
+
+  drawer.classList.add('is-open');
+  drawer.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  const closeBtn = document.getElementById('study-drawer-close');
+  if (closeBtn) closeBtn.focus();
+
+  window._studyDrawerPreviousFocus = triggerBtn;
+}
+
+/**
+ * Renders a single study leaf (week or project) as a word-tree subnode.
+ * The leaf is clickable and opens the drawer; phase roots never render here.
+ *
+ * @param {Object} phase Phase object containing this node.
+ * @param {Object} node Node object (week or project).
+ * @param {boolean} isActive Whether this is the current focus node.
+ * @returns {HTMLElement} The completed leaf button.
+ */
+function renderStudyNode(phase, node, isActive) {
+  const leafEl = document.createElement('button');
+  leafEl.type = 'button';
+  leafEl.className = 'wt-leaf' + (isActive ? ' is-active' : '');
+
+  const kicker = document.createElement('span');
+  kicker.className = 'wt-leaf-kicker';
+  const wordLabel = (node.kind === 'project' ? 'Project ' : 'Week ') + node.number;
+  const done = node.items ? node.items.filter(i => i.done).length : 0;
+  const total = node.items ? node.items.length : 0;
+  kicker.textContent = wordLabel + (total > 0 ? ' · ' + done + '/' + total : '');
+
+  const text = document.createElement('span');
+  text.className = 'wt-leaf-text';
+  text.textContent = node.topic || node.label;
+
+  leafEl.appendChild(kicker);
+  leafEl.appendChild(text);
+
+  leafEl.addEventListener('click', () => {
+    const phaseNum = phase.name ? phase.name.replace(/^Phase\s+/, '') : '';
+    const phaseBreadcrumb = 'Phase ' + phaseNum + ' — ' + node.label;
+
+    openStudyDrawer({
+      title: node.label,
+      phaseBreadCrumb: phaseBreadcrumb,
+      items: node.items || []
+    }, leafEl);
+  });
+
+  return leafEl;
+}
+
+/**
+ * Parses the raw study plan markdown into structured data.
+ *
+ * @param {string} text Raw markdown source.
+ * @returns {Object} Parsed study plan with phases, progress, and focus.
+ */
+function parseStudyPlan(text) {
+  const lines = text.split('\n');
+  const result = {
+    title: '',
+    phases: [],
+    done: 0,
+    total: 0,
+    pct: 0,
+    focus: null
+  };
+
+  let currentPhase = null;
+  let currentGroup = null;
+  let phaseNum = 0;
+  let titleParsed = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    if (!titleParsed && line.startsWith('# ')) {
+      result.title = line.slice(2).trim();
+      titleParsed = true;
+      continue;
+    }
+
+    const phaseMatch = line.match(/^## Phase (\d+):\s*(.+)/);
+    if (phaseMatch) {
+      phaseNum = parseInt(phaseMatch[1], 10);
+      currentPhase = {
+        name: 'Phase ' + phaseNum,
+        label: phaseMatch[2].trim(),
+        weeks: []
+      };
+      result.phases.push(currentPhase);
+      currentGroup = null;
+      continue;
+    }
+
+    if (!currentPhase) continue;
+
+    const weekMatch = line.match(/^### (Week|Project)\s+(\d+):\s*(.+)/);
+    if (weekMatch) {
+      const kind = weekMatch[1].toLowerCase();
+      const num = weekMatch[2];
+      const label = weekMatch[3].trim();
+      currentGroup = {
+        label: label.charAt(0).toUpperCase() + label.slice(1) + ' ' + (kind === 'week' ? '· Week ' + num : '· Project ' + num),
+        topic: label.charAt(0).toUpperCase() + label.slice(1),
+        kind: kind,
+        number: num,
+        items: []
+      };
+      currentPhase.weeks.push(currentGroup);
+      continue;
+    }
+
+    if (!currentGroup) continue;
+
+    if (line.match(/^- \[x\]/)) {
+      const itemText = line.replace(/^- \[x\]\s*/, '').trim();
+      currentGroup.items.push({ text: itemText, done: true });
+      result.done++;
+      result.total++;
+    } else if (line.match(/^- \[ \]/)) {
+      const itemText = line.replace(/^- \[ \]\s*/, '').trim();
+      currentGroup.items.push({ text: itemText, done: false });
+      result.total++;
+
+      if (!result.focus) {
+        result.focus = {
+          phase: currentPhase.name,
+          label: currentGroup.label,
+          topic: itemText
+        };
+      }
+    }
+  }
+
+  result.pct = result.total > 0 ? Math.round((result.done / result.total) * 100) : 0;
+
+  if (!result.focus && result.total > 0 && result.done === result.total) {
+    const lastGroup = result.phases[result.phases.length - 1];
+    if (lastGroup && lastGroup.weeks.length > 0) {
+      const lastWeek = lastGroup.weeks[lastGroup.weeks.length - 1];
+      result.focus = {
+        phase: lastGroup.name,
+        label: lastWeek.label,
+        topic: lastWeek.items[lastWeek.items.length - 1]?.text || ''
+      };
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Fetches and renders the study plan as a word tree on the page.
+ */
+async function renderStudyPlan() {
+  const treeEl = document.getElementById('study-tree');
+  const loadingEl = document.getElementById('study-loading');
+  const fallbackEl = document.getElementById('study-fallback');
+
+  if (!treeEl) return;
+
+  try {
+    const res = await fetch('../../src/study-plan.md');
+    if (!res.ok) throw new Error('Failed to fetch study plan');
+    const text = await res.text();
+    const plan = parseStudyPlan(text);
+
+    loadingEl.style.display = 'none';
+
+    const progressFill = document.getElementById('study-progress-fill');
+    const progressLabel = document.getElementById('study-progress-label');
+    const focusEl = document.getElementById('study-focus');
+
+    if (progressFill) progressFill.style.width = plan.pct + '%';
+    if (progressLabel) progressLabel.textContent = plan.done + '/' + plan.total;
+    if (focusEl && plan.focus) {
+      focusEl.textContent = plan.focus.phase + ' · ' + plan.focus.label + ' — ' + plan.focus.topic;
+    }
+
+    if (plan.phases.length === 0) {
+      throw new Error('No phases found');
+    }
+
+    const wordTree = document.createElement('div');
+    wordTree.style.marginTop = '0.5rem';
+
+    for (const phase of plan.phases) {
+      const branch = document.createElement('div');
+      branch.className = 'wt-branch';
+
+      const root = document.createElement('div');
+      root.className = 'wt-root';
+
+      const rootNum = document.createElement('span');
+      rootNum.className = 'wt-root-num';
+      rootNum.textContent = phase.name;
+
+      const rootName = document.createElement('span');
+      rootName.className = 'wt-root-name';
+      rootName.textContent = phase.label;
+
+      let phaseDone = 0;
+      let phaseTotal = 0;
+      for (const week of phase.weeks) {
+        if (!week.items) continue;
+        phaseDone += week.items.filter(i => i.done).length;
+        phaseTotal += week.items.length;
+      }
+
+      const rootMeta = document.createElement('span');
+      rootMeta.className = 'wt-root-meta';
+      rootMeta.textContent = phaseTotal > 0 ? phaseDone + '/' + phaseTotal + ' items' : '';
+
+      root.appendChild(rootNum);
+      root.appendChild(rootName);
+      root.appendChild(rootMeta);
+
+      const branchLine = document.createElement('span');
+      branchLine.className = 'wt-branch-line';
+
+      const leaves = document.createElement('div');
+      leaves.className = 'wt-leaves';
+
+      for (const week of phase.weeks) {
+        const isActive = plan.focus && plan.focus.label === week.label;
+        leaves.appendChild(renderStudyNode(phase, week, isActive));
+      }
+
+      branch.appendChild(root);
+      branch.appendChild(branchLine);
+      branch.appendChild(leaves);
+
+      wordTree.appendChild(branch);
+    }
+
+    treeEl.appendChild(wordTree);
+
+    const node = wordTree.querySelector('.wt-leaf.is-active .wt-leaf-text');
+    if (node) {
+      node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+  } catch (error) {
+    console.error('Study plan error:', error);
+    loadingEl.style.display = 'none';
+    fallbackEl.style.display = 'block';
+  }
+}
+
+/**
+ * Initializes the drawer close handlers (× button, overlay click, Escape key).
+ * Also closes the drawer when the mobile menu opens.
+ */
+function initStudyDrawerHandlers() {
+  const closeBtn = document.getElementById('study-drawer-close');
+  const overlay = document.getElementById('study-overlay');
+  const drawer = document.getElementById('study-drawer');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      closeStudyDrawer(window._studyDrawerPreviousFocus);
+    });
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', () => {
+      closeStudyDrawer(window._studyDrawerPreviousFocus);
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer && drawer.classList.contains('is-open')) {
+      closeStudyDrawer(window._studyDrawerPreviousFocus);
+    }
+  });
+}
+
 fetchGitHubStats();
 fetchRecentActivity();
 fetchLeetCodeStats();
@@ -671,4 +1021,6 @@ loadBooks().then(() => {
     }
   }
 });
+renderStudyPlan();
+initStudyDrawerHandlers();
 initMenuToggle('#myspace-container');

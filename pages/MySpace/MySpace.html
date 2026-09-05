@@ -32,6 +32,29 @@
   <section data-section="myspace">
     <div id="myspace-container" class="page-container">
 
+      <div class="myspace-section myspace-section--full">
+        <h2 class="section-heading collapsible active" onclick="toggleSection(this)">
+          <span class="title-text">Currently Studying</span>
+          <span class="toggle-icon">-</span>
+        </h2>
+        <div class="section-content" style="display: block;">
+          <div class="study-summary">
+            <div class="study-progress-track">
+              <div class="study-progress-fill" id="study-progress-fill" style="width: 0%"></div>
+              <span class="study-progress-label" id="study-progress-label">0/0</span>
+            </div>
+            <div class="study-focus" id="study-focus"></div>
+          </div>
+          <div id="study-loading" class="loading-placeholder">
+            Loading study plan<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+          </div>
+          <div id="study-tree" class="word-tree"></div>
+          <div id="study-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+            Unable to load study plan
+          </div>
+        </div>
+      </div>
+
       <div class="myspace-section">
         <h2 class="section-heading collapsible active" onclick="toggleSection(this)">
           <span class="title-text">Currently Working On</span>
@@ -155,6 +178,12 @@
 
     </div>
   </section>
+
+  <div id="study-overlay" class="study-overlay" hidden></div>
+  <aside id="study-drawer" class="study-drawer" role="dialog" aria-modal="true" aria-hidden="true">
+    <button id="study-drawer-close" class="study-drawer-close" aria-label="Close details">&times;</button>
+    <div id="study-drawer-body"></div>
+  </aside>
 
   <footer>
     <h1>About Me</h1>
