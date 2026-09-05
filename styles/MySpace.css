@@ -570,10 +570,8 @@
 }
 
 .books-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
-  gap: 1.25rem;
-  align-items: start;
+  columns: 260px;
+  column-gap: 1.25rem;
 }
 
 .book-card {
@@ -587,6 +585,8 @@
   background-color: var(--backgroundColor);
   box-shadow: 0.25rem 0.25rem var(--shadowColor);
   transition: all 0.2s ease;
+  break-inside: avoid;
+  margin-bottom: 1.25rem;
 }
 
 .book-card:hover {
