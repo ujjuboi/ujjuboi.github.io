@@ -171,3 +171,5 @@ loadPosts().then(() => {
     }
   }
 });
+
+initMenuToggle('#blog-list');

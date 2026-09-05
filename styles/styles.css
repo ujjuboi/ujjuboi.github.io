@@ -131,8 +131,13 @@ body.sub-page section {
 }
 
 @media (max-width: 720px) {
+  :root {
+    font-size: 14px;
+  }
+
   body.sub-page {
     overflow-y: auto;
+    grid-template-rows: auto;
   }
 
   body.sub-page section {
@@ -140,13 +145,14 @@ body.sub-page section {
     padding: 10% 2% 3%;
   }
 
-  .page-container {
+  body.sub-page .page-container {
     padding: 0 3%;
   }
 
-  header {
+  body.sub-page header {
     display: none;
     z-index: 10;
+    overflow-x: hidden;
     overflow-y: auto;
     max-height: 90vh;
     padding-top: 15%;
@@ -159,7 +165,7 @@ body.sub-page section {
     width: 91vw;
   }
 
-  header nav ul {
+  body.sub-page header nav ul {
     height: 80%;
     width: 80%;
     flex-direction: column;

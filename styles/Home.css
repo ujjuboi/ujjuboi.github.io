@@ -7,8 +7,8 @@ body {
   font-family: var(--poppins);
   display: -ms-grid;
   display: grid;
-  -ms-grid-rows: 15vh 60vh 28vh;
-      grid-template-rows: 15vh 60vh 28vh;
+  -ms-grid-rows: 15vh 60vh auto;
+      grid-template-rows: 15vh 60vh auto;
   background-color: var(--backgroundColor);
   overflow: hidden;
 }
@@ -211,9 +211,17 @@ footer #footer_nav li a {
 
 @media (max-width: 720px) {
 
-  body{
-    display: block;
+  body:not(.sub-page){
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    box-sizing: border-box;
+    margin: 0;
     overflow: hidden;
+  }
+
+  section {
+    padding-top: 2.5rem;
   }
   
   section #hero #signature{
@@ -222,7 +230,7 @@ footer #footer_nav li a {
     width: min(15rem, 55vw);
   }
   
-  #hero{
+  section #hero{
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -233,6 +241,8 @@ footer #footer_nav li a {
     left: auto;
     top: auto;
     transform: none;
+    margin-left: auto;
+    margin-right: auto;
   }
   
   #hero p{
@@ -252,14 +262,41 @@ footer #footer_nav li a {
     position: absolute;
     display: none;
   }
-  
+
   header {
+    display: none;
+    z-index: 10;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 90vh;
+    padding-top: 15%;
+    text-align: center;
+    flex-direction: column;
+    justify-content: space-around;
+    background-color: var(--contentColor);
+    right: 3%;
+    height: 75vh;
+    width: 91vw;
     animation-fill-mode: backwards;
+  }
+
+  #menuIcon {
+    visibility: visible;
+    font-size: 2.5rem;
+    z-index: 10;
   }
 
   header nav {
     height: 80%;
     width: 100%;
+  }
+
+  header nav ul {
+    height: 80%;
+    width: 80%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
   }
 
   .active{
@@ -277,6 +314,11 @@ footer #footer_nav li a {
 
   footer h1{
     width: 1rem;
+  }
+
+  footer {
+    margin-top: auto;
+    flex-shrink: 0;
   }
   
 
@@ -298,5 +340,12 @@ footer #footer_nav li a {
   section #hero #signature {
     height: min(10rem, 40vw);
     width: min(10rem, 40vw);
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1280px) and (max-height: 800px) {
+  section #hero #signature {
+    height: 15rem;
+    width: 21rem;
   }
 }

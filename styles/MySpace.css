@@ -164,6 +164,7 @@
 }
 
 .post-card {
+  min-width: 0;
   animation: fadeIn ease 0.8s;
   animation-fill-mode: both;
   display: flex;
@@ -173,6 +174,13 @@
 
 .post-card .card-link {
   margin-top: auto;
+}
+
+.post-card .card-title,
+.post-card .card-date,
+.post-card .card-excerpt {
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .post-card:nth-child(1) { animation-delay: 0.05s; }
@@ -345,6 +353,7 @@
   gap: 0.5rem;
   height: 15rem;
   /* width: 45rem; */
+  overflow: visible;
 }
 
 .lc-col {
@@ -448,7 +457,8 @@
   line-height: 1;
   margin-top: 0.25rem;
   opacity: 0.75;
-  white-space: nowrap;
+  text-align: center;
+  white-space: normal;
 }
 
 .lc-submission-list {
@@ -540,8 +550,11 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  #github-repos-grid {
-    grid-template-columns: 1fr;
+  #github-repos-grid,
+  #issues-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
   }
 
   .lc-submission-title {
