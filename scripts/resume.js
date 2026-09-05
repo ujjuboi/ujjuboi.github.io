@@ -71,7 +71,7 @@ function renderSection(title, contentEl, active) {
   }
 
   const h2 = document.createElement('h2');
-  h2.className = 'section-heading' + (active ? ' active' : '');
+  h2.className = 'section-heading collapsible' + (active ? ' active' : '');
   h2.onclick = function () { toggleSection(this); };
 
   const titleText = document.createElement('span');
@@ -118,6 +118,8 @@ function renderSummary(text) {
  */
 function renderExperience(jobs) {
   const wrapper = document.createDocumentFragment();
+  const timeline = document.createElement('div');
+  timeline.className = 'timeline';
   jobs.forEach(job => {
     const div = document.createElement('div');
     div.className = 'job';
@@ -161,8 +163,9 @@ function renderExperience(jobs) {
       div.appendChild(ul);
     }
 
-    wrapper.appendChild(div);
+    timeline.appendChild(div);
   });
+  wrapper.appendChild(timeline);
   return wrapper;
 }
 

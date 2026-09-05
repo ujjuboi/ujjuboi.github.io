@@ -42,6 +42,45 @@ async function loadPosts() {
 }
 
 /**
+ * Renders the latest post as a fixed, non-collapsible section at the top
+ * of the blog list.
+ *
+ * @param {HTMLElement} container The blog list container to append to.
+ */
+function renderLatestPost(container) {
+  const latest = posts[0];
+  if (!latest) return;
+
+  const section = document.createElement('div');
+  section.className = 'blog-section';
+
+  const heading = document.createElement('h2');
+  heading.className = 'section-heading static active';
+  heading.innerHTML = '<span class="title-text">Latest Post</span>';
+  section.appendChild(heading);
+
+  const content = document.createElement('div');
+  content.className = 'section-content';
+  content.style.display = 'block';
+
+  const card = document.createElement('div');
+  card.className = 'post-card card';
+  card.style.margin = 'auto';
+  card.onclick = () => showPost(0);
+  card.innerHTML = `
+    <img class="latest-post-banner" src="${latest.banner}" alt="${latest.title} banner">
+    <h3 class="card-title">${latest.title}</h3>
+    <p class="card-date">${latest.date}</p>
+    <p class="card-excerpt">${latest.excerpt}</p>
+    <a class="card-link" href="#post-0" target="_self" onclick="event.stopPropagation(); showPost(0)">Read more →</a>
+  `;
+
+  content.appendChild(card);
+  section.appendChild(content);
+  container.appendChild(section);
+}
+
+/**
  * Renders the list of posts grouped by category.
  */
 function renderBlogList() {
@@ -52,6 +91,7 @@ function renderBlogList() {
     loading.classList.add('fade-out');
     loading.addEventListener('animationend', () => loading.remove(), { once: true });
   }
+  renderLatestPost(container);
   let sectionIndex = 0;
   let delayIndex = 0;
   categories.forEach(category => {
@@ -64,7 +104,7 @@ function renderBlogList() {
     section.className = 'blog-section';
 
     const heading = document.createElement('h2');
-    heading.className = 'section-heading' + (sectionIndex === 0 ? ' active' : '');
+    heading.className = 'section-heading collapsible' + (sectionIndex === 0 ? ' active' : '');
     heading.setAttribute('onclick', 'toggleBlogSection(this)');
     heading.innerHTML = `<span class="title-text">${category}</span><span class="toggle-icon">-</span>`;
     section.appendChild(heading);

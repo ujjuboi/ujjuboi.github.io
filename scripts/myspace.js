@@ -348,32 +348,7 @@ async function fetchLeetCodeStats() {
   }
 }
 
-/**
- * Loads the newest blog post from the manifest and shows it in the research card.
- */
-async function loadLatestPost() {
-  try {
-    const manifestRes = await fetch('../../src/Blogs/posts.json');
-    if (!manifestRes.ok) throw new Error('Failed to fetch posts.json');
-    const filenames = await manifestRes.json();
-    if (filenames.length === 0) return;
 
-    const mdRes = await fetch('../../src/Blogs/' + filenames[0]);
-    if (!mdRes.ok) throw new Error('Failed to fetch ' + filenames[0]);
-    const text = await mdRes.text();
-    const meta = parsePostHeaders(text);
-
-    document.getElementById('research-banner').src = meta.banner || '';
-    document.getElementById('research-banner').alt = meta.title || '';
-    document.getElementById('research-title').textContent = meta.title || '';
-    document.getElementById('research-date').textContent = meta.date || '';
-    document.getElementById('research-excerpt').textContent = meta.excerpt || '';
-    document.getElementById('research-link').href = '../Blog/Blog.html#post-0';
-    document.getElementById('research-card').style.display = 'block';
-  } catch (e) {
-    console.error('Failed to load latest post:', e);
-  }
-}
 
 /**
  * Fetches and renders the user's open issues and pull requests.
@@ -674,7 +649,6 @@ function showBooksList() {
 fetchGitHubStats();
 fetchRecentActivity();
 fetchLeetCodeStats();
-loadLatestPost();
 fetchGitHubIssues();
 loadBooks().then(() => {
   renderBooks();

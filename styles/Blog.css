@@ -39,6 +39,14 @@
   min-width: 0;
 }
 
+.latest-post-banner {
+  width: 100%;
+  max-height: 300px;
+  border: 0.15rem solid var(--borderColor);
+  border-radius: 0.3rem;
+  margin-bottom: 1rem;
+}
+
 .post-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

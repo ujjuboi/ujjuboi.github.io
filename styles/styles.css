@@ -85,7 +85,6 @@ body.sub-page section {
   border: 0.2rem solid var(--borderColor);
   border-radius: 0.4rem;
   margin-bottom: 2%;
-  cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -93,9 +92,17 @@ body.sub-page section {
   box-shadow: 0.3rem 0.3rem var(--shadowColor);
 }
 
-.section-heading:hover {
+.section-heading.collapsible {
+  cursor: pointer;
+}
+
+.section-heading.collapsible:hover {
   transform: translateX(0.5%);
   box-shadow: 0.5rem 0.5rem var(--shadowColor);
+}
+
+.section-heading.static {
+  cursor: default;
 }
 
 .section-heading.active {
