@@ -656,6 +656,507 @@ function showBooksList() {
   document.getElementById('books-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+/**
+ * Closes the study plan drawer, restores body scroll, and returns focus to the trigger node.
+ *
+ * @param {HTMLElement} [previousFocus] Element to restore focus to on close.
+ */
+function closeStudyDrawer(previousFocus) {
+  const drawer = document.getElementById('study-drawer');
+  const overlay = document.getElementById('study-overlay');
+
+  drawer.classList.remove('is-open');
+  drawer.setAttribute('aria-hidden', 'true');
+  overlay.classList.remove('is-visible');
+  overlay.hidden = true;
+  document.body.style.overflow = '';
+
+  if (previousFocus) {
+    setTimeout(() => previousFocus.focus(), 100);
+  }
+}
+
+/**
+ * Opens the study plan drawer with node details, showing overlay and locking body scroll.
+ *
+ * @param {Object} node Parsed study node object.
+ * @param {HTMLElement} triggerBtn The button that opened the drawer (for focus restoration).
+ */
+function openStudyDrawer(node, triggerBtn) {
+  const drawer = document.getElementById('study-drawer');
+  const overlay = document.getElementById('study-overlay');
+  const body = document.getElementById('study-drawer-body');
+
+  if (!node || !body) return;
+
+  let html = '';
+
+  html += '<p class="drawer-breadcrumb">' + escapeHtml(node.phaseBreadCrumb) + '</p>';
+  html += '<h2 class="drawer-title">' + escapeHtml(node.title) + '</h2>';
+
+  if (node.items && node.items.length > 0) {
+    const done = node.items.filter(i => i.done).length;
+    const total = node.items.length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    html += '<div class="drawer-mini-progress">';
+    html += '<div class="drawer-mini-progress-track">';
+    html += '<div class="drawer-mini-progress-fill" style="width: ' + pct + '%"></div>';
+    html += '</div>';
+    html += '<span class="drawer-mini-progress-label">' + done + '/' + total + ' (' + pct + '%)</span>';
+    html += '</div>';
+  }
+
+  if (node.items && node.items.length > 0) {
+    html += '<ul class="drawer-checklist">';
+    for (const item of node.items) {
+      const doneClass = item.done ? 'is-done' : '';
+      const mark = item.done ? '&#10003;' : '&#9744;';
+      html += '<li class="drawer-checklist-item ' + doneClass + '">';
+      html += '<span class="check-mark">' + mark + '</span>';
+      html += '<span class="drawer-item-main">';
+      html += escapeHtml(item.text);
+      if (item.subs && item.subs.length > 0) {
+        html += '<span class="drawer-item-subs">';
+        for (const sub of item.subs) {
+          if (sub.url) {
+            const linkLabel = sub.label ? escapeHtml(sub.label) + ': ' : '';
+            html += '<a class="drawer-item-sub" href="' + escapeHtml(sub.url) + '" target="_blank" rel="noopener">' + linkLabel + escapeHtml(sub.text) + '</a>';
+          } else {
+            html += '<span class="drawer-item-sub">' + escapeHtml(sub.text) + '</span>';
+          }
+        }
+        html += '</span>';
+      }
+      html += '</span>';
+      html += '</li>';
+    }
+    html += '</ul>';
+  }
+
+  body.innerHTML = html;
+
+  overlay.hidden = false;
+  requestAnimationFrame(() => {
+    overlay.classList.add('is-visible');
+  });
+
+  drawer.classList.add('is-open');
+  drawer.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  const closeBtn = document.getElementById('study-drawer-close');
+  if (closeBtn) closeBtn.focus();
+
+  window._studyDrawerPreviousFocus = triggerBtn;
+}
+
+/**
+ * Renders a single study leaf (week or project) as a word-tree subnode.
+ * The leaf is clickable and opens the drawer; phase roots never render here.
+ *
+ * @param {Object} phase Phase object containing this node.
+ * @param {Object} node Node object (week or project).
+ * @param {boolean} isActive Whether this is the current focus node.
+ * @returns {HTMLElement} The completed leaf button.
+ */
+function renderStudyNode(phase, node, isActive) {
+  const done = node.items ? node.items.filter(i => i.done).length : 0;
+  const total = node.items ? node.items.length : 0;
+  const isComplete = total > 0 && done === total;
+
+  const leafEl = document.createElement('button');
+  leafEl.type = 'button';
+  leafEl.className = 'wt-leaf' + (isActive ? ' is-active' : '') + (isComplete ? ' is-complete' : '');
+
+  const kicker = document.createElement('span');
+  kicker.className = 'wt-leaf-kicker';
+  const wordLabel = (node.kind === 'project' ? 'Project ' : 'Week ') + node.number;
+  kicker.textContent = wordLabel + (total > 0 ? ' · ' + done + '/' + total : '');
+
+  const text = document.createElement('span');
+  text.className = 'wt-leaf-text';
+  text.textContent = node.topic || node.label;
+
+  leafEl.appendChild(kicker);
+  leafEl.appendChild(text);
+
+  leafEl.addEventListener('click', () => {
+    const phaseNum = phase.name ? phase.name.replace(/^Phase\s+/, '') : '';
+    const phaseBreadcrumb = 'Phase ' + phaseNum + ' — ' + node.label;
+
+    openStudyDrawer({
+      title: node.label,
+      phaseBreadCrumb: phaseBreadcrumb,
+      items: node.items || []
+    }, leafEl);
+  });
+
+  return leafEl;
+}
+
+/**
+ * Parses the raw study plan markdown into structured data.
+ *
+ * @param {string} text Raw markdown source.
+ * @returns {Object} Parsed study plan with phases, progress, and focus.
+ */
+function parseStudyPlan(text) {
+  const lines = text.split('\n');
+  const result = {
+    title: '',
+    phases: [],
+    done: 0,
+    total: 0,
+    pct: 0,
+    focus: null
+  };
+
+  let currentPhase = null;
+  let currentGroup = null;
+  let currentItem = null;
+  let phaseNum = 0;
+  let titleParsed = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    if (!titleParsed && line.startsWith('# ')) {
+      result.title = line.slice(2).trim();
+      titleParsed = true;
+      continue;
+    }
+
+    const phaseMatch = line.match(/^## Phase (\d+):\s*(.+)/);
+    if (phaseMatch) {
+      phaseNum = parseInt(phaseMatch[1], 10);
+      currentPhase = {
+        name: 'Phase ' + phaseNum,
+        label: phaseMatch[2].trim(),
+        weeks: []
+      };
+      result.phases.push(currentPhase);
+      currentGroup = null;
+      currentItem = null;
+      continue;
+    }
+
+    if (!currentPhase) continue;
+
+    const weekMatch = line.match(/^### (Week|Project)\s+(\d+):\s*(.+)/);
+    if (weekMatch) {
+      const kind = weekMatch[1].toLowerCase();
+      const num = weekMatch[2];
+      const label = weekMatch[3].trim();
+      currentGroup = {
+        label: label.charAt(0).toUpperCase() + label.slice(1) + ' ' + (kind === 'week' ? '· Week ' + num : '· Project ' + num),
+        topic: label.charAt(0).toUpperCase() + label.slice(1),
+        kind: kind,
+        number: num,
+        items: []
+      };
+      currentPhase.weeks.push(currentGroup);
+      currentItem = null;
+      continue;
+    }
+
+    if (!currentGroup) continue;
+
+    const subLink = line.match(/^\s+-\s+(.+?):\s*\[([^\]]+)\]\(([^)]+)\)\s*$/);
+    if (subLink) {
+      if (currentItem) {
+        currentItem.subs.push({
+          label: subLink[1].trim(),
+          text: subLink[2].trim(),
+          url: subLink[3].trim()
+        });
+      }
+      continue;
+    }
+
+    const subText = line.match(/^\s+-\s+(.+)$/);
+    if (subText && !line.trim().startsWith('- [')) {
+      if (currentItem) {
+        currentItem.subs.push({ label: '', text: subText[1].trim(), url: null });
+      }
+      continue;
+    }
+
+    if (line.match(/^- \[x\]/)) {
+      const itemText = line.replace(/^- \[x\]\s*/, '').trim();
+      currentItem = { text: itemText, done: true, subs: [] };
+      currentGroup.items.push(currentItem);
+      result.done++;
+      result.total++;
+    } else if (line.match(/^- \[ \]/)) {
+      const itemText = line.replace(/^- \[ \]\s*/, '').trim();
+      currentItem = { text: itemText, done: false, subs: [] };
+      currentGroup.items.push(currentItem);
+      result.total++;
+
+      if (!result.focus) {
+        result.focus = {
+          phase: currentPhase.name,
+          label: currentGroup.label,
+          topic: itemText
+        };
+      }
+    }
+  }
+
+  result.pct = result.total > 0 ? Math.round((result.done / result.total) * 100) : 0;
+
+  if (!result.focus && result.total > 0 && result.done === result.total) {
+    const lastGroup = result.phases[result.phases.length - 1];
+    if (lastGroup && lastGroup.weeks.length > 0) {
+      const lastWeek = lastGroup.weeks[lastGroup.weeks.length - 1];
+      result.focus = {
+        phase: lastGroup.name,
+        label: lastWeek.label,
+        topic: lastWeek.items[lastWeek.items.length - 1]?.text || ''
+      };
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Parsed study plans loaded from the manifest.
+ */
+const studyPlans = [];
+
+/**
+ * Builds the word-tree DOM for a study plan's phases, weeks, and projects.
+ * Leaves are clickable and open the detail drawer.
+ *
+ * @param {Object} plan Parsed study plan object.
+ * @returns {HTMLElement} The completed word-tree element.
+ */
+function buildWordTree(plan) {
+  const wordTree = document.createElement('div');
+  wordTree.style.marginTop = '0.5rem';
+
+  for (const phase of plan.phases) {
+    const branch = document.createElement('div');
+    branch.className = 'wt-branch';
+
+    const root = document.createElement('div');
+    root.className = 'wt-root';
+
+    const rootNum = document.createElement('span');
+    rootNum.className = 'wt-root-num';
+    rootNum.textContent = phase.name;
+
+    const rootName = document.createElement('span');
+    rootName.className = 'wt-root-name';
+    rootName.textContent = phase.label;
+
+    let phaseDone = 0;
+    let phaseTotal = 0;
+    for (const week of phase.weeks) {
+      if (!week.items) continue;
+      phaseDone += week.items.filter(i => i.done).length;
+      phaseTotal += week.items.length;
+    }
+
+    const rootMeta = document.createElement('span');
+    rootMeta.className = 'wt-root-meta';
+    rootMeta.textContent = phaseTotal > 0 ? phaseDone + '/' + phaseTotal + ' items' : '';
+
+    root.appendChild(rootNum);
+    root.appendChild(rootName);
+    root.appendChild(rootMeta);
+
+    const branchLine = document.createElement('span');
+    branchLine.className = 'wt-branch-line';
+
+    const leaves = document.createElement('div');
+    leaves.className = 'wt-leaves';
+
+    for (const week of phase.weeks) {
+      const isActive = plan.focus && plan.focus.label === week.label;
+      leaves.appendChild(renderStudyNode(phase, week, isActive));
+    }
+
+    branch.appendChild(root);
+    branch.appendChild(branchLine);
+    branch.appendChild(leaves);
+
+    wordTree.appendChild(branch);
+  }
+
+  return wordTree;
+}
+
+/**
+ * Returns a plan's title with the "Study Plan:" prefix stripped.
+ *
+ * @param {object} plan Parsed study plan object.
+ * @returns {string} Display title.
+ */
+function studyPlanDisplayTitle(plan) {
+  return plan.title.replace(/^Study Plan:\s*/i, '');
+}
+
+/**
+ * Loads all study plans from the manifest and parses each markdown file.
+ */
+async function loadStudyPlans() {
+  try {
+    const res = await fetch('../../src/StudyPlans/plans.json');
+    if (!res.ok) throw new Error('Failed to fetch plans.json');
+    const filenames = await res.json();
+
+    for (const file of filenames) {
+      try {
+        const mdRes = await fetch('../../src/StudyPlans/' + file);
+        if (!mdRes.ok) throw new Error('Failed to fetch ' + file);
+        const text = await mdRes.text();
+        const plan = parseStudyPlan(text);
+        if (plan.phases.length > 0) {
+          studyPlans.push(plan);
+        }
+      } catch (e) {
+        console.error('Error loading study plan:', file, e);
+      }
+    }
+  } catch (e) {
+    console.error('Error loading study plans manifest:', e);
+  }
+}
+
+/**
+ * Renders the list of study plan cards into the plans grid.
+ */
+function renderStudyPlans() {
+  const container = document.getElementById('study-plans-grid');
+  container.innerHTML = '';
+
+  const loading = document.getElementById('study-loading');
+  if (loading) {
+    loading.classList.add('fade-out');
+    loading.addEventListener('animationend', () => loading.remove(), { once: true });
+  }
+
+  const fallback = document.getElementById('study-fallback');
+  const grid = document.createElement('div');
+  grid.className = 'study-plans-grid';
+
+  if (studyPlans.length === 0) {
+    fallback.style.display = 'block';
+    return;
+  }
+
+  fallback.style.display = 'none';
+
+  studyPlans.forEach((plan, index) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'study-plan-card card';
+    card.onclick = () => showStudyPlan(index);
+
+    const title = studyPlanDisplayTitle(plan);
+    const focus = plan.focus
+      ? plan.focus.phase + ' · ' + plan.focus.label + ' — ' + plan.focus.topic
+      : '';
+
+    card.innerHTML = `
+      <span class="study-plan-card-title">${escapeHtml(title)}</span>
+      <span class="study-plan-card-focus">${escapeHtml(focus)}</span>
+      <div class="study-plan-card-progress">
+        <div class="study-plan-card-track">
+          <div class="study-plan-card-fill" style="width: ${plan.pct}%"></div>
+        </div>
+        <span class="study-plan-card-pct">${plan.pct}%</span>
+      </div>
+      <span class="study-plan-card-meta">${plan.done}/${plan.total} items · ${plan.phases.length} phases</span>
+    `;
+
+    grid.appendChild(card);
+  });
+
+  container.appendChild(grid);
+}
+
+/**
+ * Shows a single study plan's full detail view by index.
+ *
+ * @param {number} index Index of the plan in the studyPlans array.
+ */
+function showStudyPlan(index) {
+  const plan = studyPlans[index];
+  if (!plan) return;
+
+  document.getElementById('study-plans-grid').style.display = 'none';
+  const view = document.getElementById('study-plan-view');
+  view.style.display = 'block';
+
+  document.getElementById('study-title').textContent = studyPlanDisplayTitle(plan);
+
+  const progressFill = document.getElementById('study-progress-fill');
+  const progressLabel = document.getElementById('study-progress-label');
+  if (progressFill) progressFill.style.width = plan.pct + '%';
+  if (progressLabel) progressLabel.textContent = plan.pct + '%';
+
+  const focusEl = document.getElementById('study-focus');
+  if (focusEl) {
+    focusEl.textContent = plan.focus
+      ? plan.focus.phase + ' · ' + plan.focus.label + ' — ' + plan.focus.topic
+      : '';
+  }
+
+  const treeEl = document.getElementById('study-tree');
+  treeEl.innerHTML = '';
+  treeEl.appendChild(buildWordTree(plan));
+
+  const activeText = treeEl.querySelector('.wt-leaf.is-active .wt-leaf-text');
+  if (activeText) {
+    activeText.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  history.replaceState(null, '', '#plan-' + index);
+  view.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/**
+ * Returns to the study plans list and clears the plan hash from the URL.
+ */
+function showStudyPlansList() {
+  document.getElementById('study-plan-view').style.display = 'none';
+  document.getElementById('study-plans-grid').style.removeProperty('display');
+  history.replaceState(null, '', window.location.pathname);
+  document.getElementById('study-plans-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/**
+ * Initializes the drawer close handlers (× button, overlay click, Escape key).
+ * Also closes the drawer when the mobile menu opens.
+ */
+function initStudyDrawerHandlers() {
+  const closeBtn = document.getElementById('study-drawer-close');
+  const overlay = document.getElementById('study-overlay');
+  const drawer = document.getElementById('study-drawer');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      closeStudyDrawer(window._studyDrawerPreviousFocus);
+    });
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', () => {
+      closeStudyDrawer(window._studyDrawerPreviousFocus);
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer && drawer.classList.contains('is-open')) {
+      closeStudyDrawer(window._studyDrawerPreviousFocus);
+    }
+  });
+}
+
 fetchGitHubStats();
 fetchRecentActivity();
 fetchLeetCodeStats();
@@ -671,4 +1172,16 @@ loadBooks().then(() => {
     }
   }
 });
+loadStudyPlans().then(() => {
+  renderStudyPlans();
+
+  const hash = window.location.hash;
+  if (hash && hash.startsWith('#plan-')) {
+    const idx = parseInt(hash.replace('#plan-', ''), 10);
+    if (!isNaN(idx) && idx >= 0 && idx < studyPlans.length) {
+      showStudyPlan(idx);
+    }
+  }
+});
+initStudyDrawerHandlers();
 initMenuToggle('#myspace-container');

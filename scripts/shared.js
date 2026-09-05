@@ -20,6 +20,17 @@ function initMenuToggle(contentSelector, restoreDisplay) {
   });
 
   footer.addEventListener('click', () => {
+    const studyDrawer = document.getElementById('study-drawer');
+    if (studyDrawer && studyDrawer.classList.contains('is-open')) {
+      studyDrawer.classList.remove('is-open');
+      studyDrawer.setAttribute('aria-hidden', 'true');
+      const overlay = document.getElementById('study-overlay');
+      if (overlay) {
+        overlay.classList.remove('is-visible');
+        overlay.hidden = true;
+      }
+      document.body.style.overflow = '';
+    }
     menuIcon.style.display = 'block';
     footer.style.height = '18vh';
     footer.style.bottom = '4%';
