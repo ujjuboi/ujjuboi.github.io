@@ -21,11 +21,26 @@ Making my own dynamic blogging website!
 │   ├── skills/
 │   │   ├── quick-blog/
 │   │   │   └── SKILL.md
+│   │   ├── quick-book/
+│   │   │   └── SKILL.md
 │   │   └── quick-test/
 │   │       ├── SKILL.md
 │   │       └── test.mjs
 │   └── opencode.json
 ├── Images/
+│   ├── Books/
+│   │   ├── architecture-patterns-with-python.png
+│   │   ├── building-event-driven-microservices.png
+│   │   ├── coffee-can-investing.png
+│   │   ├── dune.png
+│   │   ├── grokking-algorithms.png
+│   │   ├── mythical-man-month.png
+│   │   ├── real-rich.jpg
+│   │   ├── system-design-interview.png
+│   │   ├── the-bhagavad-gita-according-to-gandhi.png
+│   │   ├── the-bhagavad-gita.png
+│   │   ├── the-new-encyclopedia-of-modern-bodybuilding.png
+│   │   └── who-moved-my-cheese.jpg
 │   ├── Graphics/
 │   │   ├── ActiveDirectory.svg
 │   │   ├── GithubActions.svg
@@ -76,8 +91,22 @@ Making my own dynamic blogging website!
 │   │   ├── 08-legacy-stacks.md
 │   │   ├── posts.json
 │   │   └── template.md
+│   ├── Books/
+│   │   ├── architecture-patterns-with-python.md
+│   │   ├── books.json
+│   │   ├── building-event-driven-microservices.md
+│   │   ├── coffee-can-investing.md
+│   │   ├── dune.md
+│   │   ├── grokking-algorithms.md
+│   │   ├── mythical-man-month.md
+│   │   ├── real-rich.md
+│   │   ├── system-design-interview.md
+│   │   ├── template.md
+│   │   ├── the-bhagavad-gita-according-to-gandhi.md
+│   │   ├── the-bhagavad-gita.md
+│   │   ├── the-new-encyclopedia-of-modern-bodybuilding.md
+│   │   └── who-moved-my-cheese.md
 │   ├── cv.md
-│   ├── professionalResume.md
 │   └── study-plan.md
 ├── styles/
 │   ├── Blog.css
