@@ -19,8 +19,11 @@ Making my own dynamic blogging website!
 ```
 ├── .opencode/
 │   ├── skills/
-│   │   └── quick-blog/
-│   │       └── SKILL.md
+│   │   ├── quick-blog/
+│   │   │   └── SKILL.md
+│   │   └── quick-test/
+│   │       ├── SKILL.md
+│   │       └── test.mjs
 │   └── opencode.json
 ├── Images/
 │   ├── Graphics/
