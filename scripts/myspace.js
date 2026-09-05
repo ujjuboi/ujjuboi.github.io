@@ -1,7 +1,7 @@
 /**
- * In-memory cache TTL (30 minutes) for external API responses.
+ * Cache TTL (6 hours) for external API responses.
  */
-const CACHE_TTL = 30 * 60 * 1000;
+const CACHE_TTL = 6 * 60 * 60 * 1000;
 
 /**
  * Renders the LeetCode activity bar chart into the submissions card.
@@ -196,22 +196,32 @@ async function fetchRecentSubmissions() {
 
 /**
  * Fetches JSON with a localStorage cache, storing each URL for CACHE_TTL milliseconds.
+ * On network or rate-limit failure, falls back to the last cached copy so widgets
+ * still render instead of showing error states.
  *
  * @param {string} url Endpoint to fetch.
- * @returns {Promise<Object>} The parsed JSON response.
+ * @returns {Promise<Object>} The parsed JSON response (fresh or stale).
  */
 async function cachedFetch(url) {
   const cacheKey = 'gh_cache_' + url;
   const cached = localStorage.getItem(cacheKey);
+  let staleData = null;
   if (cached) {
-    const { data, ts } = JSON.parse(cached);
-    if (Date.now() - ts < CACHE_TTL) return data;
+    const parsed = JSON.parse(cached);
+    staleData = parsed.data;
+    if (Date.now() - parsed.ts < CACHE_TTL) return parsed.data;
   }
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json();
-  localStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() }));
-  return data;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    localStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() }));
+    return data;
+  } catch (error) {
+    if (staleData !== null) return staleData;
+    throw error;
+  }
 }
 
 /**
