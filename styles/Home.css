@@ -121,6 +121,7 @@ section #hero #signature{
   fill: var(--backgroundColor);
   height: 20rem;
   width: 28rem;
+  margin-top: 0rem;
 }
 
 section #hero #signature path{
@@ -150,6 +151,7 @@ footer {
   display: -ms-flexbox;
   display: flex;
   width: 90%;
+  margin-top: 4rem;
   -webkit-box-pack: space-evenly;
       -ms-flex-pack: space-evenly;
           justify-content: space-evenly;
