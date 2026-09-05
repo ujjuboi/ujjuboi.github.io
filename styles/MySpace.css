@@ -573,6 +573,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
   gap: 1.25rem;
+  align-items: start;
 }
 
 .book-card {
@@ -600,7 +601,6 @@
 .book-banner-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 2 / 3;
 }
 
 .book-banner-wrap::after {
@@ -619,8 +619,7 @@
 
 .book-banner {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   display: block;
 }
 
@@ -630,12 +629,17 @@
   right: 0.6rem;
   z-index: 2;
   font-size: 0.75rem;
-  background-color: var(--shadowColor);
-  color: var(--backgroundColor);
+  background-color: var(--backgroundColor);
+  color: var(--shadowColor);
   padding: 0.25rem 0.6rem;
   border-radius: 0.3rem;
   font-family: var(--poppins);
   border: 0.1rem solid var(--borderColor);
+}
+
+.book-card:hover .book-status {
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
 }
 
 .book-progress {

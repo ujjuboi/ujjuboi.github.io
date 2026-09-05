@@ -567,9 +567,23 @@ async function loadBooks() {
 }
 
 /**
+ * Sorts the books by status: Currently Reading, then Interested, then Read.
+ * Items within the same status keep their current (manifest) order.
+ */
+function sortBooksByStatus() {
+  const order = { 'Currently Reading': 0, 'Interested': 1, 'Read': 2 };
+  books.sort((a, b) => {
+    const ai = order[a.status] !== undefined ? order[a.status] : 2;
+    const bi = order[b.status] !== undefined ? order[b.status] : 2;
+    return ai - bi;
+  });
+}
+
+/**
  * Renders the list of book cards into the books grid.
  */
 function renderBooks() {
+  sortBooksByStatus();
   const container = document.getElementById('books-grid');
   container.innerHTML = '';
 
