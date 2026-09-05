@@ -7,14 +7,14 @@
 
 #resume-header h1 {
   font-family: var(--headings);
-  font-size: 3rem;
+  font-size: var(--text-5xl);
   color: var(--borderColor);
   margin-bottom: 1%;
   animation: fadeIn ease 0.8s;
 }
 
 .resume-contact {
-  font-size: 1rem;
+  font-size: var(--text-base);
   color: var(--shadowColor);
   line-height: 1.8;
 }
@@ -73,13 +73,13 @@
 
 .job h3 {
   font-family: var(--headings);
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   color: var(--borderColor);
   margin-bottom: 0.3%;
 }
 
 .job h4 {
-  font-size: 1.05rem;
+  font-size: var(--text-base);
   color: var(--shadowColor);
   font-weight: normal;
   margin-bottom: 0.3%;
@@ -87,7 +87,7 @@
 }
 
 .job-date {
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   color: var(--shadowColor);
   margin-bottom: 1.5% !important;
 }
@@ -115,13 +115,13 @@
 
 .job ul ul li {
   margin-bottom: 0.8%;
-  font-size: 0.95em;
+  font-size: var(--text-sm);
 }
 
 .job .resume-subheading {
   list-style: none;
   font-family: var(--headings);
-  font-size: 1.05rem;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--borderColor);
   text-transform: uppercase;
@@ -154,13 +154,13 @@
 
 .project h3 {
   font-family: var(--headings);
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   color: var(--borderColor);
   margin-bottom: 0.5%;
 }
 
 .project-tag {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   background-color: var(--shadowColor);
   color: var(--backgroundColor);
   padding: 0.2% 0.8%;
@@ -172,7 +172,7 @@
 
 .education h3 {
   font-family: var(--headings);
-  font-size: 1.2rem;
+  font-size: var(--text-xl);
   color: var(--borderColor);
   margin-bottom: 0.3%;
 }
@@ -189,7 +189,7 @@
 
 .skill-category h3 {
   font-family: var(--headings);
-  font-size: 1.1rem;
+  font-size: var(--text-lg);
   color: var(--borderColor);
   margin-bottom: 1.5%;
   padding-bottom: 0.5%;
@@ -207,7 +207,7 @@
   padding: 0.4rem 0.8rem;
   border-radius: 0.3rem;
   border: 0.1rem solid var(--borderColor);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   transition: all 0.2s ease;
   cursor: default;
   box-shadow: 0.15rem 0.15rem var(--shadowColor);
@@ -222,15 +222,15 @@
 
 @media (max-width: 720px) {
   #resume-header h1 {
-    font-size: 2rem;
+    font-size: var(--text-3xl);
   }
 
   .resume-contact {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
   }
 
   .section-heading {
-    font-size: 1.2rem;
+    font-size: var(--text-lg);
     padding: 2% 3%;
   }
 
@@ -239,15 +239,15 @@
   }
 
   .job h3 {
-    font-size: 1rem;
+    font-size: var(--text-base);
   }
 
   .job h4 {
-    font-size: 0.9rem;
+    font-size: var(--text-sm);
   }
 
   .job li {
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
   }
 
   .skills-grid {
@@ -255,7 +255,7 @@
   }
 
   .skill-item {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     padding: 0.3rem 0.6rem;
   }
 }
