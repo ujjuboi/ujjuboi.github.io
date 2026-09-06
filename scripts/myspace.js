@@ -4,10 +4,26 @@
 const CACHE_TTL = 6 * 60 * 60 * 1000;
 
 /**
+ * Candidate repos for the "Currently Working On" section.
+ * The first repo that loads successfully is displayed.
+ */
+const currentProjectRepos = ['ujjuboi/jobhunt'];
+
+/**
+ * How many trailing months of commit activity the chart shows.
+ */
+const commitChartMonths = 6;
+
+/**
+ * Month names used for chart axis and tooltip labels.
+ */
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
  * MySpace sections, shown as collapsible blocks in order.
  * The first section starts expanded; the rest start collapsed.
  */
-const categories = ['Currently Studying', 'Currently Working On', 'GitHub Repositories', 'LeetCode Progress', 'My Library'];
+const categories = ['Currently Studying', 'Currently Working On', 'LeetCode Progress', 'My Library'];
 
 /**
  * Staged section content for each category, populated by stageSections().
@@ -26,7 +42,6 @@ const sectionInstances = {};
 function stageSections() {
   sections.push({ category: 'Currently Studying', full: true, content: buildStudySection() });
   sections.push({ category: 'Currently Working On', content: buildActivitySection() });
-  sections.push({ category: 'GitHub Repositories', content: buildGitHubSection() });
   sections.push({ category: 'LeetCode Progress', content: buildLeetCodeSection() });
   sections.push({ category: 'My Library', full: true, content: buildBooksSection() });
 }
@@ -60,43 +75,41 @@ function buildStudySection() {
 }
 
 /**
- * Builds the recent-activity section's widget markup.
+ * Builds the currently-working-on section's widget markup.
  *
  * @returns {string} Inner HTML for the section content.
  */
 function buildActivitySection() {
   return `
-<div id="activity-card" class="card">
-  <h3 class="card-title">
-    <span id="repo-name"></span>
-    <span class="myspace-tag">Commit</span>
-  </h3>
-  <p id="commit-message" class="card-excerpt"></p>
-  <a id="commit-link" class="card-link" href="#" target="_blank">View on GitHub →</a>
+<div class="loading-placeholder" id="project-loading">
+  Loading latest project<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
 </div>
-<div id="issues-grid" class="post-grid"></div>
-<div class="loading-placeholder" id="issues-loading" style="display: none;">
-  Loading open issues and PRs<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
-</div>
-<div id="activity-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
-  Unable to fetch recent activity
-</div>`;
-}
-
-/**
- * Builds the GitHub repositories section's widget markup.
- *
- * @returns {string} Inner HTML for the section content.
- */
-function buildGitHubSection() {
-  return `
-<div id="github-repos-grid">
-  <div class="loading-placeholder" id="github-loading">
-    Fetching data<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+<div id="project-card" class="project-card card" style="display: none;">
+  <div class="project-banner-wrap">
+    <img id="project-banner" class="project-banner" alt="">
+    <div id="project-banner-fallback" class="project-banner-fallback"></div>
+  </div>
+  <div class="project-card-body">
+    <h3 class="card-title" id="project-title"></h3>
+    <p class="card-excerpt" id="project-excerpt"></p>
+    <a id="project-link" class="card-link" href="#" target="_blank" rel="noopener">View on GitHub →</a>
   </div>
 </div>
-<div id="github-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
-  Unable to fetch GitHub repos
+<div id="project-fallback" class="myspace-fallback" style="display: none;">
+  Unable to fetch the current project
+</div>
+<div id="commit-card" class="card" style="display: none;">
+  <h3 class="card-title">Commit Activity</h3>
+  <p class="card-subtitle" id="commit-subtitle"></p>
+  <div class="lc-activity" id="commit-activity">
+    <div class="lc-activity-state lc-loading">
+      <span class="lc-spinner"></span>
+      <span>Loading commit history<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span></span>
+    </div>
+  </div>
+</div>
+<div id="commit-fallback" class="myspace-fallback" style="display: none;">
+  Unable to fetch commit history
 </div>`;
 }
 
@@ -241,8 +254,6 @@ function renderLeetCodeActivity(submissionCalendar) {
 
   const card = document.getElementById('lc-submissions-card');
   if (card) card.style.display = 'block';
-
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   const monthMap = new Map();
   days.forEach(day => {
@@ -444,105 +455,357 @@ async function cachedFetch(url) {
 }
 
 /**
- * Fetches and renders the user's most recently updated GitHub repositories.
+ * Extracts the project title from the first top-level heading in a README.
+ *
+ * @param {string} readmeText Raw README markdown source.
+ * @param {string} fallbackName Repo name used when no heading is present.
+ * @returns {string} The project display title.
  */
-async function fetchGitHubStats() {
+function parseProjectTitle(readmeText, fallbackName) {
+  const heading = readmeText.match(/^\s*#\s+(.+?)\s*$/m);
+  return heading ? heading[1].trim() : fallbackName;
+}
+
+/**
+ * Extracts the first non-heading paragraph from a README as an excerpt.
+ *
+ * @param {string} readmeText Raw README markdown source.
+ * @returns {string} The cleanly stripped project excerpt text.
+ */
+function parseProjectExcerpt(readmeText) {
+  const lines = readmeText.split('\n');
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (trimmed.startsWith('#') || trimmed.startsWith('!') || trimmed.startsWith('-') || trimmed.startsWith('* ') || trimmed.startsWith('>') || trimmed.startsWith('```')) continue;
+    if (trimmed.startsWith('[![')) continue;
+    if (trimmed.length < 12) continue;
+    const excerpt = trimmed
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/[`*_~]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!excerpt) continue;
+    return excerpt.length > 160 ? excerpt.slice(0, 157) + '...' : excerpt;
+  }
+  return '';
+}
+
+/**
+ * Extracts the first image URL from a README, resolving relative paths
+ * against the repo's raw content base.
+ *
+ * @param {string} readmeText Raw README markdown source.
+ * @param {string} repoFullName Owner/repo identifier.
+ * @param {string} branch Default branch used to resolve relative paths.
+ * @returns {string|null} Absolute image URL, or null when the README has none.
+ */
+function parseProjectBanner(readmeText, repoFullName, branch) {
+  const markdownImage = readmeText.match(/!\[[^\]]*\]\(([^)]+)\)/);
+  let source = markdownImage ? markdownImage[1] : null;
+  if (!source) {
+    const imageTag = readmeText.match(/<img[^>]+src=["']([^"']+)["']/i);
+    source = imageTag ? imageTag[1] : null;
+  }
+  if (!source) return null;
+  if (source.startsWith('http') || source.startsWith('data:')) return source;
+  const rawBase = 'https://raw.githubusercontent.com/' + repoFullName + '/' + branch + '/';
+  return rawBase + source.replace(/^\/+/, '');
+}
+
+/**
+ * Renders the project banner image, showing the themed placeholder when
+ * the README has no usable image.
+ *
+ * @param {Object} repo Repo object from the GitHub API.
+ * @param {string} repoFullName Owner/repo identifier.
+ * @param {string} readmeText Raw README markdown source.
+ * @param {string} branch Default branch used to resolve image paths.
+ */
+function renderProjectBanner(repo, repoFullName, readmeText, branch) {
+  const image = document.getElementById('project-banner');
+  const placeholder = document.getElementById('project-banner-fallback');
+  placeholder.textContent = repo.name;
+
+  image.style.display = 'none';
+  placeholder.style.display = 'flex';
+
+  const bannerUrl = parseProjectBanner(readmeText, repoFullName, branch);
+  if (!bannerUrl) return;
+
+  image.addEventListener('load', () => {
+    image.style.display = 'block';
+    placeholder.style.display = 'none';
+  });
+  image.addEventListener('error', () => {
+    image.style.display = 'none';
+    placeholder.style.display = 'flex';
+  });
+  image.src = bannerUrl;
+  image.alt = repo.name + ' banner';
+}
+
+/**
+ * Renders the commit chart caption, polyline, points, and month labels.
+ *
+ * @param {Object[]} commits Raw commit objects from the GitHub API.
+ */
+function renderCommitChart(commits) {
+  const container = document.getElementById('commit-activity');
+  if (!container) return;
+
+  const monthTotals = new Map();
+  let lastMonthKey = null;
+  commits.forEach(commit => {
+    const date = commit && commit.commit && commit.commit.author && commit.commit.author.date;
+    if (!date) return;
+    const key = date.slice(0, 7);
+    monthTotals.set(key, (monthTotals.get(key) || 0) + 1);
+    if (!lastMonthKey || key > lastMonthKey) lastMonthKey = key;
+  });
+
+  if (!lastMonthKey) {
+    container.innerHTML = '<div class="lc-activity-state lc-error" role="alert"><span class="lc-error-icon">!</span><span class="lc-error-text">No commit activity found.</span></div>';
+    return;
+  }
+
+  const endYear = Number(lastMonthKey.slice(0, 4));
+  const endMonthIndex = Number(lastMonthKey.slice(5, 7)) - 1;
+
+  const chartMonths = [];
+  for (let offset = commitChartMonths - 1; offset >= 0; offset--) {
+    const date = new Date(endYear, endMonthIndex - offset, 1);
+    const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+    chartMonths.push({ key, count: monthTotals.get(key) || 0, date });
+  }
+
+  const total = chartMonths.reduce((sum, month) => sum + month.count, 0);
+  if (total === 0) {
+    container.innerHTML = '<div class="lc-activity-state" role="status"><span class="lc-error-text">No commit activity in the recent months.</span></div>';
+    return;
+  }
+  const maxCount = Math.max(...chartMonths.map(month => month.count), 1);
+
+  const viewBoxWidth = 500;
+  const viewBoxHeight = 200;
+  const baselineY = 185;
+  const topY = 12;
+  const pointCount = chartMonths.length;
+  const xAt = index => ((index + 0.5) / pointCount) * viewBoxWidth;
+  const yAt = count => baselineY - (count / maxCount) * (baselineY - topY);
+
+  const chartPoints = chartMonths.map((month, index) => ({ x: xAt(index), y: yAt(month.count), month }));
+  const polylinePoints = chartPoints.map(point => point.x.toFixed(1) + ',' + point.y.toFixed(1)).join(' ');
+
+  const pointMarkup = chartPoints.map((point, index) => {
+    const isEmpty = point.month.count === 0;
+    const isEdge = index === 0 || index === pointCount - 1;
+    const className = 'commit-point' + (isEmpty ? ' commit-point--empty' : '') + (isEdge ? ' commit-point--edge' : '');
+    return `<circle class="${className}" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4"></circle>`;
+  }).join('');
+
+  const rangeStart = chartMonths[0].date;
+  const rangeEnd = chartMonths[pointCount - 1].date;
+  const rangeLabel = monthNames[rangeStart.getMonth()] + ' ' + rangeStart.getFullYear() + ' \u2013 ' + monthNames[rangeEnd.getMonth()] + ' ' + rangeEnd.getFullYear();
+
+  container.innerHTML = `
+    <div class="commit-activity-chart">
+      <div class="lc-yaxis">
+        <span class="lc-axis-label lc-axis-label-y">Commits</span>
+      </div>
+      <div class="commit-plot">
+        <div class="lc-total">${total} commits \u00b7 ${rangeLabel}</div>
+        <div class="commit-chart-wrap">
+          <svg class="commit-chart-svg" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" role="img" aria-label="Commits per month">
+            <line class="commit-baseline" x1="${xAt(0)}" y1="${baselineY}" x2="${xAt(pointCount - 1)}" y2="${baselineY}"></line>
+            <polyline class="commit-line" points="${polylinePoints}"></polyline>
+            ${pointMarkup}
+          </svg>
+          <div class="commit-labels">${chartMonths.map(month => `<span class="commit-label">${monthNames[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}</span>`).join('')}</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const tooltip = new Tooltip();
+  container.querySelectorAll('.commit-point').forEach((point, index) => {
+    tooltip.attach(point, buildCommitTooltip(chartPoints[index].month, total));
+  });
+}
+
+/**
+ * Builds the tooltip markup for one month in the commit chart.
+ *
+ * @param {Object} month Chart month with count and date.
+ * @param {number} totalCount Total commits across the shown window.
+ * @returns {string} Inner HTML for the tooltip.
+ */
+function buildCommitTooltip(month, totalCount) {
+  const label = monthNames[month.date.getMonth()] + ' ' + month.date.getFullYear();
+  const filledPct = totalCount > 0 ? Math.round((month.count / totalCount) * 100) : 0;
+  return `
+    <span class="lc-tooltip-date">${label}</span>
+    <span class="lc-tooltip-count">${month.count} commit${month.count === 1 ? '' : 's'}</span>
+    <span class="lc-tooltip-meter"><span style="width:${filledPct}%"></span></span>
+    <span class="lc-tooltip-max"><em>${filledPct}%</em> of recent commits</span>`;
+}
+
+/**
+ * Reads the author date from a commit search result item.
+ *
+ * @param {Object} commitItem A single commit search result item.
+ * @returns {string|null} ISO author date, or null when absent.
+ */
+function getCommitAuthorDate(commitItem) {
+  const date = commitItem && commitItem.commit && commitItem.commit.author && commitItem.commit.author.date;
+  return date || null;
+}
+
+/**
+ * Offsets a YYYY-MM month key by a number of months (negative for past months).
+ *
+ * @param {string} monthKey The YYYY-MM key to offset.
+ * @param {number} monthOffset Signed number of months to shift.
+ * @returns {string} The shifted YYYY-MM key.
+ */
+function offsetMonthKey(monthKey, monthOffset) {
+  const [year, month] = monthKey.split('-').map(Number);
+  const date = new Date(year, month - 1 + monthOffset, 1);
+  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+}
+
+/**
+ * Tells whether the collected commits already span the chart's trailing
+ * window, so no further result pages are needed.
+ *
+ * @param {Object[]} commits Collected commits, newest first.
+ * @param {string} windowStartKey The earliest YYYY-MM key the chart shows.
+ * @returns {boolean} True when the oldest commit predates the window start.
+ */
+function commitsCoverChartWindow(commits, windowStartKey) {
+  const oldestDate = getCommitAuthorDate(commits[commits.length - 1]);
+  if (!oldestDate) return true;
+  return oldestDate.slice(0, 7) <= windowStartKey;
+}
+
+/**
+ * Fetches a single repository's commit history via the GitHub commits
+ * API, walking result pages (newest first) only until the accumulated
+ * commits cover the chart's trailing window. The endpoint returns every
+ * commit on the repo, regardless of author. A single failed continuation
+ * page is treated as the end of history so partial data still renders
+ * instead of dropping to the fallback.
+ *
+ * @param {string} repoFullName Owner/repo identifier whose commits to chart.
+ * @returns {Promise<Object[]>} Flat list of unique commit objects, newest first.
+ */
+async function fetchCommitHistory(repoFullName) {
+  const commits = [];
+  const seenShas = new Set();
+  let chartWindowStartKey = null;
+
+  for (let page = 1; page <= 5; page++) {
+    if (chartWindowStartKey && commitsCoverChartWindow(commits, chartWindowStartKey)) {
+      break;
+    }
+    let data = null;
+    try {
+      data = await cachedFetch('https://api.github.com/repos/' + repoFullName + '/commits?per_page=100&page=' + page);
+    } catch (error) {
+      if (commits.length === 0) throw error;
+      console.error('Commit history page error:', error);
+      break;
+    }
+    if (!Array.isArray(data) || data.length === 0) break;
+    if (!chartWindowStartKey) {
+      const latestDate = getCommitAuthorDate(data[0]);
+      if (latestDate) {
+        chartWindowStartKey = offsetMonthKey(latestDate.slice(0, 7), -(commitChartMonths - 1));
+      }
+    }
+    data.forEach(commit => {
+      if (!seenShas.has(commit.sha)) {
+        seenShas.add(commit.sha);
+        commits.push(commit);
+      }
+    });
+    commits.sort((firstCommit, secondCommit) => {
+      const firstDate = getCommitAuthorDate(firstCommit) || '';
+      const secondDate = getCommitAuthorDate(secondCommit) || '';
+      return secondDate.localeCompare(firstDate);
+    });
+    if (data.length < 100) break;
+  }
+  if (commits.length === 0) throw new Error('No commits');
+  return commits;
+}
+
+/**
+ * Loads and renders the commit line chart for a single repo into the commit card.
+ *
+ * @param {string} repoFullName Owner/repo identifier whose commits to chart.
+ */
+async function renderCommitCard(repoFullName) {
   try {
-    const repos = await cachedFetch('https://api.github.com/users/ujjuboi/repos?sort=updated&per_page=6');
-    if (!Array.isArray(repos) || repos.length === 0) throw new Error('No repos');
+    const commits = await fetchCommitHistory(repoFullName);
+    renderCommitChart(commits);
+    document.getElementById('commit-subtitle').textContent = repoFullName;
+    document.getElementById('commit-card').style.display = '';
+    document.getElementById('commit-fallback').style.display = 'none';
+  } catch (error) {
+    console.error('Commit history error:', error);
+    document.getElementById('commit-card').style.display = 'none';
+    document.getElementById('commit-fallback').style.display = 'block';
+  }
+}
 
-    const grid = document.getElementById('github-repos-grid');
+/**
+ * Hides the loading and content states, showing the section fallback.
+ */
+function showCurrentProjectFallback() {
+  document.getElementById('project-loading').style.display = 'none';
+  document.getElementById('project-card').style.display = 'none';
+  document.getElementById('commit-card').style.display = 'none';
+  document.getElementById('project-fallback').style.display = 'block';
+}
 
-    /**
-     * Builds one repository card, preferring its README's first paragraph as the description.
-     *
-     * @param {Object} repo Repository object from the GitHub API.
-     * @returns {Promise<HTMLElement>} The completed card element.
-     */
-    const buildCard = async (repo) => {
-      let description = repo.description || '';
+/**
+ * Fetches the featured project's repo, README metadata, and commit chart.
+ * Tries each candidate repo until one loads successfully.
+ */
+async function fetchCurrentProject() {
+  for (const repoFullName of currentProjectRepos) {
+    try {
+      const repo = await cachedFetch(`https://api.github.com/repos/${repoFullName}`);
+      if (!repo || !repo.name) throw new Error('Repo not found');
+      const branch = repo.default_branch || 'main';
+
+      let readmeText = '';
       try {
-        const readmeData = await cachedFetch(`https://api.github.com/repos/ujjuboi/${repo.name}/readme`);
-        const decoded = atob(readmeData.content);
-        const lines = decoded.split('\n').filter(line => line.trim());
-        const firstParagraph = lines.find(line => !line.startsWith('#') && !line.startsWith('!') && !line.startsWith('[') && line.length > 10);
-        if (firstParagraph) description = firstParagraph.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
-      } catch (error) { /* use repo description as fallback */ }
+        const readmeData = await cachedFetch(`https://api.github.com/repos/${repoFullName}/readme`);
+        if (readmeData && readmeData.content) {
+          const readmeBytes = Uint8Array.from(atob(readmeData.content), character => character.charCodeAt(0));
+          readmeText = new TextDecoder('utf-8').decode(readmeBytes).replace(/\r\n/g, '\n');
+        }
+      } catch (error) {
+        readmeText = '';
+      }
 
-      if (description.length > 120) description = description.slice(0, 117) + '...';
+      document.getElementById('project-loading').style.display = 'none';
+      document.getElementById('project-card').style.display = '';
+      document.getElementById('project-title').textContent = parseProjectTitle(readmeText, repo.name);
+      document.getElementById('project-excerpt').textContent = parseProjectExcerpt(readmeText) || (repo.description || '');
+      document.getElementById('project-link').href = repo.html_url;
+      renderProjectBanner(repo, repoFullName, readmeText, branch);
 
-      const card = document.createElement('a');
-      card.className = 'repo-card card';
-      card.href = repo.html_url;
-      card.target = '_blank';
-      card.innerHTML = `
-        <h3 class="repo-card-name">${repo.name}</h3>
-        <p class="repo-card-desc">${description || 'No description available.'}</p>
-        <span class="repo-card-lang">${repo.language || ''}</span>
-      `;
-      return card;
-    };
-
-    const cards = await Promise.all(repos.map(buildCard));
-
-    cards.forEach(card => grid.appendChild(card));
-    document.getElementById('github-loading').style.display = 'none';
-  } catch (error) {
-    console.error('GitHub stats error:', error);
-    document.getElementById('github-loading').style.display = 'none';
-    document.getElementById('github-repos-grid').style.display = 'none';
-    document.getElementById('github-fallback').style.display = 'block';
-  }
-}
-
-/**
- * Whether recent-activity widgets have loaded data successfully.
- */
-let recentActivityOk = false;
-let gitHubIssuesOk = false;
-
-/**
- * Shows the activity fallback message only when every activity widget failed.
- */
-function syncActivityFallback() {
-  const fallback = document.getElementById('activity-fallback');
-  if (!recentActivityOk && !gitHubIssuesOk) {
-    fallback.style.display = 'block';
-  } else {
-    fallback.style.display = 'none';
-  }
-}
-
-/**
- * Fetches the most recent commit authored by the user and displays it as the current activity.
- */
-async function fetchRecentActivity() {
-  try {
-    const repos = await cachedFetch('https://api.github.com/users/ujjuboi/repos?sort=updated&per_page=1');
-    if (repos.length === 0) {
-      syncActivityFallback();
+      await renderCommitCard(repoFullName);
+      document.getElementById('project-fallback').style.display = 'none';
       return;
+    } catch (error) {
+      console.error('Current project error:', error);
     }
-
-    const latestRepo = repos[0];
-    const commits = await cachedFetch(`https://api.github.com/repos/ujjuboi/${latestRepo.name}/commits?per_page=10`);
-    const userCommit = commits.find(commit => commit.author && commit.author.login === 'ujjuboi');
-    if (!userCommit) {
-      syncActivityFallback();
-      return;
-    }
-
-    const commit = userCommit;
-    document.getElementById('repo-name').textContent = latestRepo.name;
-    document.getElementById('commit-message').textContent = commit.commit.message;
-    document.getElementById('commit-link').href = commit.html_url;
-    document.getElementById('activity-card').style.display = 'block';
-    recentActivityOk = true;
-    syncActivityFallback();
-  } catch (error) {
-    console.error('Recent activity error:', error);
-    syncActivityFallback();
   }
+  showCurrentProjectFallback();
 }
 
 /**
@@ -574,74 +837,6 @@ async function fetchLeetCodeStats() {
     document.getElementById('leetcode-loading').style.display = 'none';
     document.getElementById('leetcode-content').style.display = 'none';
     document.getElementById('lc-fallback').style.display = 'block';
-  }
-}
-
-
-
-/**
- * Fetches and renders the user's open issues and pull requests.
- */
-async function fetchGitHubIssues() {
-  try {
-    const data = await cachedFetch('https://api.github.com/search/issues?q=author:ujjuboi+state:open&sort=created&order=desc&per_page=10');
-    const items = data && Array.isArray(data.items) ? data.items : null;
-    if (!items || items.length === 0) throw new Error('No open issues');
-
-    const grid = document.getElementById('issues-grid');
-    document.getElementById('issues-loading').style.display = '';
-
-    const cards = items.slice(0, 6).map((item) => {
-      const isPullRequest = item.pull_request !== undefined;
-      const repoName = (item.repository_url || '').replace('https://api.github.com/repos/', '');
-      const card = document.createElement('a');
-      card.className = 'post-card card';
-      card.href = item.html_url;
-      card.target = '_blank';
-      const tag = isPullRequest ? 'PR' : 'Issue';
-      const created = new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-      const title = document.createElement('h3');
-      title.className = 'card-title';
-      const tagSpan = document.createElement('span');
-      tagSpan.className = 'myspace-tag';
-      tagSpan.textContent = tag;
-      const titleText = document.createElement('span');
-      titleText.textContent = item.title;
-      title.appendChild(titleText);
-      title.appendChild(tagSpan);
-
-      const date = document.createElement('p');
-      date.className = 'card-date';
-      date.textContent = `${repoName} · ${created}`;
-
-      let excerpt = (item.body || '').replace(/[#*`>\[\]()!-]/g, ' ').replace(/\s+/g, ' ').trim();
-      if (excerpt.length > 120) excerpt = excerpt.slice(0, 117) + '...';
-      const excerptParagraph = document.createElement('p');
-      excerptParagraph.className = 'card-excerpt';
-      excerptParagraph.textContent = excerpt;
-
-      const link = document.createElement('span');
-      link.className = 'card-link';
-      link.textContent = 'View on GitHub →';
-
-      card.appendChild(title);
-      card.appendChild(date);
-      card.appendChild(excerptParagraph);
-      card.appendChild(link);
-      return card;
-    });
-
-    grid.style.display = '';
-    cards.forEach(card => grid.appendChild(card));
-    document.getElementById('issues-loading').style.display = 'none';
-    gitHubIssuesOk = true;
-    syncActivityFallback();
-  } catch (error) {
-    console.error('GitHub issues error:', error);
-    document.getElementById('issues-loading').style.display = 'none';
-    document.getElementById('issues-grid').style.display = 'none';
-    syncActivityFallback();
   }
 }
 
@@ -803,7 +998,7 @@ function renderBooks() {
 
   books.forEach((book, index) => {
     const card = document.createElement('div');
-    card.className = 'book-card';
+    card.className = 'book-card card';
     card.onclick = () => showBook(index);
 
     const statusBadge = book.status === 'Read'
@@ -1371,10 +1566,8 @@ function initStudyDrawerHandlers() {
 
 stageSections();
 renderMyspaceSections();
-fetchGitHubStats();
-fetchRecentActivity();
+fetchCurrentProject();
 fetchLeetCodeStats();
-fetchGitHubIssues();
 
 Promise.all([loadBooks(), loadStudyPlans()]).then(() => {
   renderBooks();
