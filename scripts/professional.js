@@ -555,32 +555,40 @@ function registerSectionFolder(name, sectionEl, tabRefs) {
 }
 
 /**
- * Renders the full professional page from parsed CV data.
- *
- * @param {Object} data Structured CV from parseCV().
+ * Professional sections, rendered as sidebar folders in display order. Each
+ * entry maps its folder label to the parsed-CV key and the renderer that
+ * builds the panel content.
  */
-function renderProfessional(data) {
+const sections = [
+  { label: 'Experience', key: 'experience', render: renderExperience },
+  { label: 'Projects', key: 'projects', render: renderProjects },
+  { label: 'Skills', key: 'skills', render: renderSkills }
+];
+
+/**
+ * Parsed CV content staged from the `src/cv.md` manifest.
+ */
+const cvData = {};
+
+/**
+ * Renders the full professional page from the staged CV data, building one
+ * editor folder per configured section.
+ */
+function renderProfessional() {
   const container = document.getElementById('pro-container');
   container.innerHTML = '';
 
   setupEditorWindow();
 
-  const exp = renderExperience(data.experience);
-  const expSection = renderSection('Experience', exp.wrapper);
-  editorWindow.main.appendChild(expSection);
-  registerSectionFolder('Experience', expSection, exp.tabRefs);
+  sections.forEach(section => {
+    const built = section.render(cvData[section.key]);
+    const sectionEl = renderSection(section.label, built.wrapper);
+    editorWindow.main.appendChild(sectionEl);
+    registerSectionFolder(section.label, sectionEl, built.tabRefs);
+  });
 
-  const projects = renderProjects(data.projects);
-  const projectsSection = renderSection('Projects', projects.wrapper);
-  editorWindow.main.appendChild(projectsSection);
-  registerSectionFolder('Projects', projectsSection, projects.tabRefs);
-
-  const skills = renderSkills(data.skills);
-  const skillsSection = renderSection('Skills', skills.wrapper);
-  editorWindow.main.appendChild(skillsSection);
-  registerSectionFolder('Skills', skillsSection, skills.tabRefs);
-
-  activateSection(expSection, exp.tabRefs[0] && exp.tabRefs[0].item);
+  const first = editorWindow.entries[0];
+  activateSection(editorWindow.main.querySelector('.pro-section'), first && first.item);
 
   setupModebarPlacement();
 }
@@ -1283,39 +1291,15 @@ let editorWindow = null;
 let MOBILE_MQ = null;
 
 /**
- * Loads and renders the CV into the professional editor layout.
+ * Loads `src/cv.md`, parses it into the staged CV content, then rethrows on
+ * failure so the bootstrap render is skipped.
  */
-function loadCV() {
+async function loadCV() {
   showLoading();
-  fetch('../../src/cv.md')
-    .then(/**
-     * Validates the fetch response and returns the CV text.
-     *
-     * @param {Response} res Fetch response.
-     * @returns {Promise<string>} The CV markdown text.
-     */
-    res => {
-      if (!res.ok) throw new Error('Failed to fetch CV');
-      return res.text();
-    })
-    .then(/**
-     * Parses the CV text and renders the professional page.
-     *
-     * @param {string} text Raw CV markdown.
-     */
-    text => {
-      const data = parseCV(text);
-      renderProfessional(data);
-    })
-    .catch(/**
-     * Logs the failure and shows the error state.
-     *
-     * @param {Error} e The fetch or parse error.
-     */
-    e => {
-      console.error('Error loading CV:', e);
-      showError('Failed to load CV data.');
-    });
+  const res = await fetch('../../src/cv.md');
+  if (!res.ok) throw new Error('Failed to fetch CV');
+  const text = await res.text();
+  Object.assign(cvData, parseCV(text));
 }
 
 MOBILE_MQ = window.matchMedia('(max-width: 720px)');
@@ -1335,7 +1319,18 @@ if (MOBILE_MQ.addEventListener) {
   });
 }
 
-loadCV();
+/**
+ * Loads the CV manifest, then renders the professional editor layout.
+ */
+loadCV().then(renderProfessional).catch(/**
+ * Logs the load failure and shows the error state.
+ *
+ * @param {Error} e The fetch or parse error.
+ */
+e => {
+  console.error('Error loading CV:', e);
+  showError('Failed to load CV data.');
+});
 
 /**
  * Injects the profile strips and launch button behavior once, at load time.
