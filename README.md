@@ -22,6 +22,12 @@ Making my own dynamic blogging website!
 │   │   ├── quick-blog/
 │   │   │   └── SKILL.md
 │   │   ├── quick-book/
+│   │   │   ├── scripts/
+│   │   │   │   ├── extract_epub.py
+│   │   │   │   ├── extract_mobi.py
+│   │   │   │   └── extract_pdf.py
+│   │   │   └── SKILL.md
+│   │   ├── quick-study-plan/
 │   │   │   └── SKILL.md
 │   │   └── quick-test/
 │   │       ├── SKILL.md
@@ -52,14 +58,15 @@ Making my own dynamic blogging website!
 │   │   └── SensorData.svg
 │   ├── application-code-svgrepo-com.svg
 │   ├── back-button-svgrepo-com.svg
+│   ├── book-svgrepo-com.svg
 │   ├── email 1.svg
 │   ├── folder-open-svgrepo-com.svg
 │   ├── folder-svgrepo-com.svg
 │   ├── github 1.svg
+│   ├── hero.jpeg
 │   ├── information-svgrepo-com.svg
 │   ├── linkedin 1.svg
 │   ├── Menu  1.svg
-│   ├── MyImage.jpg
 │   └── Signature 1.svg
 ├── pages/
 │   ├── Blog/
@@ -107,6 +114,7 @@ Making my own dynamic blogging website!
 │   │   ├── the-new-encyclopedia-of-modern-bodybuilding.md
 │   │   └── who-moved-my-cheese.md
 │   ├── StudyPlans/
+│   │   ├── claude-certified-developer-foundations.md
 │   │   ├── networking.md
 │   │   ├── plans.json
 │   │   └── template.md
@@ -128,10 +136,10 @@ Making my own dynamic blogging website!
 | Page | CSS files | JS files | Behavior |
 |---|---|---|---|
 | `index.html` | `styles.css` + `Home.css` | `shared.js`, `home.js` | Time-based greeting into `#salutation`; `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
-| `pages/Blog/Blog.html` | `styles.css` + `Home.css` + `Blog.css` | `shared.js`, `blog.js` | Renders posts from `posts.json` manifest; `renderBlogList()` grouped by category; `showPost()`/`showBlogList()` view-swap; `toggleBlogSection()` collapsible categories; `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
-| `pages/MySpace/MySpace.html` | `styles.css` + `Home.css` + `MySpace.css` | `shared.js`, `myspace.js` | `toggleSection()` collapsible sections (+/- icons); LeetCode stats via third-party API (`fetchLeetCodeStats()`); GitHub repos/stats via GitHub API (`fetchGitHubStats()`); Recent activity / commit via GitHub API (`fetchRecentActivity()`); `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
+| `pages/Blog/Blog.html` | `styles.css` + `Home.css` + `Blog.css` | `marked.min.js`, `shared.js`, `blog.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
+| `pages/MySpace/MySpace.html` | `styles.css` + `Home.css` + `MySpace.css` | `marked.min.js`, `shared.js`, `myspace.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
 | `pages/Professional/Professional.html` | `styles.css` + `Home.css` + `Professional.css` | `shared.js`, `professional.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
-| `pages/Resume/Resume.html` | `styles.css` + `Home.css` + `Resume.css` | `shared.js`, `resume.js` | `toggleSection()` collapsible sections (+/- icons); `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
+| `pages/Resume/Resume.html` | `styles.css` + `Home.css` + `Resume.css` | `marked.min.js`, `shared.js`, `resume.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
 
 ## Key details / conventions
 
@@ -144,10 +152,6 @@ Making my own dynamic blogging website!
 - **Unbuilt routes**: All nav routes are built
 - **Content source**: `src/cv.md` is the canonical CV text; `Resume.html` renders it via `scripts/resume.js`. `src/Blogs/posts.json` is the blog manifest (ordered list of `src/Blogs/*.md`); `Blog.html` renders via `scripts/blog.js`. Update the relevant source when content changes.
 - **Git**: Default branch is `main`; deploys straight from repo root to GitHub Pages. Keep everything relative-pathed (`./style.css`, `../../styles/common.css`), never absolute paths.
-
-## Latest Blog Post
-
-- **Scaling Identity Data Ingestion: MongoDB at Enterprise Scale** (Deloitte)
 
 ## When making changes
 
