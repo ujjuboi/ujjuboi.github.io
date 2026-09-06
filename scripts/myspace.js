@@ -7,7 +7,7 @@ const CACHE_TTL = 6 * 60 * 60 * 1000;
  * MySpace sections, shown as collapsible blocks in order.
  * The first section starts expanded; the rest start collapsed.
  */
-const categories = ['Currently Studying', 'Currently Working On', 'GitHub Repositories', 'LeetCode Progress', 'My Library'];
+const categories = ['Currently Studying', 'Currently Working On', 'LeetCode Progress', 'My Library'];
 
 /**
  * Staged section content for each category, populated by stageSections().
@@ -26,7 +26,6 @@ const sectionInstances = {};
 function stageSections() {
   sections.push({ category: 'Currently Studying', full: true, content: buildStudySection() });
   sections.push({ category: 'Currently Working On', content: buildActivitySection() });
-  sections.push({ category: 'GitHub Repositories', content: buildGitHubSection() });
   sections.push({ category: 'LeetCode Progress', content: buildLeetCodeSection() });
   sections.push({ category: 'My Library', full: true, content: buildBooksSection() });
 }
@@ -80,23 +79,6 @@ function buildActivitySection() {
 </div>
 <div id="activity-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
   Unable to fetch recent activity
-</div>`;
-}
-
-/**
- * Builds the GitHub repositories section's widget markup.
- *
- * @returns {string} Inner HTML for the section content.
- */
-function buildGitHubSection() {
-  return `
-<div id="github-repos-grid">
-  <div class="loading-placeholder" id="github-loading">
-    Fetching data<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
-  </div>
-</div>
-<div id="github-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
-  Unable to fetch GitHub repos
 </div>`;
 }
 
@@ -440,58 +422,6 @@ async function cachedFetch(url) {
   } catch (error) {
     if (staleData !== null) return staleData;
     throw error;
-  }
-}
-
-/**
- * Fetches and renders the user's most recently updated GitHub repositories.
- */
-async function fetchGitHubStats() {
-  try {
-    const repos = await cachedFetch('https://api.github.com/users/ujjuboi/repos?sort=updated&per_page=6');
-    if (!Array.isArray(repos) || repos.length === 0) throw new Error('No repos');
-
-    const grid = document.getElementById('github-repos-grid');
-
-    /**
-     * Builds one repository card, preferring its README's first paragraph as the description.
-     *
-     * @param {Object} repo Repository object from the GitHub API.
-     * @returns {Promise<HTMLElement>} The completed card element.
-     */
-    const buildCard = async (repo) => {
-      let description = repo.description || '';
-      try {
-        const readmeData = await cachedFetch(`https://api.github.com/repos/ujjuboi/${repo.name}/readme`);
-        const decoded = atob(readmeData.content);
-        const lines = decoded.split('\n').filter(line => line.trim());
-        const firstParagraph = lines.find(line => !line.startsWith('#') && !line.startsWith('!') && !line.startsWith('[') && line.length > 10);
-        if (firstParagraph) description = firstParagraph.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
-      } catch (error) { /* use repo description as fallback */ }
-
-      if (description.length > 120) description = description.slice(0, 117) + '...';
-
-      const card = document.createElement('a');
-      card.className = 'repo-card card';
-      card.href = repo.html_url;
-      card.target = '_blank';
-      card.innerHTML = `
-        <h3 class="repo-card-name">${repo.name}</h3>
-        <p class="repo-card-desc">${description || 'No description available.'}</p>
-        <span class="repo-card-lang">${repo.language || ''}</span>
-      `;
-      return card;
-    };
-
-    const cards = await Promise.all(repos.map(buildCard));
-
-    cards.forEach(card => grid.appendChild(card));
-    document.getElementById('github-loading').style.display = 'none';
-  } catch (error) {
-    console.error('GitHub stats error:', error);
-    document.getElementById('github-loading').style.display = 'none';
-    document.getElementById('github-repos-grid').style.display = 'none';
-    document.getElementById('github-fallback').style.display = 'block';
   }
 }
 
@@ -1371,7 +1301,6 @@ function initStudyDrawerHandlers() {
 
 stageSections();
 renderMyspaceSections();
-fetchGitHubStats();
 fetchRecentActivity();
 fetchLeetCodeStats();
 fetchGitHubIssues();

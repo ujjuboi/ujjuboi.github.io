@@ -17,12 +17,6 @@
   opacity: 0.8;
 }
 
-#github-repos-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
 .loading-placeholder {
   grid-column: 1 / -1;
   text-align: center;
@@ -53,38 +47,6 @@
 
 @keyframes fadeOut {
   to { opacity: 0; }
-}
-
-.repo-card {
-  padding: 1.2rem;
-  text-decoration: none;
-  display: block;
-}
-
-.repo-card:hover {
-  border-bottom: 0.2rem solid var(--borderColor);
-}
-
-.repo-card-name {
-  font-family: var(--headings);
-  color: var(--shadowColor);
-  font-size: var(--text-lg);
-  margin: 0 0 0.5rem 0;
-}
-
-.repo-card-desc {
-  font-size: var(--text-sm);
-  color: var(--borderColor);
-  line-height: 1.5;
-  margin: 0 0 0.6rem 0;
-  opacity: 0.9;
-}
-
-.repo-card-lang {
-  font-size: var(--text-xs);
-  color: var(--linkColor);
-  font-family: var(--headings);
-  opacity: 0.8;
 }
 
 .myspace-tag {
@@ -727,7 +689,6 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  #github-repos-grid,
   #issues-grid {
     display: flex;
     flex-direction: column;
