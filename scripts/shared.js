@@ -191,36 +191,63 @@ class Section {
 }
 
 /**
- * Extracts `## Key: value` front-matter from a markdown blog post.
+ * Extracts the `# title` and `**Key:** value` metadata from a markdown
+ * blog post.
  *
  * @param {string} text Raw markdown source.
- * @returns {Object} Map of lowercase front-matter keys to trimmed values.
+ * @returns {Object} Map of lowercase metadata keys to trimmed values.
  */
 function parsePostHeaders(text) {
   const meta = {};
-  for (const line of text.split('\n')) {
-    if (line.startsWith('## Paragraphs')) break;
-    const match = line.match(/^## (\w+):\s*(.+)/);
-    if (match) {
-      meta[match[1].toLowerCase()] = match[2].trim();
+  const lines = text.split('\n');
+  for (const line of lines) {
+    const titleMatch = line.match(/^# (.+)/);
+    if (titleMatch) {
+      meta.title = titleMatch[1].trim();
+      continue;
+    }
+    const kvMatch = line.match(/^\*\*(\w+):\*\*\s*(.+)/);
+    if (kvMatch) {
+      meta[kvMatch[1].toLowerCase()] = kvMatch[2].trim();
     }
   }
   return meta;
 }
 
 /**
- * Extracts the list of `- ` bullet paragraphs under `## Paragraphs`.
+ * Extracts body paragraphs from the markdown source. Skips the leading
+ * `# title` and `**Key:** Value` metadata lines; paragraphs are separated
+ * by blank lines.
  *
  * @param {string} text Raw markdown source.
- * @returns {string[]} Paragraph bodies, trimmed of the leading bullet marker.
+ * @returns {string[]} Paragraph bodies.
  */
 function parsePostBody(text) {
   const lines = text.split('\n');
-  const bodyStart = lines.findIndex(line => line.startsWith('## Paragraphs'));
-  if (bodyStart === -1) return [];
-  return lines.slice(bodyStart + 1)
-    .filter(line => line.startsWith('- '))
-    .map(line => line.slice(2).trim());
+  let bodyStart = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (trimmed === '' || trimmed.startsWith('# ') || trimmed.startsWith('**')) {
+      bodyStart = i + 1;
+    } else if (trimmed !== '') {
+      break;
+    }
+  }
+  const paragraphs = [];
+  let current = [];
+  for (let i = bodyStart; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (trimmed === '') {
+      if (current.length) {
+        paragraphs.push(current.join(' '));
+        current = [];
+      }
+    } else {
+      current.push(trimmed);
+    }
+  }
+  if (current.length) paragraphs.push(current.join(' '));
+  return paragraphs;
 }
 
 /**
