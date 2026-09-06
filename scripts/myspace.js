@@ -428,7 +428,8 @@ async function cachedFetch(url) {
   if (cached) {
     const parsed = JSON.parse(cached);
     staleData = parsed.data;
-    if (typeof parsed.cachedAt === 'number' && Date.now() - parsed.cachedAt < CACHE_TTL) return parsed.data;
+    const cachedAt = parsed.cachedAt !== undefined ? parsed.cachedAt : parsed.ts;
+    if (typeof cachedAt === 'number' && Date.now() - cachedAt < CACHE_TTL) return parsed.data;
   }
 
   try {

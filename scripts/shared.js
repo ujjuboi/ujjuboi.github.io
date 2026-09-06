@@ -375,9 +375,11 @@ function parsePostHeaders(text) {
 }
 
 /**
- * Extracts body paragraphs from the markdown source. Skips the leading
- * `# title` and `**Key:** Value` metadata lines; paragraphs are separated
- * by blank lines.
+ * Extracts body paragraphs from the markdown source. Scans the leading
+ * header block — the first `# title` line plus any `**Key:** value` (or
+ * legacy `## Key:` value) metadata lines — and starts the body at the
+ * first line that is neither part of the header nor blank; paragraphs are
+ * separated by blank lines.
  *
  * @param {string} text Raw markdown source.
  * @returns {string[]} Paragraph bodies.
@@ -385,13 +387,24 @@ function parsePostHeaders(text) {
 function parsePostBody(text) {
   const lines = text.split('\n');
   let bodyStart = 0;
+  let titleSeen = false;
   for (let index = 0; index < lines.length; index++) {
     const trimmed = lines[index].trim();
-    if (trimmed === '' || trimmed.startsWith('# ') || trimmed.startsWith('**')) {
+    if (trimmed === '') {
       bodyStart = index + 1;
-    } else if (trimmed !== '') {
-      break;
+      continue;
     }
+    if (!titleSeen && trimmed.startsWith('# ')) {
+      titleSeen = true;
+      bodyStart = index + 1;
+      continue;
+    }
+    const headerKeyMatch = trimmed.match(/^\*\*(\w+):\*\*|^## (\w+):/);
+    if (headerKeyMatch) {
+      bodyStart = index + 1;
+      continue;
+    }
+    break;
   }
   const paragraphs = [];
   let current = [];

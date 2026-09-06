@@ -221,12 +221,7 @@ function setupEditorWindow() {
     return dot;
   }
 
-  const redDot = makeBackDot('dot-red', 'Close and go back to mySpace', /**
-   * Navigates back to the portfolio index on red-dot click.
-   */
-  function () {
-    window.location.href = '../../index.html';
-  });
+  const redDot = makeBackDot('dot-red', 'Back to banner');
   const yellowDot = makeBackDot('dot-yellow', 'Back to banner');
 
   const greenDot = document.createElement('button');
