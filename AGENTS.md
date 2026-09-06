@@ -34,6 +34,7 @@ Static portfolio site. Plain HTML + external vanilla JS/CSS. **No build system, 
   function renderBlogList() { ... }
   ```
 - Use single quotes for strings.
+- In all JS files under `scripts/`, never use abbreviated names for variables, functions, or other identifiers — always use descriptive, full names (e.g. `postCount` not `pc`, `renderBlogList` not `rbl`).
 - Cross-page logic goes in `scripts/shared.js`; page-specific logic in the page's own script (e.g. `scripts/blog.js`). Never duplicate shared helpers per page.
 - Use `fetch()` with relative paths; the site must work when opened from `file://` and GitHub Pages.
 
