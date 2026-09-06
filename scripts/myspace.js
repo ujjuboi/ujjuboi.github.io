@@ -190,7 +190,7 @@ function renderMyspaceSections() {
   container.innerHTML = '';
 
   categories.forEach((category, index) => {
-    const match = sections.find(s => s.category === category);
+    const match = sections.find(section => section.category === category);
     if (!match) return;
     sectionInstances[category] = new Section({
       title: category,
@@ -369,14 +369,14 @@ function renderRecentSubmissions(submissions) {
   if (!list || !Array.isArray(submissions) || submissions.length === 0) return;
 
   const now = Date.now();
-  const items = submissions.map(s => {
-    const title = escapeHtml(s.title);
-    const slug = escapeHtml(s.titleSlug);
-    const status = escapeHtml(s.statusDisplay || 'Other');
-    const lang = escapeHtml(s.lang || '');
-    const seconds = Number(s.timestamp);
-    const ms = seconds > 1e12 ? seconds : seconds * 1000;
-    const diff = Math.max(0, now - ms);
+  const items = submissions.map(submission => {
+    const title = escapeHtml(submission.title);
+    const slug = escapeHtml(submission.titleSlug);
+    const status = escapeHtml(submission.statusDisplay || 'Other');
+    const lang = escapeHtml(submission.lang || '');
+    const seconds = Number(submission.timestamp);
+    const milliseconds = seconds > 1e12 ? seconds : seconds * 1000;
+    const diff = Math.max(0, now - milliseconds);
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
@@ -428,14 +428,14 @@ async function cachedFetch(url) {
   if (cached) {
     const parsed = JSON.parse(cached);
     staleData = parsed.data;
-    if (Date.now() - parsed.ts < CACHE_TTL) return parsed.data;
+    if (typeof parsed.cachedAt === 'number' && Date.now() - parsed.cachedAt < CACHE_TTL) return parsed.data;
   }
 
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    localStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() }));
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    localStorage.setItem(cacheKey, JSON.stringify({ data, cachedAt: Date.now() }));
     return data;
   } catch (error) {
     if (staleData !== null) return staleData;
@@ -464,10 +464,10 @@ async function fetchGitHubStats() {
       try {
         const readmeData = await cachedFetch(`https://api.github.com/repos/ujjuboi/${repo.name}/readme`);
         const decoded = atob(readmeData.content);
-        const lines = decoded.split('\n').filter(l => l.trim());
-        const firstParagraph = lines.find(l => !l.startsWith('#') && !l.startsWith('!') && !l.startsWith('[') && l.length > 10);
+        const lines = decoded.split('\n').filter(line => line.trim());
+        const firstParagraph = lines.find(line => !line.startsWith('#') && !line.startsWith('!') && !line.startsWith('[') && line.length > 10);
         if (firstParagraph) description = firstParagraph.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
-      } catch (e) { /* use repo description as fallback */ }
+      } catch (error) { /* use repo description as fallback */ }
 
       if (description.length > 120) description = description.slice(0, 117) + '...';
 
@@ -485,7 +485,7 @@ async function fetchGitHubStats() {
 
     const cards = await Promise.all(repos.map(buildCard));
 
-    cards.forEach(c => grid.appendChild(c));
+    cards.forEach(card => grid.appendChild(card));
     document.getElementById('github-loading').style.display = 'none';
   } catch (error) {
     console.error('GitHub stats error:', error);
@@ -526,7 +526,7 @@ async function fetchRecentActivity() {
 
     const latestRepo = repos[0];
     const commits = await cachedFetch(`https://api.github.com/repos/ujjuboi/${latestRepo.name}/commits?per_page=10`);
-    const userCommit = commits.find(c => c.author && c.author.login === 'ujjuboi');
+    const userCommit = commits.find(commit => commit.author && commit.author.login === 'ujjuboi');
     if (!userCommit) {
       syncActivityFallback();
       return;
@@ -592,13 +592,13 @@ async function fetchGitHubIssues() {
     document.getElementById('issues-loading').style.display = '';
 
     const cards = items.slice(0, 6).map((item) => {
-      const isPR = item.pull_request !== undefined;
+      const isPullRequest = item.pull_request !== undefined;
       const repoName = (item.repository_url || '').replace('https://api.github.com/repos/', '');
       const card = document.createElement('a');
       card.className = 'post-card card';
       card.href = item.html_url;
       card.target = '_blank';
-      const tag = isPR ? 'PR' : 'Issue';
+      const tag = isPullRequest ? 'PR' : 'Issue';
       const created = new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
       const title = document.createElement('h3');
@@ -617,9 +617,9 @@ async function fetchGitHubIssues() {
 
       let excerpt = (item.body || '').replace(/[#*`>\[\]()!-]/g, ' ').replace(/\s+/g, ' ').trim();
       if (excerpt.length > 120) excerpt = excerpt.slice(0, 117) + '...';
-      const excerptP = document.createElement('p');
-      excerptP.className = 'card-excerpt';
-      excerptP.textContent = excerpt;
+      const excerptParagraph = document.createElement('p');
+      excerptParagraph.className = 'card-excerpt';
+      excerptParagraph.textContent = excerpt;
 
       const link = document.createElement('span');
       link.className = 'card-link';
@@ -627,13 +627,13 @@ async function fetchGitHubIssues() {
 
       card.appendChild(title);
       card.appendChild(date);
-      card.appendChild(excerptP);
+      card.appendChild(excerptParagraph);
       card.appendChild(link);
       return card;
     });
 
     grid.style.display = '';
-    cards.forEach(c => grid.appendChild(c));
+    cards.forEach(card => grid.appendChild(card));
     document.getElementById('issues-loading').style.display = 'none';
     gitHubIssuesOk = true;
     syncActivityFallback();
@@ -702,7 +702,7 @@ function parseBook(text, filename) {
   }
 
   const totalChapters = chapters.length;
-  const doneChapters = chapters.filter(c => c.done).length;
+  const doneChapters = chapters.filter(chapter => chapter.done).length;
   const progress = totalChapters > 0 ? Math.round((doneChapters / totalChapters) * 100) : 0;
 
   let status = meta.status || 'Interested';
@@ -713,7 +713,7 @@ function parseBook(text, filename) {
     progressText = 'Finished';
   } else if (progress > 0) {
     status = 'Currently Reading';
-    const nextUp = chapters.find(c => !c.done);
+    const nextUp = chapters.find(chapter => !chapter.done);
     if (nextUp) {
       progressText = 'Currently on: ' + nextUp.name + ' · ' + progress + '%';
     } else {
@@ -741,25 +741,25 @@ function parseBook(text, filename) {
  */
 async function loadBooks() {
   try {
-    const res = await fetch('../../src/Books/books.json');
-    if (!res.ok) throw new Error('Failed to fetch books.json');
-    const filenames = await res.json();
+    const response = await fetch('../../src/Books/books.json');
+    if (!response.ok) throw new Error('Failed to fetch books.json');
+    const filenames = await response.json();
 
     for (const file of filenames) {
       try {
-        const mdRes = await fetch('../../src/Books/' + file);
-        if (!mdRes.ok) throw new Error('Failed to fetch ' + file);
-        const text = await mdRes.text();
+        const markdownResponse = await fetch('../../src/Books/' + file);
+        if (!markdownResponse.ok) throw new Error('Failed to fetch ' + file);
+        const text = await markdownResponse.text();
         const book = parseBook(text, file);
         if (book) {
           books.push(book);
         }
-      } catch (e) {
-        console.error('Error loading book:', file, e);
+      } catch (error) {
+        console.error('Error loading book:', file, error);
       }
     }
-  } catch (e) {
-    console.error('Error loading books manifest:', e);
+  } catch (error) {
+    console.error('Error loading books manifest:', error);
   }
 }
 
@@ -769,10 +769,10 @@ async function loadBooks() {
  */
 function sortBooksByStatus() {
   const order = { 'Currently Reading': 0, 'Interested': 1, 'Read': 2 };
-  books.sort((a, b) => {
-    const ai = order[a.status] !== undefined ? order[a.status] : 2;
-    const bi = order[b.status] !== undefined ? order[b.status] : 2;
-    return ai - bi;
+  books.sort((firstBook, secondBook) => {
+    const firstBookOrder = order[firstBook.status] !== undefined ? order[firstBook.status] : 2;
+    const secondBookOrder = order[secondBook.status] !== undefined ? order[secondBook.status] : 2;
+    return firstBookOrder - secondBookOrder;
   });
 }
 
@@ -907,7 +907,7 @@ function openStudyDrawer(node, triggerBtn) {
   html += '<h2 class="drawer-title">' + mdInline(node.title) + '</h2>';
 
   if (node.items && node.items.length > 0) {
-    const done = node.items.filter(i => i.done).length;
+    const done = node.items.filter(item => item.done).length;
     const total = node.items.length;
     const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
@@ -973,7 +973,7 @@ function openStudyDrawer(node, triggerBtn) {
  * @returns {HTMLElement} The completed leaf button.
  */
 function renderStudyNode(phase, node, isActive) {
-  const done = node.items ? node.items.filter(i => i.done).length : 0;
+  const done = node.items ? node.items.filter(item => item.done).length : 0;
   const total = node.items ? node.items.length : 0;
   const isComplete = total > 0 && done === total;
 
@@ -1030,8 +1030,8 @@ function parseStudyPlan(text) {
   let phaseNum = 0;
   let titleParsed = false;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index];
 
     if (!titleParsed && line.startsWith('# ')) {
       result.title = line.slice(2).trim();
@@ -1168,7 +1168,7 @@ function buildWordTree(plan) {
     let phaseTotal = 0;
     for (const week of phase.weeks) {
       if (!week.items) continue;
-      phaseDone += week.items.filter(i => i.done).length;
+      phaseDone += week.items.filter(item => item.done).length;
       phaseTotal += week.items.length;
     }
 
@@ -1202,7 +1202,7 @@ function buildWordTree(plan) {
 }
 
 /**
- * Returns a plan's title with the "Study Plan:" prefix stripped.
+ * Returns a plan's title with the 'Study Plan:' prefix stripped.
  *
  * @param {object} plan Parsed study plan object.
  * @returns {string} Display title.
@@ -1216,25 +1216,25 @@ function studyPlanDisplayTitle(plan) {
  */
 async function loadStudyPlans() {
   try {
-    const res = await fetch('../../src/StudyPlans/plans.json');
-    if (!res.ok) throw new Error('Failed to fetch plans.json');
-    const filenames = await res.json();
+    const response = await fetch('../../src/StudyPlans/plans.json');
+    if (!response.ok) throw new Error('Failed to fetch plans.json');
+    const filenames = await response.json();
 
     for (const file of filenames) {
       try {
-        const mdRes = await fetch('../../src/StudyPlans/' + file);
-        if (!mdRes.ok) throw new Error('Failed to fetch ' + file);
-        const text = await mdRes.text();
+        const markdownResponse = await fetch('../../src/StudyPlans/' + file);
+        if (!markdownResponse.ok) throw new Error('Failed to fetch ' + file);
+        const text = await markdownResponse.text();
         const plan = parseStudyPlan(text);
         if (plan.phases.length > 0) {
           studyPlans.push(plan);
         }
-      } catch (e) {
-        console.error('Error loading study plan:', file, e);
+      } catch (error) {
+        console.error('Error loading study plan:', file, error);
       }
     }
-  } catch (e) {
-    console.error('Error loading study plans manifest:', e);
+  } catch (error) {
+    console.error('Error loading study plans manifest:', error);
   }
 }
 
@@ -1362,8 +1362,8 @@ function initStudyDrawerHandlers() {
     });
   }
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && drawer && drawer.classList.contains('is-open')) {
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && drawer && drawer.classList.contains('is-open')) {
       closeStudyDrawer(window._studyDrawerPreviousFocus);
     }
   });
@@ -1382,17 +1382,17 @@ Promise.all([loadBooks(), loadStudyPlans()]).then(() => {
 
   const hash = window.location.hash;
   if (hash && hash.startsWith('#book-')) {
-    const idx = parseInt(hash.replace('#book-', ''), 10);
-    if (!isNaN(idx) && idx >= 0 && idx < books.length) {
+    const bookIndex = parseInt(hash.replace('#book-', ''), 10);
+    if (!isNaN(bookIndex) && bookIndex >= 0 && bookIndex < books.length) {
       expandSection('My Library');
-      showBook(idx);
+      showBook(bookIndex);
     }
   }
   if (hash && hash.startsWith('#plan-')) {
-    const idx = parseInt(hash.replace('#plan-', ''), 10);
-    if (!isNaN(idx) && idx >= 0 && idx < studyPlans.length) {
+    const planIndex = parseInt(hash.replace('#plan-', ''), 10);
+    if (!isNaN(planIndex) && planIndex >= 0 && planIndex < studyPlans.length) {
       expandSection('Currently Studying');
-      showStudyPlan(idx);
+      showStudyPlan(planIndex);
     }
   }
 });
