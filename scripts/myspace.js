@@ -10,6 +10,13 @@ const CACHE_TTL = 6 * 60 * 60 * 1000;
 const currentProjectRepos = ['ujjuboi/jobhunt'];
 
 /**
+ * GitHub username whose commit history the Commit Activity chart aggregates,
+ * spanning every public repository on the user's account. Derived from the
+ * project repos' owner so the account name is defined in exactly one place.
+ */
+const gitHubUsername = currentProjectRepos[0].split('/')[0];
+
+/**
  * How many trailing months of commit activity the chart shows.
  */
 const commitChartMonths = 6;
@@ -100,6 +107,7 @@ function buildActivitySection() {
 </div>
 <div id="commit-card" class="card" style="display: none;">
   <h3 class="card-title">Commit Activity</h3>
+  <p class="card-subtitle">Across all public repositories</p>
   <div class="lc-activity" id="commit-activity">
     <div class="lc-activity-state lc-loading">
       <span class="lc-spinner"></span>
@@ -650,18 +658,77 @@ function buildCommitTooltip(month, totalCount) {
 }
 
 /**
- * Fetches the full commit history of the featured repo across API pages.
+ * Reads the author date from a commit search result item.
  *
- * @param {string} repoFullName Owner/repo identifier.
- * @returns {Promise<Object[]>} Flat list of commit objects.
+ * @param {Object} commitItem A single commit search result item.
+ * @returns {string|null} ISO author date, or null when absent.
  */
-async function fetchCommitHistory(repoFullName) {
+function getCommitAuthorDate(commitItem) {
+  const date = commitItem && commitItem.commit && commitItem.commit.author && commitItem.commit.author.date;
+  return date || null;
+}
+
+/**
+ * Offsets a YYYY-MM month key by a number of months (negative for past months).
+ *
+ * @param {string} monthKey The YYYY-MM key to offset.
+ * @param {number} monthOffset Signed number of months to shift.
+ * @returns {string} The shifted YYYY-MM key.
+ */
+function offsetMonthKey(monthKey, monthOffset) {
+  const [year, month] = monthKey.split('-').map(Number);
+  const date = new Date(year, month - 1 + monthOffset, 1);
+  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+}
+
+/**
+ * Tells whether the collected commits already span the chart's trailing
+ * window, so no further search pages are needed.
+ *
+ * @param {Object[]} commits Collected commits, newest first.
+ * @param {string} windowStartKey The earliest YYYY-MM key the chart shows.
+ * @returns {boolean} True when the oldest commit predates the window start.
+ */
+function commitsCoverChartWindow(commits, windowStartKey) {
+  const oldestDate = getCommitAuthorDate(commits[commits.length - 1]);
+  if (!oldestDate) return true;
+  return oldestDate.slice(0, 7) <= windowStartKey;
+}
+
+/**
+ * Fetches the user's commit history across all public repos via the GitHub
+ * commit search API, walking result pages (sorted by author date) only until
+ * the accumulated commits cover the chart's trailing window. A single failed
+ * continuation page is treated as the end of history so partial data still
+ * renders instead of dropping to the fallback.
+ *
+ * @returns {Promise<Object[]>} Flat list of commit objects, newest first.
+ */
+async function fetchCommitHistory() {
   const commits = [];
+  let chartWindowStartKey = null;
+
   for (let page = 1; page <= 5; page++) {
-    const data = await cachedFetch(`https://api.github.com/repos/${repoFullName}/commits?per_page=100&page=${page}`);
-    if (!Array.isArray(data) || data.length === 0) break;
-    commits.push(...data);
-    if (data.length < 100) break;
+    if (chartWindowStartKey && commitsCoverChartWindow(commits, chartWindowStartKey)) {
+      break;
+    }
+    let data = null;
+    try {
+      data = await cachedFetch(`https://api.github.com/search/commits?q=author:${gitHubUsername}&sort=author-date&order=desc&per_page=100&page=${page}`);
+    } catch (error) {
+      if (commits.length === 0) throw error;
+      console.error('Commit history page error:', error);
+      break;
+    }
+    if (!data || !Array.isArray(data.items) || data.items.length === 0) break;
+    if (!chartWindowStartKey) {
+      const latestDate = getCommitAuthorDate(data.items[0]);
+      if (latestDate) {
+        chartWindowStartKey = offsetMonthKey(latestDate.slice(0, 7), -(commitChartMonths - 1));
+      }
+    }
+    commits.push(...data.items);
+    if (data.items.length < 100) break;
   }
   if (commits.length === 0) throw new Error('No commits');
   return commits;
@@ -669,12 +736,10 @@ async function fetchCommitHistory(repoFullName) {
 
 /**
  * Loads and renders the commit line chart into the commit card.
- *
- * @param {string} repoFullName Owner/repo identifier.
  */
-async function renderCommitCard(repoFullName) {
+async function renderCommitCard() {
   try {
-    const commits = await fetchCommitHistory(repoFullName);
+    const commits = await fetchCommitHistory();
     renderCommitChart(commits);
     document.getElementById('commit-card').style.display = '';
     document.getElementById('commit-fallback').style.display = 'none';
@@ -724,7 +789,7 @@ async function fetchCurrentProject() {
       document.getElementById('project-link').href = repo.html_url;
       renderProjectBanner(repo, repoFullName, readmeText, branch);
 
-      await renderCommitCard(repoFullName);
+      await renderCommitCard();
       document.getElementById('project-fallback').style.display = 'none';
       return;
     } catch (error) {
@@ -924,7 +989,7 @@ function renderBooks() {
 
   books.forEach((book, index) => {
     const card = document.createElement('div');
-    card.className = 'book-card';
+    card.className = 'book-card card';
     card.onclick = () => showBook(index);
 
     const statusBadge = book.status === 'Read'

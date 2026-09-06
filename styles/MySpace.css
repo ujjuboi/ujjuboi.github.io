@@ -117,6 +117,13 @@
   animation: fadeIn ease 0.8s;
 }
 
+#commit-card .card-subtitle {
+  font-family: var(--theme-content-font);
+  font-size: var(--text-sm);
+  color: var(--borderColor);
+  margin: -0.25rem 0 0.75rem 0;
+}
+
 #commit-card:hover {
   transform: none;
   box-shadow: 0.3rem 0.3rem var(--shadowColor);
@@ -540,20 +547,14 @@
   flex-direction: column;
   animation: fadeIn ease 0.8s;
   animation-fill-mode: both;
-  border: 0.15rem solid var(--borderColor);
-  border-radius: 0.4rem;
   overflow: hidden;
-  background-color: var(--backgroundColor);
-  box-shadow: 0.25rem 0.25rem var(--shadowColor);
-  transition: all 0.2s ease;
   break-inside: avoid;
   margin-bottom: 1.25rem;
+  padding: 0;
 }
 
 .book-card:hover {
   cursor: pointer;
-  transform: translateY(-0.2rem) translateX(0.2rem);
-  box-shadow: 0.45rem 0.45rem var(--shadowColor);
 }
 
 .book-card:nth-child(1) { animation-delay: 0.05s; }
