@@ -241,18 +241,20 @@ body.sub-page section {
 
 #font-switcher {
   position: fixed;
-  right: 1rem;
+  left: 1rem;
   bottom: 1rem;
   z-index: 100;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 0.5rem;
 }
 
 #font-switcher-toggle {
+  box-sizing: border-box;
   width: 3rem;
   height: 3rem;
+  padding: 0;
   border-radius: 50%;
   border: 0.2rem solid var(--borderColor);
   background-color: var(--contentColor);
@@ -277,7 +279,7 @@ body.sub-page section {
 #font-switcher-toggle[data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
-  right: 120%;
+  left: 120%;
   top: 50%;
   transform: translateY(-50%);
   background-color: var(--contentColor);
@@ -338,4 +340,59 @@ body.sub-page section {
 #font-switcher-menu button.active {
   background-color: var(--shadowColor);
   color: var(--backgroundColor);
+}
+
+#pro-button {
+  box-sizing: border-box;
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 0.2rem solid var(--borderColor);
+  background-color: var(--contentColor);
+  color: var(--borderColor);
+  cursor: pointer;
+  box-shadow: 0.2rem 0.2rem var(--shadowColor);
+  transition: all 0.2s ease;
+}
+
+#pro-button:hover {
+  transform: translateY(-0.1rem) translateX(0.1rem);
+  box-shadow: 0.3rem 0.3rem var(--shadowColor);
+}
+
+#pro-button[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  right: 120%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--contentColor);
+  color: var(--borderColor);
+  font-family: var(--poppins);
+  font-size: var(--text-xs);
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.25rem;
+  border: 0.1rem solid var(--borderColor);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 200;
+}
+
+#pro-button[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+#pro-button svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  fill: var(--borderColor);
 }
