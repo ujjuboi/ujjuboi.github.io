@@ -4,6 +4,216 @@
 const CACHE_TTL = 6 * 60 * 60 * 1000;
 
 /**
+ * MySpace sections, shown as collapsible blocks in order.
+ * The first section starts expanded; the rest start collapsed.
+ */
+const categories = ['Currently Studying', 'Currently Working On', 'GitHub Repositories', 'LeetCode Progress', 'My Library'];
+
+/**
+ * Staged section content for each category, populated by stageSections().
+ */
+const sections = [];
+
+/**
+ * Rendered Section instances, keyed by category label.
+ */
+const sectionInstances = {};
+
+/**
+ * Stages each section's widget shells. The shells have no data dependency,
+ * so this runs synchronously at startup.
+ */
+function stageSections() {
+  sections.push({ category: 'Currently Studying', full: true, content: buildStudySection() });
+  sections.push({ category: 'Currently Working On', content: buildActivitySection() });
+  sections.push({ category: 'GitHub Repositories', content: buildGitHubSection() });
+  sections.push({ category: 'LeetCode Progress', content: buildLeetCodeSection() });
+  sections.push({ category: 'My Library', full: true, content: buildBooksSection() });
+}
+
+/**
+ * Builds the study plan section's widget markup.
+ *
+ * @returns {string} Inner HTML for the section content.
+ */
+function buildStudySection() {
+  return `
+<div id="study-loading" class="loading-placeholder">
+  Loading study plans<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+</div>
+<div id="study-plans-grid"></div>
+<div id="study-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+  Unable to load study plans
+</div>
+<div id="study-plan-view" style="display: none;">
+  <button id="study-plan-back-btn" type="button" onclick="showStudyPlansList()">← Back to study plans</button>
+  <div class="study-summary">
+    <h3 class="study-title" id="study-title"></h3>
+    <div class="study-progress-track">
+      <div class="study-progress-fill" id="study-progress-fill" style="width: 0%"></div>
+      <span class="study-progress-label" id="study-progress-label">0/0</span>
+    </div>
+    <div class="study-focus" id="study-focus"></div>
+  </div>
+  <div id="study-tree" class="word-tree"></div>
+</div>`;
+}
+
+/**
+ * Builds the recent-activity section's widget markup.
+ *
+ * @returns {string} Inner HTML for the section content.
+ */
+function buildActivitySection() {
+  return `
+<div id="activity-card" class="card">
+  <h3 class="card-title">
+    <span id="repo-name"></span>
+    <span class="myspace-tag">Commit</span>
+  </h3>
+  <p id="commit-message" class="card-excerpt"></p>
+  <a id="commit-link" class="card-link" href="#" target="_blank">View on GitHub →</a>
+</div>
+<div id="issues-grid" class="post-grid"></div>
+<div class="loading-placeholder" id="issues-loading" style="display: none;">
+  Loading open issues and PRs<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+</div>
+<div id="activity-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+  Unable to fetch recent activity
+</div>`;
+}
+
+/**
+ * Builds the GitHub repositories section's widget markup.
+ *
+ * @returns {string} Inner HTML for the section content.
+ */
+function buildGitHubSection() {
+  return `
+<div id="github-repos-grid">
+  <div class="loading-placeholder" id="github-loading">
+    Fetching data<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+  </div>
+</div>
+<div id="github-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+  Unable to fetch GitHub repos
+</div>`;
+}
+
+/**
+ * Builds the LeetCode progress section's widget markup.
+ *
+ * @returns {string} Inner HTML for the section content.
+ */
+function buildLeetCodeSection() {
+  return `
+<div id="leetcode-content">
+  <div class="loading-placeholder" id="leetcode-loading">
+    Fetching data<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+  </div>
+  <div class="leetcode-stats-grid" id="leetcode-grid" style="display: none;">
+    <div class="stat-card card">
+      <span id="lc-solved" class="stat-number">--</span>
+      <span class="stat-label">Solved</span>
+    </div>
+    <div class="stat-card card">
+      <span id="lc-easy" class="stat-number">--</span>
+      <span class="stat-label">Easy</span>
+    </div>
+    <div class="stat-card card">
+      <span id="lc-medium" class="stat-number">--</span>
+      <span class="stat-label">Medium</span>
+    </div>
+    <div class="stat-card card">
+      <span id="lc-hard" class="stat-number">--</span>
+      <span class="stat-label">Hard</span>
+    </div>
+  </div>
+  <div id="lc-submissions-card" class="card" style="display: none;">
+    <h3 class="card-title">Recent Submissions &amp; Activity</h3>
+    <div class="lc-activity" id="lc-activity"></div>
+    <ul class="lc-submission-list" id="lc-submissions"></ul>
+  </div>
+  <div id="lc-recent" style="display: none;">
+    <p id="lc-total-active-days">Total active days: -- days ago</p>
+    <p id="lc-ranking">Ranking: --</p>
+    <p id="lc-link">
+      <a id="lc-profile-link" class="card-link" href="https://leetcode.com/ujjuboi/" target="_blank" style="display: none;">View LeetCode Profile →</a>
+    </p>
+  </div>
+</div>
+<div id="lc-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+  Unable to fetch LeetCode stats
+</div>`;
+}
+
+/**
+ * Builds the My Library section's widget markup.
+ *
+ * @returns {string} Inner HTML for the section content.
+ */
+function buildBooksSection() {
+  return `
+<div id="books-loading" class="loading-placeholder">
+  Loading books<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+</div>
+<div id="books-grid"></div>
+<div id="books-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+  No books to show
+</div>
+<div id="book-view" style="display: none;">
+  <button id="book-back-btn" onclick="showBooksList()">← Back to books</button>
+  <div class="book-detail">
+    <div class="book-detail-cover">
+      <img id="book-banner" src="" alt="Book cover">
+    </div>
+    <div class="book-detail-main">
+      <div class="book-detail-content">
+        <h1 id="book-title"></h1>
+        <p id="book-author"></p>
+        <p id="book-meta"></p>
+        <p id="book-excerpt"></p>
+        <p id="book-thoughts"></p>
+      </div>
+    </div>
+  </div>
+</div>`;
+}
+
+/**
+ * Renders each category as a shared collapsible section.
+ * The first category starts expanded; the rest start collapsed.
+ */
+function renderMyspaceSections() {
+  const container = document.getElementById('myspace-sections');
+  if (!container) return;
+  container.innerHTML = '';
+
+  categories.forEach((category, index) => {
+    const match = sections.find(s => s.category === category);
+    if (!match) return;
+    sectionInstances[category] = new Section({
+      title: category,
+      content: match.content,
+      className: 'myspace-section' + (match.full ? ' myspace-section--full' : ''),
+      expanded: index === 0
+    }).addTo(container);
+  });
+}
+
+/**
+ * Expands the section for the given category so its content is visible.
+ *
+ * @param {string} category The category label whose section to expand.
+ */
+function expandSection(category) {
+  const section = sectionInstances[category];
+  if (section && !section.isExpanded) {
+    section.expand();
+  }
+}
+
+/**
  * Renders the LeetCode activity bar chart into the submissions card.
  *
  * @param {Object|string} submissionCalendar Day-timestamp to submissions map (or JSON string).
@@ -1157,28 +1367,29 @@ function initStudyDrawerHandlers() {
   });
 }
 
+stageSections();
+renderMyspaceSections();
 fetchGitHubStats();
 fetchRecentActivity();
 fetchLeetCodeStats();
 fetchGitHubIssues();
-loadBooks().then(() => {
+
+Promise.all([loadBooks(), loadStudyPlans()]).then(() => {
   renderBooks();
+  renderStudyPlans();
 
   const hash = window.location.hash;
   if (hash && hash.startsWith('#book-')) {
     const idx = parseInt(hash.replace('#book-', ''), 10);
     if (!isNaN(idx) && idx >= 0 && idx < books.length) {
+      expandSection('My Library');
       showBook(idx);
     }
   }
-});
-loadStudyPlans().then(() => {
-  renderStudyPlans();
-
-  const hash = window.location.hash;
   if (hash && hash.startsWith('#plan-')) {
     const idx = parseInt(hash.replace('#plan-', ''), 10);
     if (!isNaN(idx) && idx >= 0 && idx < studyPlans.length) {
+      expandSection('Currently Studying');
       showStudyPlan(idx);
     }
   }

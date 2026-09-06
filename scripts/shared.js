@@ -81,23 +81,99 @@ function mdInline(text) {
 }
 
 /**
- * Toggles a collapsible section open/closed and marks its header active.
+ * Builds and manages a collapsible page section: a heading paired with a
+ * content area. Clicking the heading toggles it open or closed.
  *
- * @param {HTMLElement} header The section heading that was clicked.
+ * @param {Object} [options] Section configuration.
+ * @param {string} [options.title] Heading text.
+ * @param {Node|string} [options.content] Content as a DOM node or HTML string.
+ * @param {string} [options.className] Classes for the wrapper element.
+ * @param {boolean} [options.expanded=false] Initial state of the section.
  */
-function toggleSection(header) {
-  const content = header.nextElementSibling;
-  const icon = header.querySelector('.toggle-icon');
+class Section {
+  constructor({ title = '', content = null, className = 'section', expanded = false } = {}) {
+    this.el = document.createElement('div');
+    this.el.className = className;
 
-  if (content.style.display === 'none') {
-    content.style.display = '';
-    icon.textContent = '-';
-  } else {
-    content.style.display = 'none';
-    icon.textContent = '+';
+    this.heading = document.createElement('h2');
+    this.heading.className = 'section-heading collapsible';
+
+    const titleEl = document.createElement('span');
+    titleEl.className = 'title-text';
+    titleEl.textContent = title;
+    this.heading.appendChild(titleEl);
+
+    this.icon = document.createElement('span');
+    this.icon.className = 'toggle-icon';
+    this.heading.appendChild(this.icon);
+    this.heading.addEventListener('click', () => this.toggle());
+
+    this.content = document.createElement('div');
+    this.content.className = 'section-content';
+    if (content instanceof Node) {
+      this.content.appendChild(content);
+    } else if (content) {
+      this.content.innerHTML = content;
+    }
+
+    this.el.appendChild(this.heading);
+    this.el.appendChild(this.content);
+
+    if (expanded) {
+      this.expand();
+    } else {
+      this.collapse();
+    }
   }
 
-  header.classList.toggle('active');
+  /**
+   * Whether the section content is currently visible.
+   *
+   * @returns {boolean} True when expanded.
+   */
+  get isExpanded() {
+    return this.content.style.display !== 'none';
+  }
+
+  /**
+   * Expands the section, revealing its content.
+   */
+  expand() {
+    this.content.style.display = '';
+    this.icon.textContent = '-';
+    this.heading.classList.add('active');
+  }
+
+  /**
+   * Collapses the section, hiding its content.
+   */
+  collapse() {
+    this.content.style.display = 'none';
+    this.icon.textContent = '+';
+    this.heading.classList.remove('active');
+  }
+
+  /**
+   * Toggles the section between expanded and collapsed.
+   */
+  toggle() {
+    if (this.isExpanded) {
+      this.collapse();
+    } else {
+      this.expand();
+    }
+  }
+
+  /**
+   * Appends the section to a parent element.
+   *
+   * @param {HTMLElement} parent Element to append to.
+   * @returns {Section} This section, for chaining.
+   */
+  addTo(parent) {
+    parent.appendChild(this.el);
+    return this;
+  }
 }
 
 /**

@@ -1,5 +1,21 @@
 /**
- * Loads `src/cv.md`, parses it, and renders the resume into the page container.
+ * Resume sections, shown as collapsible blocks in order.
+ */
+const categories = ['Professional Summary', 'Work Experience', 'Projects', 'Education', 'Skills'];
+
+/**
+ * Parsed resume content loaded from the manifest, keyed by category.
+ */
+const sections = [];
+
+/**
+ * Contact details parsed from the resume manifest.
+ */
+let contact = {};
+
+/**
+ * Loads `src/cv.md`, parses it, and stages each resume section's content
+ * before rendering the page.
  */
 async function loadCV() {
   const resumeContainer = document.getElementById('resume-container');
@@ -8,26 +24,39 @@ async function loadCV() {
     if (!res.ok) throw new Error('Failed to fetch CV');
     const text = await res.text();
     const data = parseCV(text);
-    renderResume(data);
+
+    contact = data.contact;
+    sections.push({ category: 'Professional Summary', body: renderSummary(data.summary) });
+    sections.push({ category: 'Work Experience', body: renderExperience(data.experience) });
+    sections.push({ category: 'Projects', body: renderProjects(data.projects) });
+    sections.push({ category: 'Education', body: renderEducation(data.education) });
+    sections.push({ category: 'Skills', body: renderSkills(data.skills) });
+
+    renderResume();
   } catch (e) {
     resumeContainer.innerHTML = '<p style="text-align:center;padding:2rem;">Failed to load CV data.</p>';
   }
 }
 
 /**
- * Renders the parsed CV into the resume container.
- *
- * @param {Object} data Structured CV from parseCV().
+ * Renders the contact header and each category as a shared collapsible
+ * section. The first category starts expanded; the rest start collapsed.
  */
-function renderResume(data) {
+function renderResume() {
   const container = document.getElementById('resume-container');
   container.innerHTML = '';
-  container.appendChild(renderHeader(data.contact));
-  container.appendChild(renderSection('Professional Summary', renderSummary(data.summary), true));
-  container.appendChild(renderSection('Work Experience', renderExperience(data.experience), false));
-  container.appendChild(renderSection('Projects', renderProjects(data.projects), false));
-  container.appendChild(renderSection('Education', renderEducation(data.education), false));
-  container.appendChild(renderSection('Skills', renderSkills(data.skills), false));
+  container.appendChild(renderHeader(contact));
+
+  categories.forEach((category, index) => {
+    const match = sections.find(s => s.category === category);
+    if (!match) return;
+    new Section({
+      title: category,
+      content: match.body,
+      className: 'resume-section',
+      expanded: index === 0
+    }).addTo(container);
+  });
 }
 
 /**
@@ -53,49 +82,6 @@ function renderHeader(contact) {
   p.innerHTML = parts.join(' | ');
   header.appendChild(p);
   return header;
-}
-
-/**
- * Builds a collapsible resume section with heading and content.
- *
- * @param {string} title Section heading text.
- * @param {Node} contentEl Content node to place inside the section.
- * @param {boolean} active Whether the section starts expanded.
- * @returns {HTMLDivElement} Section element ready to append.
- */
-function renderSection(title, contentEl, active) {
-  const section = document.createElement('div');
-  section.className = 'resume-section';
-  if (active) {
-    section.className += ' active';
-  }
-
-  const h2 = document.createElement('h2');
-  h2.className = 'section-heading collapsible' + (active ? ' active' : '');
-  h2.onclick = function () { toggleSection(this); };
-
-  const titleText = document.createElement('span');
-  titleText.className = 'title-text';
-  titleText.textContent = title;
-
-  const toggleIcon = document.createElement('span');
-  toggleIcon.className = 'toggle-icon';
-  toggleIcon.textContent = active ? '-' : '+';
-
-  h2.appendChild(titleText);
-  h2.appendChild(toggleIcon);
-
-  const content = document.createElement('div');
-  content.className = 'section-content';
-  content.style.display = active ? 'block' : 'none';
-
-  if (contentEl) {
-    content.appendChild(contentEl);
-  }
-
-  section.appendChild(h2);
-  section.appendChild(content);
-  return section;
 }
 
 /**
@@ -271,5 +257,5 @@ function renderSkills(categories) {
   return div;
 }
 
-initMenuToggle('#resume-container');
 loadCV();
+initMenuToggle('#resume-container');
