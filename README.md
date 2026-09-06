@@ -114,7 +114,9 @@ Making my own dynamic blogging website!
 │   │   ├── the-new-encyclopedia-of-modern-bodybuilding.md
 │   │   └── who-moved-my-cheese.md
 │   ├── StudyPlans/
+│   │   ├── algorithms-and-leetcode.md
 │   │   ├── claude-certified-developer-foundations.md
+│   │   ├── code-architecture-system-design.md
 │   │   ├── networking.md
 │   │   ├── plans.json
 │   │   └── template.md
