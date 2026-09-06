@@ -147,6 +147,33 @@ body.sub-page section {
   text-align: center;
 }
 
+/* Markdown-rendered content */
+code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+  padding: 0.05rem 0.3rem;
+  border-radius: 0.25rem;
+}
+
+pre {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+  border: 0.15rem solid var(--borderColor);
+  border-radius: 0.4rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+}
 
 .card-title {
   font-family: var(--theme-heading-font);

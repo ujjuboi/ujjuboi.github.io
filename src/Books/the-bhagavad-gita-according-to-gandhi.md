@@ -1,16 +1,16 @@
-## Title: The Bhagavad Gita According to Gandhi
+# The Bhagavad Gita According to Gandhi
 
-## Author: Mahatma Gandhi
+**Author:** Mahatma Gandhi
 
-## Excerpt: Gandhi interprets the Bhagavad Gita not as a historical epic but as an allegory for the inner moral battle between duty and adharma, applying its teachings to noncooperation and self-purification.
+**Excerpt:** Gandhi interprets the Bhagavad Gita not as a historical epic but as an allegory for the inner moral battle between duty and adharma, applying its teachings to noncooperation and self-purification.
 
-## Thoughts:
+**Thoughts:**
 
-## Banner: ../../Images/Books/the-bhagavad-gita-according-to-gandhi.png
+**Banner:** ../../Images/Books/the-bhagavad-gita-according-to-gandhi.png
 
-## Category: Devotion
+**Category:** Devotion
 
-## Status: Interested
+**Status:** Interested
 
 ## Chapters:
 

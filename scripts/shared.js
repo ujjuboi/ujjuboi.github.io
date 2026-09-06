@@ -95,6 +95,57 @@ function renderMarkdown(md) {
 }
 
 /**
+ * Renders an inline markdown fragment to HTML using the vendored Marked
+ * library, falling back to escaped plain text when Marked is unavailable.
+ * Unlike renderMarkdown, no surrounding block element is emitted.
+ *
+ * @param {string} md Markdown inline source to render.
+ * @returns {string} Rendered inline HTML.
+ */
+function renderInlineMarkdown(md) {
+  if (typeof marked !== 'undefined') {
+    return marked.parseInline(String(md || ''));
+  }
+  return escapeHtml(String(md || ''));
+}
+
+/**
+ * Renders a list of markdown bullets (subheadings, items, and nested
+ * sub-bullets) into a styled list, matching the work-experience layout
+ * shared by the Resume page. Subheadings become heading list items,
+ * regular bullets become list items, and sub-bullets nest inside them.
+ *
+ * @param {Object[]} bullets Parsed bullet entries with kind/text/sub fields.
+ * @param {string} [subheadingClass] Class for subheading items.
+ * @returns {HTMLUListElement} Completed list element ready to append.
+ */
+function renderMarkdownBullets(bullets, subheadingClass) {
+  const ul = document.createElement('ul');
+  (bullets || []).forEach(bullet => {
+    if (bullet.kind === 'heading') {
+      const heading = document.createElement('li');
+      heading.className = subheadingClass || 'resume-subheading';
+      heading.innerHTML = renderMarkdown(bullet.text);
+      ul.appendChild(heading);
+      return;
+    }
+    const li = document.createElement('li');
+    li.innerHTML = renderMarkdown(bullet.text);
+    if (bullet.sub && bullet.sub.length) {
+      const subUl = document.createElement('ul');
+      bullet.sub.forEach(sub => {
+        const sl = document.createElement('li');
+        sl.innerHTML = renderMarkdown(sub);
+        subUl.appendChild(sl);
+      });
+      li.appendChild(subUl);
+    }
+    ul.appendChild(li);
+  });
+  return ul;
+}
+
+/**
  * Builds and manages a collapsible page section: a heading paired with a
  * content area. Clicking the heading toggles it open or closed.
  *
@@ -191,8 +242,112 @@ class Section {
 }
 
 /**
+ * Builds a single blog post card DOM element for the post list view.
+ *
+ * @param {Object} post Parsed post with title, date, excerpt, banner, etc.
+ * @param {number} index Index of the post in the posts array.
+ * @param {function} [onClick] Optional click handler; default uses showPost(index).
+ * @param {boolean} [includeBanner=false] Whether to show the post banner image.
+ * @returns {HTMLDivElement} Card element ready to append.
+ */
+function renderPostCard(post, index, onClick, includeBanner) {
+  const card = document.createElement('div');
+  card.className = 'post-card card';
+  card.id = 'post-' + index;
+  card.style.margin = 'auto';
+
+  if (onClick) {
+    card.onclick = onClick;
+  } else {
+    card.onclick = () => showPost(index);
+  }
+
+  if (includeBanner && post.banner) {
+    const img = document.createElement('img');
+    img.className = 'latest-post-banner';
+    img.src = post.banner;
+    img.alt = post.title + ' banner';
+    card.appendChild(img);
+  }
+
+  const h3 = document.createElement('h3');
+  h3.className = 'card-title';
+  h3.textContent = post.title;
+  card.appendChild(h3);
+
+  const dateP = document.createElement('p');
+  dateP.className = 'card-date';
+  dateP.textContent = post.date;
+  card.appendChild(dateP);
+
+  const excerptP = document.createElement('p');
+  excerptP.className = 'card-excerpt';
+  excerptP.textContent = post.excerpt;
+  card.appendChild(excerptP);
+
+  const link = document.createElement('a');
+  link.className = 'card-link';
+  link.href = '#post-' + index;
+  link.target = '_self';
+  link.textContent = 'Read more →';
+  link.onclick = (e) => {
+    e.stopPropagation();
+    if (onClick) {
+      onClick();
+    } else {
+      showPost(index);
+    }
+  };
+  card.appendChild(link);
+
+  return card;
+}
+
+/**
+ * Builds the full post view content as a DocumentFragment: banner image,
+ * title, date, and rendered paragraph blocks.
+ *
+ * @param {Object} post Parsed post with title, date, banner, paragraphs.
+ * @returns {DocumentFragment} Fragment ready to append into post-view.
+ */
+function renderPostContent(post) {
+  const fragment = document.createDocumentFragment();
+
+  if (post.banner) {
+    const img = document.createElement('img');
+    img.id = 'post-banner';
+    img.src = post.banner;
+    img.alt = post.title + ' banner';
+    fragment.appendChild(img);
+  }
+
+  const h1 = document.createElement('h1');
+  h1.id = 'post-title';
+  h1.textContent = post.title;
+  fragment.appendChild(h1);
+
+  const dateP = document.createElement('p');
+  dateP.id = 'post-date';
+  dateP.textContent = post.date;
+  fragment.appendChild(dateP);
+
+  const contentDiv = document.createElement('div');
+  contentDiv.id = 'post-content';
+  (post.paragraphs || []).forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'post-paragraph';
+    div.innerHTML = renderMarkdown(p);
+    contentDiv.appendChild(div);
+  });
+  fragment.appendChild(contentDiv);
+
+  return fragment;
+}
+
+/**
  * Extracts the `# title` and `**Key:** value` metadata from a markdown
- * blog post.
+ * document. The legacy `## Key: value` form is also recognized so that
+ * content created by the quick-book skill keeps parsing.
  *
  * @param {string} text Raw markdown source.
  * @returns {Object} Map of lowercase metadata keys to trimmed values.
@@ -209,6 +364,11 @@ function parsePostHeaders(text) {
     const kvMatch = line.match(/^\*\*(\w+):\*\*\s*(.+)/);
     if (kvMatch) {
       meta[kvMatch[1].toLowerCase()] = kvMatch[2].trim();
+      continue;
+    }
+    const legacyMatch = line.match(/^## (\w+):\s*(.+)/);
+    if (legacyMatch) {
+      meta[legacyMatch[1].toLowerCase()] = legacyMatch[2].trim();
     }
   }
   return meta;

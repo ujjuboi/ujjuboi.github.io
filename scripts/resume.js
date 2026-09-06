@@ -92,7 +92,7 @@ function renderHeader(contact) {
  */
 function renderSummary(text) {
   const p = document.createElement('p');
-  p.textContent = text || '';
+  p.innerHTML = renderInlineMarkdown(text);
   return p;
 }
 
@@ -124,29 +124,7 @@ function renderExperience(jobs) {
     div.appendChild(p);
 
     if (job.bullets && job.bullets.length) {
-      const ul = document.createElement('ul');
-      job.bullets.forEach(bullet => {
-        if (bullet.kind === 'heading') {
-          const h = document.createElement('li');
-          h.className = 'resume-subheading';
-          h.innerHTML = renderMarkdown(bullet.text);
-          ul.appendChild(h);
-          return;
-        }
-        const li = document.createElement('li');
-        li.innerHTML = renderMarkdown(bullet.text);
-        if (bullet.sub && bullet.sub.length) {
-          const subUl = document.createElement('ul');
-          bullet.sub.forEach(sub => {
-            const sl = document.createElement('li');
-            sl.innerHTML = renderMarkdown(sub);
-            subUl.appendChild(sl);
-          });
-          li.appendChild(subUl);
-        }
-        ul.appendChild(li);
-      });
-      div.appendChild(ul);
+      div.appendChild(renderMarkdownBullets(job.bullets));
     }
 
     timeline.appendChild(div);
@@ -168,18 +146,18 @@ function renderProjects(projects) {
     div.className = 'project';
 
     const h3 = document.createElement('h3');
-    h3.textContent = proj.name || '';
+    h3.innerHTML = renderInlineMarkdown(proj.name || '');
     if (proj.tag) {
       const tag = document.createElement('span');
       tag.className = 'project-tag';
-      tag.textContent = proj.tag;
+      tag.innerHTML = renderInlineMarkdown(proj.tag);
       h3.appendChild(tag);
     }
     div.appendChild(h3);
 
     if (proj.desc) {
       const p = document.createElement('p');
-      p.innerHTML = renderMarkdown(proj.desc);
+      p.innerHTML = renderInlineMarkdown(proj.desc);
       div.appendChild(p);
     }
 
@@ -201,17 +179,17 @@ function renderEducation(items) {
     div.className = 'education';
 
     const h3 = document.createElement('h3');
-    h3.textContent = edu.degree || '';
+    h3.innerHTML = renderInlineMarkdown(edu.degree || '');
     div.appendChild(h3);
 
     const p = document.createElement('p');
-    p.textContent = [edu.school, edu.cgpa].filter(Boolean).join(' ') || edu.school || '';
+    p.innerHTML = renderInlineMarkdown([edu.school, edu.cgpa].filter(Boolean).join(' ') || edu.school || '');
     div.appendChild(p);
 
     if (edu.dates) {
       const dateP = document.createElement('p');
       dateP.className = 'job-date';
-      dateP.textContent = edu.dates;
+      dateP.innerHTML = renderInlineMarkdown(edu.dates);
       div.appendChild(dateP);
     }
 
@@ -235,7 +213,7 @@ function renderSkills(categories) {
     catDiv.className = 'skill-category';
 
     const h3 = document.createElement('h3');
-    h3.textContent = cat.category || '';
+    h3.innerHTML = renderInlineMarkdown(cat.category || '');
     catDiv.appendChild(h3);
 
     const wrapper = document.createElement('div');
@@ -245,7 +223,7 @@ function renderSkills(categories) {
       cat.items.forEach(item => {
         const span = document.createElement('span');
         span.className = 'skill-item';
-        span.textContent = item;
+        span.innerHTML = renderInlineMarkdown(item);
         wrapper.appendChild(span);
       });
     }

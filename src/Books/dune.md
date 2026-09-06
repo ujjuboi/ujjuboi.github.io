@@ -1,16 +1,16 @@
-## Title: Dune
+# Dune
 
-## Author: Frank Herbert
+**Author:** Frank Herbert
 
-## Excerpt: On the desert planet Arrakis, young Paul Atreides harnesses the sacred spice melange and his latent powers to rise against betrayal and claim a destiny that could reshape the known universe.
+**Excerpt:** On the desert planet Arrakis, young Paul Atreides harnesses the sacred spice melange and his latent powers to rise against betrayal and claim a destiny that could reshape the known universe.
 
-## Thoughts: 
+**Thoughts:**
 
-## Banner: ../../Images/Books/dune.png
+**Banner:** ../../Images/Books/dune.png
 
-## Category: Novels
+**Category:** Novels
 
-## Status: Reading
+**Status:** Reading
 
 ## Chapters:
 

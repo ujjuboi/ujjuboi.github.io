@@ -1,16 +1,16 @@
-## Title: The New Encyclopedia of Modern Bodybuilding
+# The New Encyclopedia of Modern Bodybuilding
 
-## Author: Arnold Schwarzenegger
+**Author:** Arnold Schwarzenegger
 
-## Excerpt: Arnold Schwarzenegger's definitive guide to bodybuilding, covering training principles, nutrition, competition strategies, and detailed exercises for every major muscle group.
+**Excerpt:** Arnold Schwarzenegger's definitive guide to bodybuilding, covering training principles, nutrition, competition strategies, and detailed exercises for every major muscle group.
 
-## Thoughts:
+**Thoughts:**
 
-## Banner: ../../Images/Books/the-new-encyclopedia-of-modern-bodybuilding.png
+**Banner:** ../../Images/Books/the-new-encyclopedia-of-modern-bodybuilding.png
 
-## Category: Self Help
+**Category:** Self Help
 
-## Status: Reading
+**Status:** Reading
 
 ## Chapters:
 

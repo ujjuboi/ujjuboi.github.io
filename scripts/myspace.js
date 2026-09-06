@@ -172,8 +172,8 @@ function buildBooksSection() {
         <h1 id="book-title"></h1>
         <p id="book-author"></p>
         <p id="book-meta"></p>
-        <p id="book-excerpt"></p>
-        <p id="book-thoughts"></p>
+        <div id="book-excerpt"></div>
+        <div id="book-thoughts"></div>
       </div>
     </div>
   </div>
@@ -658,14 +658,12 @@ const books = [];
  * @returns {Object|null} Parsed book object or null on failure.
  */
 function parseBook(text, filename) {
-  const meta = {};
+  const meta = parsePostHeaders(text);
   const lines = text.split('\n');
   let inChapters = false;
   const chapterLines = [];
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
+  for (const line of lines) {
     if (inChapters) {
       if (line.startsWith('## ')) {
         inChapters = false;
@@ -678,11 +676,6 @@ function parseBook(text, filename) {
     if (line.startsWith('## Chapters:')) {
       inChapters = true;
       continue;
-    }
-
-    const match = line.match(/^## (\w+):\s*(.+)/);
-    if (match) {
-      meta[match[1].toLowerCase()] = match[2].trim();
     }
   }
 
@@ -858,8 +851,8 @@ function showBook(index) {
   document.getElementById('book-author').textContent = book.author;
   document.getElementById('book-meta').textContent =
     book.category + ' · ' + book.status + ' · ' + book.progressText;
-  document.getElementById('book-excerpt').textContent = book.excerpt;
-  document.getElementById('book-thoughts').textContent = book.thoughts;
+  document.getElementById('book-excerpt').innerHTML = renderMarkdown(book.excerpt);
+  document.getElementById('book-thoughts').innerHTML = renderMarkdown(book.thoughts);
 
   history.replaceState(null, '', '#book-' + index);
   bookView.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -910,8 +903,8 @@ function openStudyDrawer(node, triggerBtn) {
 
   let html = '';
 
-  html += '<p class="drawer-breadcrumb">' + escapeHtml(node.phaseBreadCrumb) + '</p>';
-  html += '<h2 class="drawer-title">' + escapeHtml(node.title) + '</h2>';
+  html += '<p class="drawer-breadcrumb">' + mdInline(node.phaseBreadCrumb) + '</p>';
+  html += '<h2 class="drawer-title">' + mdInline(node.title) + '</h2>';
 
   if (node.items && node.items.length > 0) {
     const done = node.items.filter(i => i.done).length;
@@ -934,15 +927,15 @@ function openStudyDrawer(node, triggerBtn) {
       html += '<li class="drawer-checklist-item ' + doneClass + '">';
       html += '<span class="check-mark">' + mark + '</span>';
       html += '<span class="drawer-item-main">';
-      html += escapeHtml(item.text);
+      html += mdInline(item.text);
       if (item.subs && item.subs.length > 0) {
         html += '<span class="drawer-item-subs">';
         for (const sub of item.subs) {
           if (sub.url) {
-            const linkLabel = sub.label ? escapeHtml(sub.label) + ': ' : '';
-            html += '<a class="drawer-item-sub" href="' + escapeHtml(sub.url) + '" target="_blank" rel="noopener">' + linkLabel + escapeHtml(sub.text) + '</a>';
+            const linkLabel = sub.label ? mdInline(sub.label) + ': ' : '';
+            html += '<a class="drawer-item-sub" href="' + escapeHtml(sub.url) + '" target="_blank" rel="noopener">' + linkLabel + mdInline(sub.text) + '</a>';
           } else {
-            html += '<span class="drawer-item-sub">' + escapeHtml(sub.text) + '</span>';
+            html += '<span class="drawer-item-sub">' + mdInline(sub.text) + '</span>';
           }
         }
         html += '</span>';
@@ -995,7 +988,7 @@ function renderStudyNode(phase, node, isActive) {
 
   const text = document.createElement('span');
   text.className = 'wt-leaf-text';
-  text.textContent = node.topic || node.label;
+  text.innerHTML = mdInline(node.topic || node.label);
 
   leafEl.appendChild(kicker);
   leafEl.appendChild(text);
@@ -1281,8 +1274,8 @@ function renderStudyPlans() {
       : '';
 
     card.innerHTML = `
-      <span class="study-plan-card-title">${escapeHtml(title)}</span>
-      <span class="study-plan-card-focus">${escapeHtml(focus)}</span>
+      <span class="study-plan-card-title">${mdInline(title)}</span>
+      <span class="study-plan-card-focus">${mdInline(focus)}</span>
       <div class="study-plan-card-progress">
         <div class="study-plan-card-track">
           <div class="study-plan-card-fill" style="width: ${plan.pct}%"></div>
@@ -1311,7 +1304,7 @@ function showStudyPlan(index) {
   const view = document.getElementById('study-plan-view');
   view.style.display = 'block';
 
-  document.getElementById('study-title').textContent = studyPlanDisplayTitle(plan);
+  document.getElementById('study-title').innerHTML = mdInline(studyPlanDisplayTitle(plan));
 
   const progressFill = document.getElementById('study-progress-fill');
   const progressLabel = document.getElementById('study-progress-label');
@@ -1320,9 +1313,9 @@ function showStudyPlan(index) {
 
   const focusEl = document.getElementById('study-focus');
   if (focusEl) {
-    focusEl.textContent = plan.focus
+    focusEl.innerHTML = mdInline(plan.focus
       ? plan.focus.phase + ' · ' + plan.focus.label + ' — ' + plan.focus.topic
-      : '';
+      : '');
   }
 
   const treeEl = document.getElementById('study-tree');

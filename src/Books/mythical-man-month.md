@@ -1,16 +1,16 @@
-## Title: Mythical Man-Month, The: Essays on Software Engineering, Anniversary Edition
+# Mythical Man-Month, The: Essays on Software Engineering, Anniversary Edition
 
-## Author: Frederick P. Brooks
+**Author:** Frederick P. Brooks
 
-## Excerpt: The legendary essays that introduced Brooks's Law and "No Silver Bullet," exploring why adding people to late software projects makes them later and why fundamental software complexity can never be eliminated.
+**Excerpt:** The legendary essays that introduced Brooks's Law and "No Silver Bullet," exploring why adding people to late software projects makes them later and why fundamental software complexity can never be eliminated.
 
-## Thoughts:
+**Thoughts:**
 
-## Banner: ../../Images/Books/mythical-man-month.png
+**Banner:** ../../Images/Books/mythical-man-month.png
 
-## Category: Software Engineering
+**Category:** Software Engineering
 
-## Status: Reading
+**Status:** Reading
 
 ## Chapters:
 

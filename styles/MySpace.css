@@ -695,6 +695,11 @@
   margin: 0 0 1.5rem 0;
 }
 
+#book-excerpt p,
+#book-thoughts p {
+  margin: 0;
+}
+
 #book-thoughts {
   font-size: var(--text-base);
   color: var(--shadowColor);

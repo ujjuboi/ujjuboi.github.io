@@ -51,17 +51,7 @@ function renderLatestPost(container) {
   const latest = posts[0];
   if (!latest) return;
 
-  const card = document.createElement('div');
-  card.className = 'post-card card';
-  card.style.margin = 'auto';
-  card.onclick = () => showPost(0);
-  card.innerHTML = `
-    <img class="latest-post-banner" src="${latest.banner}" alt="${latest.title} banner">
-    <h3 class="card-title">${latest.title}</h3>
-    <p class="card-date">${latest.date}</p>
-    <p class="card-excerpt">${latest.excerpt}</p>
-    <a class="card-link" href="#post-0" target="_self" onclick="event.stopPropagation(); showPost(0)">Read more →</a>
-  `;
+  const card = renderPostCard(latest, 0, null, true);
 
   new Section({
     title: 'Latest Post',
@@ -94,18 +84,8 @@ function renderBlogList() {
     grid.className = 'post-grid';
 
     grouped.forEach(({ post, index }) => {
-      const card = document.createElement('div');
-      card.className = 'post-card card';
-      card.id = 'post-' + index;
+      const card = renderPostCard(post, index);
       card.style.animationDelay = (delayIndex * 0.1) + 's';
-      card.style.margin = 'auto';
-      card.onclick = () => showPost(index);
-      card.innerHTML = `
-        <h3 class="card-title">${post.title}</h3>
-        <p class="card-date">${post.date}</p>
-        <p class="card-excerpt">${post.excerpt}</p>
-        <a class="card-link" href="#post-${index}" target="_self" onclick="event.stopPropagation(); showPost(${index})">Read more →</a>
-      `;
       grid.appendChild(card);
       delayIndex++;
     });
@@ -130,19 +110,14 @@ function showPost(index) {
   const postView = document.getElementById('post-view');
   postView.style.display = 'block';
 
-  document.getElementById('post-banner').src = post.banner;
-  document.getElementById('post-banner').alt = post.title;
-  document.getElementById('post-title').textContent = post.title;
-  document.getElementById('post-date').textContent = post.date;
+  postView.innerHTML = '';
+  postView.appendChild(renderPostContent(post));
 
-  const content = document.getElementById('post-content');
-  content.innerHTML = '';
-  post.paragraphs.forEach(p => {
-    const div = document.createElement('div');
-    div.className = 'post-paragraph';
-    div.innerHTML = renderMarkdown(p);
-    content.appendChild(div);
-  });
+  const backBtn = document.createElement('button');
+  backBtn.id = 'back-btn';
+  backBtn.textContent = '← Back to posts';
+  backBtn.onclick = () => showBlogList();
+  postView.insertBefore(backBtn, postView.firstChild);
 
   history.replaceState(null, '', '#post-' + index);
   window.scrollTo({ top: 0, behavior: 'smooth' });

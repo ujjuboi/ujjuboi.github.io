@@ -160,17 +160,6 @@
   content: '';
 }
 
-.job code,
-.project code,
-.education code {
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
-  background-color: var(--shadowColor);
-  color: var(--backgroundColor);
-  padding: 0.05rem 0.3rem;
-  border-radius: 0.25rem;
-}
-
 .project {
   margin-bottom: 2%;
   line-height: 1.6;

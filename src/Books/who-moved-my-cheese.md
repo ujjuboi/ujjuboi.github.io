@@ -1,16 +1,16 @@
-## Title: Who Moved My Cheese
+# Who Moved My Cheese
 
-## Author: Dr Spencer Johnson
+**Author:** Dr Spencer Johnson
 
-## Excerpt: A simple parable about four characters dealing with change in their lives, teaching that adapting to change leads to success while resisting it leads to stagnation.
+**Excerpt:** A simple parable about four characters dealing with change in their lives, teaching that adapting to change leads to success while resisting it leads to stagnation.
 
-## Thoughts:
+**Thoughts:**
 
-## Banner: ../../Images/Books/who-moved-my-cheese.jpg
+**Banner:** ../../Images/Books/who-moved-my-cheese.jpg
 
-## Category: Self Help
+**Category:** Self Help
 
-## Status: Read
+**Status:** Read
 
 ## Chapters:
 

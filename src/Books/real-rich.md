@@ -1,16 +1,16 @@
-## Title: Real Rich, Getting Real About Real Estate
+# Real Rich, Getting Real About Real Estate
 
-## Author: Atul Goel & Leela Saldanha
+**Author:** Atul Goel & Leela Saldanha
 
-## Excerpt: Real Rich is the voice experience, reporting from the ground about everything you need to know about the ways in which you need to approach real estate if you really want to make it work for you. Combining the deep experience of Atul Goel and the storytelling artistry of Leena Saldanha, Real Rich is a quick, compelling book that can change the way people understand, engage with and benefit from real estate.
+**Excerpt:** Real Rich is the voice experience, reporting from the ground about everything you need to know about the ways in which you need to approach real estate if you really want to make it work for you. Combining the deep experience of Atul Goel and the storytelling artistry of Leena Saldanha, Real Rich is a quick, compelling book that can change the way people understand, engage with and benefit from real estate.
 
-## Thoughts: a paragraph of personal thoughts about the book
+**Thoughts:** a paragraph of personal thoughts about the book
 
-## Banner: ../../Images/Books/real-rich.jpg
+**Banner:** ../../Images/Books/real-rich.jpg
 
-## Category: Self Help
+**Category:** Self Help
 
-## Status: Currently Reading
+**Status:** Currently Reading
 
 ## Chapters:
 

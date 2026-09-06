@@ -1,16 +1,16 @@
-## Title: Architecture Patterns with Python
+# Architecture Patterns with Python
 
-## Author: Harry Percival and Bob Gregory
+**Author:** Harry Percival and Bob Gregory
 
-## Excerpt: A practical guide to hexagonal architecture, domain-driven design, and event-driven patterns in Python, with examples from TDD through microservices.
+**Excerpt:** A practical guide to hexagonal architecture, domain-driven design, and event-driven patterns in Python, with examples from TDD through microservices.
 
-## Thoughts: 
+**Thoughts:**
 
-## Banner: ../../Images/Books/architecture-patterns-with-python.png
+**Banner:** ../../Images/Books/architecture-patterns-with-python.png
 
-## Category: Software Engineering
+**Category:** Software Engineering
 
-## Status: Interested
+**Status:** Interested
 
 ## Chapters:
 

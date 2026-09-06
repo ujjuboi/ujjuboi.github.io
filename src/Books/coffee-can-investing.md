@@ -1,16 +1,16 @@
-## Title: Coffee Can Investing: The Low Risk Road to Stupendous Wealth
+# Coffee Can Investing: The Low Risk Road to Stupendous Wealth
 
-## Author: Saurabh Mukherjea
+**Author:** Saurabh Mukherjea
 
-## Excerpt: A low-risk equity strategy: pick a basket of high-quality Indian companies and hold them untouched for a decade, ignoring market noise.
+**Excerpt:** A low-risk equity strategy: pick a basket of high-quality Indian companies and hold them untouched for a decade, ignoring market noise.
 
-## Thoughts: 
+**Thoughts:**
 
-## Banner: ../../Images/Books/coffee-can-investing.png
+**Banner:** ../../Images/Books/coffee-can-investing.png
 
-## Category: Self Help
+**Category:** Self Help
 
-## Status: Read
+**Status:** Read
 
 ## Chapters:
 

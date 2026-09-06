@@ -1,16 +1,16 @@
-## Title: The Bhagavad Gita
+# The Bhagavad Gita
 
-## Author: Sri Aurobindo
+**Author:** Sri Aurobindo
 
-## Excerpt: Sri Aurobindo's translation of Krishna's counsel to Arjuna on duty, knowledge, devotion, and liberation, delivered on the battlefield of Kurukshetra.
+**Excerpt:** Sri Aurobindo's translation of Krishna's counsel to Arjuna on duty, knowledge, devotion, and liberation, delivered on the battlefield of Kurukshetra.
 
-## Thoughts: 
+**Thoughts:**
 
-## Banner: ../../Images/Books/the-bhagavad-gita.png
+**Banner:** ../../Images/Books/the-bhagavad-gita.png
 
-## Category: Devotion
+**Category:** Devotion
 
-## Status: Reading
+**Status:** Reading
 
 ## Chapters:
 
