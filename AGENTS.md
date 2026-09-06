@@ -56,4 +56,5 @@ Static portfolio site. Plain HTML + external vanilla JS/CSS. **No build system, 
 
 - **Git/branch/commit workflow**: handled by the user.
 - **README.md**: protected — never edit.
-- **Content publishing (blogs, CV)**: use the `quick-blog` skill; do not reinvent its workflow.
+- **Skills in `.opencode/`** (`quick-blog`, `quick-book`, `quick-study-plan`): all content publishing. Use the relevant skill; do not reinvent its workflow.
+- **quick-test** (`.opencode/skills/quick-test`): triggered **manually by the user only** — never invoked by the AI on its own.
