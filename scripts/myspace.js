@@ -226,16 +226,16 @@ function renderLeetCodeActivity(submissionCalendar) {
   if (typeof submissionCalendar === 'string' && submissionCalendar) {
     try {
       submissionCalendar = JSON.parse(submissionCalendar);
-    } catch (e) {
+    } catch (error) {
       submissionCalendar = null;
     }
   }
   if (!submissionCalendar || typeof submissionCalendar !== 'object') return false;
 
   const days = Object.entries(submissionCalendar)
-    .map(([ts, count]) => ({ ts: Number(ts) * 1000, count: Number(count) || 0 }))
-    .filter(d => d.count > 0)
-    .sort((a, b) => a.ts - b.ts);
+    .map(([timestamp, count]) => ({ timestamp: Number(timestamp) * 1000, count: Number(count) || 0 }))
+    .filter(day => day.count > 0)
+    .sort((firstDay, secondDay) => firstDay.timestamp - secondDay.timestamp);
 
   if (days.length === 0) return false;
 
@@ -245,32 +245,32 @@ function renderLeetCodeActivity(submissionCalendar) {
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   const monthMap = new Map();
-  days.forEach(d => {
-    const date = new Date(d.ts);
+  days.forEach(day => {
+    const date = new Date(day.timestamp);
     const key = `${date.getFullYear()}-${date.getMonth()}`;
-    const entry = monthMap.get(key) || { ts: d.ts, count: 0, date };
-    entry.ts = Math.min(entry.ts, d.ts);
-    entry.count += d.count;
+    const entry = monthMap.get(key) || { timestamp: day.timestamp, count: 0, date };
+    entry.timestamp = Math.min(entry.timestamp, day.timestamp);
+    entry.count += day.count;
     monthMap.set(key, entry);
   });
 
-  const months = Array.from(monthMap.values()).sort((a, b) => a.ts - b.ts);
+  const months = Array.from(monthMap.values()).sort((firstMonth, secondMonth) => firstMonth.timestamp - secondMonth.timestamp);
 
-  const total = months.reduce((sum, m) => sum + m.count, 0);
-  const max = Math.max(...months.map(m => m.count));
+  const total = months.reduce((sum, month) => sum + month.count, 0);
+  const max = Math.max(...months.map(month => month.count));
 
-  const chartData = months.map(m => {
-    const height = max > 0 ? Math.max(8, (m.count / max) * 100) : 8;
-    const filledPct = total > 0 ? Math.round((m.count / total) * 100) : 0;
-    const label = `${monthNames[m.date.getMonth()]} ${m.date.getFullYear()}`;
-    const shortLabel = `${monthNames[m.date.getMonth()]} ${String(m.date.getFullYear()).slice(2)}`;
+  const chartData = months.map(month => {
+    const height = max > 0 ? Math.max(8, (month.count / max) * 100) : 8;
+    const filledPct = total > 0 ? Math.round((month.count / total) * 100) : 0;
+    const label = `${monthNames[month.date.getMonth()]} ${month.date.getFullYear()}`;
+    const shortLabel = `${monthNames[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}`;
 
     return {
       height,
       shortLabel,
       content: `
         <span class="lc-tooltip-date">${label}</span>
-        <span class="lc-tooltip-count">${m.count} submission${m.count === 1 ? '' : 's'}</span>
+        <span class="lc-tooltip-count">${month.count} submission${month.count === 1 ? '' : 's'}</span>
         <span class="lc-tooltip-meter"><span style="width:${filledPct}%"></span></span>
         <span class="lc-tooltip-max"><em>${filledPct}%</em> of total submissions</span>`
     };
@@ -283,10 +283,10 @@ function renderLeetCodeActivity(submissionCalendar) {
       </div>
       <div class="lc-plot">
         <div class="lc-total">${total} total submissions</div>
-        <div class="lc-activity-bars">${chartData.map(d => `
+        <div class="lc-activity-bars">${chartData.map(dataPoint => `
           <div class="lc-col">
-            <div class="lc-bar" style="height:${d.height}%;"></div>
-            <span class="lc-col-label">${d.shortLabel}</span>
+            <div class="lc-bar" style="height:${dataPoint.height}%;"></div>
+            <span class="lc-col-label">${dataPoint.shortLabel}</span>
           </div>`).join('')}
         </div>
       </div>
@@ -294,8 +294,8 @@ function renderLeetCodeActivity(submissionCalendar) {
   `;
 
   const tooltip = new Tooltip();
-  container.querySelectorAll('.lc-col').forEach((col, i) => {
-    tooltip.attach(col, chartData[i].content);
+  container.querySelectorAll('.lc-col').forEach((col, colIndex) => {
+    tooltip.attach(col, chartData[colIndex].content);
   });
   return true;
 }

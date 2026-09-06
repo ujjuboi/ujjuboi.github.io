@@ -28,10 +28,10 @@ function mdBlock(text) {
       /**
        * Returns whether a stack tag is a list container.
        *
-       * @param {string} t Tag name from the stack.
+       * @param {string} tagName Tag name from the stack.
        * @returns {boolean} True when the tag is a list.
        */
-      let depth = stack.filter(function (t) { return t === 'ul' || t === 'ol'; }).length - 1;
+      let depth = stack.filter(function (tagName) { return tagName === 'ul' || tagName === 'ol'; }).length - 1;
 
       if (depth < level) {
         while (depth < level) {
@@ -410,10 +410,10 @@ function activateSection(sectionEl, item) {
   /**
    * Hides a single professional section.
    *
-   * @param {HTMLElement} s Section element to hide.
+   * @param {HTMLElement} sectionElement Section element to hide.
    */
-  editorWindow.main.querySelectorAll('.pro-section').forEach(function (s) {
-    s.style.display = 'none';
+  editorWindow.main.querySelectorAll('.pro-section').forEach(function (sectionElement) {
+    sectionElement.style.display = 'none';
   });
   sectionEl.style.display = 'block';
   setActiveTreeItem(item);
@@ -637,12 +637,12 @@ function renderExperience(jobs) {
   /**
    * Compares two jobs by sort key, descending.
    *
-   * @param {Object} a First job.
-   * @param {Object} b Second job.
+   * @param {Object} firstJob First job.
+   * @param {Object} secondJob Second job.
    * @returns {number} Negative, zero, or positive sort difference.
    */
-  const sorted = jobs.slice().sort(function (a, b) {
-    return (b.sortKey || 0) - (a.sortKey || 0);
+  const sorted = jobs.slice().sort(function (firstJob, secondJob) {
+    return (secondJob.sortKey || 0) - (firstJob.sortKey || 0);
   });
 
   /**
@@ -652,12 +652,12 @@ function renderExperience(jobs) {
    */
   sorted.forEach(job => {
     const fullName = job.role || job.company || 'Role';
-    const short = shortName(fullName);
+    const fileName = shortName(fullName);
 
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(short + '.md'));
+    tab.appendChild(document.createTextNode(fileName + '.md'));
     tab.title = fullName + (job.company && job.company !== job.role ? ' \u00B7 ' + job.company : '') + (job.date ? ' \u00B7 ' + job.date : '');
 
     const close = document.createElement('span');
@@ -670,7 +670,7 @@ function renderExperience(jobs) {
 
     const comment = document.createElement('p');
     comment.className = 'editor-comment';
-    comment.textContent = '// Experience/' + short + '.md';
+    comment.textContent = '// Experience/' + fileName + '.md';
     view.appendChild(comment);
 
     if (job.banner) {
@@ -696,21 +696,21 @@ function renderExperience(jobs) {
     }
 
     if (job.bullets && job.bullets.length) {
-      const wrap = document.createElement('div');
-      wrap.className = 'editor-bullets';
-      let currentUl = null;
+      const bulletsWrapper = document.createElement('div');
+      bulletsWrapper.className = 'editor-bullets';
+      let currentList = null;
 
       /**
        * Returns the active bullet list, creating one when needed.
        *
        * @returns {HTMLUListElement} The current list element.
        */
-      function ensureUl() {
-        if (!currentUl) {
-          currentUl = document.createElement('ul');
-          wrap.appendChild(currentUl);
+      function ensureList() {
+        if (!currentList) {
+          currentList = document.createElement('ul');
+          bulletsWrapper.appendChild(currentList);
         }
-        return currentUl;
+        return currentList;
       }
 
       /**
@@ -720,32 +720,32 @@ function renderExperience(jobs) {
        */
       job.bullets.forEach(bullet => {
         if (bullet.kind === 'heading') {
-          currentUl = null;
-          const h = document.createElement('div');
-          h.className = 'editor-subheading';
-          h.innerHTML = mdInline(bullet.text);
-          wrap.appendChild(h);
+          currentList = null;
+          const subheadingDiv = document.createElement('div');
+          subheadingDiv.className = 'editor-subheading';
+          subheadingDiv.innerHTML = mdInline(bullet.text);
+          bulletsWrapper.appendChild(subheadingDiv);
           return;
         }
-        const li = document.createElement('li');
-        li.innerHTML = mdInline(bullet.text);
-        ensureUl().appendChild(li);
+        const listItem = document.createElement('li');
+        listItem.innerHTML = mdInline(bullet.text);
+        ensureList().appendChild(listItem);
         if (bullet.sub && bullet.sub.length) {
-          const subUl = document.createElement('ul');
+          const subList = document.createElement('ul');
           /**
            * Renders one sub-bullet under the current list item.
            *
            * @param {string} sub Sub-bullet text.
            */
           bullet.sub.forEach(sub => {
-            const sl = document.createElement('li');
-            sl.innerHTML = mdInline(sub);
-            subUl.appendChild(sl);
+            const subListItem = document.createElement('li');
+            subListItem.innerHTML = mdInline(sub);
+            subList.appendChild(subListItem);
           });
-          li.appendChild(subUl);
+          listItem.appendChild(subList);
         }
       });
-      view.appendChild(wrap);
+      view.appendChild(bulletsWrapper);
 
       if (job.readMore) {
         const readMore = document.createElement('a');
@@ -787,7 +787,7 @@ function renderExperience(jobs) {
       view.appendChild(preview);
     }
 
-    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
+    tabRefs.push({ label: fullName, fileName: fileName, tab: tab, view: view, editor: editor });
 
     /**
      * Selects this job's file in the editor on tab click.
@@ -820,17 +820,17 @@ function renderProjects(projects) {
   /**
    * Builds one project tab with its source view and preview.
    *
-   * @param {Object} proj Parsed project entry.
+   * @param {Object} project Parsed project entry.
    */
-  projects.forEach(proj => {
-    const fullName = proj.name || 'Untitled';
-    const short = shortName(fullName);
+  projects.forEach(project => {
+    const fullName = project.name || 'Untitled';
+    const fileName = shortName(fullName);
 
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(short + '.md'));
-    tab.title = proj.tag || fullName;
+    tab.appendChild(document.createTextNode(fileName + '.md'));
+    tab.title = project.tag || fullName;
 
     const close = document.createElement('span');
     close.className = 'editor-tab-close';
@@ -842,13 +842,13 @@ function renderProjects(projects) {
 
     const comment = document.createElement('p');
     comment.className = 'editor-comment';
-    comment.textContent = '// Projects/' + short + '.md';
+    comment.textContent = '// Projects/' + fileName + '.md';
     view.appendChild(comment);
 
-    if (proj.banner) {
+    if (project.banner) {
       const banner = document.createElement('img');
       banner.className = 'editor-banner';
-      banner.src = proj.banner;
+      banner.src = project.banner;
       banner.alt = fullName || 'banner';
       view.appendChild(banner);
     }
@@ -858,24 +858,24 @@ function renderProjects(projects) {
     title.textContent = fullName;
     view.appendChild(title);
 
-    if (proj.tag) {
+    if (project.tag) {
       const meta = document.createElement('p');
       meta.className = 'editor-meta';
-      meta.textContent = proj.tag;
+      meta.textContent = project.tag;
       view.appendChild(meta);
     }
 
-    if (proj.desc) {
-      const desc = document.createElement('p');
-      desc.className = 'editor-excerpt';
-      desc.innerHTML = mdInline(proj.desc);
-      view.appendChild(desc);
+    if (project.description) {
+      const excerpt = document.createElement('p');
+      excerpt.className = 'editor-excerpt';
+      excerpt.innerHTML = mdInline(project.description);
+      view.appendChild(excerpt);
 
-      if (proj.readMore) {
+      if (project.readMore) {
         const readMore = document.createElement('a');
         readMore.className = 'editor-read-more';
-        readMore.href = proj.readMore.url;
-        readMore.textContent = proj.readMore.label;
+        readMore.href = project.readMore.url;
+        readMore.textContent = project.readMore.label;
         readMore.target = '_blank';
         readMore.rel = 'noopener';
         view.appendChild(readMore);
@@ -883,27 +883,27 @@ function renderProjects(projects) {
 
       const preview = document.createElement('div');
       preview.className = 'editor-preview';
-      const p = document.createElement('p');
-      p.innerHTML = mdInline(proj.desc);
-      preview.appendChild(p);
+      const paragraph = document.createElement('p');
+      paragraph.innerHTML = mdInline(project.description);
+      preview.appendChild(paragraph);
 
-      if (proj.readMore) {
-        const bq = document.createElement('blockquote');
-        const bqP = document.createElement('p');
-        const readMore2 = document.createElement('a');
-        readMore2.href = proj.readMore.url;
-        readMore2.textContent = proj.readMore.label;
-        readMore2.target = '_blank';
-        readMore2.rel = 'noopener';
-        bqP.appendChild(readMore2);
-        bq.appendChild(bqP);
-        preview.appendChild(bq);
+      if (project.readMore) {
+        const blockquote = document.createElement('blockquote');
+        const blockquoteParagraph = document.createElement('p');
+        const readMoreLink = document.createElement('a');
+        readMoreLink.href = project.readMore.url;
+        readMoreLink.textContent = project.readMore.label;
+        readMoreLink.target = '_blank';
+        readMoreLink.rel = 'noopener';
+        blockquoteParagraph.appendChild(readMoreLink);
+        blockquote.appendChild(blockquoteParagraph);
+        preview.appendChild(blockquote);
       }
 
       view.appendChild(preview);
     }
 
-    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
+    tabRefs.push({ label: fullName, fileName: fileName, tab: tab, view: view, editor: editor });
 
     /**
      * Selects this project's file in the editor on tab click.
@@ -934,12 +934,12 @@ function renderSkills(categories) {
   const tabRefs = [];
 
   const fullName = 'Skills';
-  const short = shortName(fullName);
+  const fileName = shortName(fullName);
 
   const tab = document.createElement('button');
   tab.type = 'button';
   tab.className = 'editor-tab';
-  tab.appendChild(document.createTextNode(short + '.md'));
+  tab.appendChild(document.createTextNode(fileName + '.md'));
   tab.title = fullName;
 
   const close = document.createElement('span');
@@ -952,7 +952,7 @@ function renderSkills(categories) {
 
   const comment = document.createElement('p');
   comment.className = 'editor-comment';
-  comment.textContent = '// Skills/' + short + '.md';
+  comment.textContent = '// Skills/' + fileName + '.md';
   view.appendChild(comment);
 
   const title = document.createElement('h3');
@@ -960,19 +960,19 @@ function renderSkills(categories) {
   title.textContent = fullName;
   view.appendChild(title);
 
-  const ul = document.createElement('ul');
-  ul.className = 'editor-bullets';
+  const bulletsList = document.createElement('ul');
+  bulletsList.className = 'editor-bullets';
   /**
    * Adds one category line to the skills bullet list.
    *
-   * @param {Object} cat Category with a name and item list.
+   * @param {Object} skillCategory Category with a name and item list.
    */
-  (categories || []).forEach(cat => {
-    const li = document.createElement('li');
-    li.textContent = (cat.category || '') + ': ' + (cat.items || []).join(', ');
-    ul.appendChild(li);
+  (categories || []).forEach(skillCategory => {
+    const listItem = document.createElement('li');
+    listItem.textContent = (skillCategory.category || '') + ': ' + (skillCategory.items || []).join(', ');
+    bulletsList.appendChild(listItem);
   });
-  view.appendChild(ul);
+  view.appendChild(bulletsList);
 
   const preview = document.createElement('div');
   preview.className = 'editor-preview skills-preview';
@@ -991,25 +991,25 @@ function renderSkills(categories) {
   /**
    * Adds one category row to the skills table.
    *
-   * @param {Object} cat Category with a name and item list.
+   * @param {Object} skillCategory Category with a name and item list.
    */
-  (categories || []).forEach(cat => {
-    const tr = document.createElement('tr');
-    const catTd = document.createElement('td');
-    catTd.className = 'skills-category';
-    catTd.textContent = cat.category || '';
-    tr.appendChild(catTd);
-    const skillsTd = document.createElement('td');
-    skillsTd.className = 'skills-items';
-    skillsTd.textContent = (cat.items || []).join(', ');
-    tr.appendChild(skillsTd);
-    tbody.appendChild(tr);
+  (categories || []).forEach(skillCategory => {
+    const tableRow = document.createElement('tr');
+    const categoryCell = document.createElement('td');
+    categoryCell.className = 'skills-category';
+    categoryCell.textContent = skillCategory.category || '';
+    tableRow.appendChild(categoryCell);
+    const skillsCell = document.createElement('td');
+    skillsCell.className = 'skills-items';
+    skillsCell.textContent = (skillCategory.items || []).join(', ');
+    tableRow.appendChild(skillsCell);
+    tbody.appendChild(tableRow);
   });
   table.appendChild(tbody);
   preview.appendChild(table);
   view.appendChild(preview);
 
-  tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
+  tabRefs.push({ label: fullName, fileName: fileName, tab: tab, view: view, editor: editor });
 
   /**
    * Selects the skills file in the editor on tab click.
@@ -1126,21 +1126,21 @@ function selectEditorFile(editor, tab, view) {
  */
 (function initBannerEyes() {
   const banner = document.querySelector('.launch-banner');
-  const h1 = banner && banner.querySelector('h1');
-  if (!h1) return;
+  const bannerHeading = banner && banner.querySelector('h1');
+  if (!bannerHeading) return;
 
-  const text = h1.textContent;
+  const text = bannerHeading.textContent;
   let wrapped = '';
-  for (let i = 0; i < text.length; i++) {
-    if (text[i] === 'j') {
-      wrapped += '<span class="j-char">' + text[i] + '</span>';
+  for (let index = 0; index < text.length; index++) {
+    if (text[index] === 'j') {
+      wrapped += '<span class="j-char">' + text[index] + '</span>';
     } else {
-      wrapped += text[i];
+      wrapped += text[index];
     }
   }
-  h1.innerHTML = wrapped;
+  bannerHeading.innerHTML = wrapped;
 
-  const chars = h1.querySelectorAll('.j-char');
+  const characters = bannerHeading.querySelectorAll('.j-char');
   const eyes = [];
 
   const style = document.createElement('style');
@@ -1155,20 +1155,20 @@ function selectEditorFile(editor, tab, view) {
   /**
    * Builds the eye elements for a single 'j' character.
    *
-   * @param {HTMLElement} ch Character element to attach eyes to.
+   * @param {HTMLElement} characterElement Character element to attach eyes to.
    */
-  chars.forEach(function (ch) {
+  characters.forEach(function (characterElement) {
     const sclera = document.createElement('span');
     sclera.style.cssText =
       'position:absolute;background:var(--accentLight);border-radius:50%;pointer-events:none;z-index:9;' +
       'transform:translate(-50%,-50%);';
-    h1.appendChild(sclera);
+    bannerHeading.appendChild(sclera);
 
     const pupil = document.createElement('span');
     pupil.style.cssText =
       'position:absolute;background:var(--borderColor);border-radius:50%;pointer-events:none;z-index:10;' +
       'transform:translate(-50%,-50%);';
-    h1.appendChild(pupil);
+    bannerHeading.appendChild(pupil);
 
     const lid = document.createElement('span');
     lid.style.cssText =
@@ -1176,20 +1176,20 @@ function selectEditorFile(editor, tab, view) {
       'transform:translateX(-50%) scaleY(0);' +
       'transform-origin:top center;' +
       'animation:jLidBlink ' + (5000 / 1000) + 's infinite;';
-    h1.appendChild(lid);
-    eyes.push({ sclera: sclera, pupil: pupil, lid: lid, chEl: ch });
+    bannerHeading.appendChild(lid);
+    eyes.push({ sclera: sclera, pupil: pupil, lid: lid, characterElement: characterElement });
   });
 
   /**
    * Positions the eye elements over their host characters.
    */
   function positionEyes() {
-    const h1Rect = h1.getBoundingClientRect();
-    const fs = parseFloat(getComputedStyle(h1).fontSize);
-    const scleraSize = Math.round(fs * 0.16);
-    const pupilW = Math.round(scleraSize * 0.6);
-    const pupilH = Math.round(scleraSize * 0.6);
-    const maxDisp = (scleraSize - pupilW) / 2 - 1;
+    const headingRect = bannerHeading.getBoundingClientRect();
+    const fontSize = parseFloat(getComputedStyle(bannerHeading).fontSize);
+    const scleraSize = Math.round(fontSize * 0.16);
+    const pupilWidth = Math.round(scleraSize * 0.6);
+    const pupilHeight = Math.round(scleraSize * 0.6);
+    const maxDisplacement = (scleraSize - pupilWidth) / 2 - 1;
 
     /**
      * Positions a single eye's elements over its host character.
@@ -1199,15 +1199,15 @@ function selectEditorFile(editor, tab, view) {
     eyes.forEach(function (eye) {
       eye.sclera.style.width = scleraSize + 'px';
       eye.sclera.style.height = scleraSize + 'px';
-      eye.pupil.style.width = pupilW + 'px';
-      eye.pupil.style.height = pupilH + 'px';
+      eye.pupil.style.width = pupilWidth + 'px';
+      eye.pupil.style.height = pupilHeight + 'px';
       eye.lid.style.width = scleraSize + 'px';
       eye.lid.style.height = scleraSize + 'px';
-      eye.maxDisp = maxDisp;
+      eye.maxDisplacement = maxDisplacement;
 
-      const r = eye.chEl.getBoundingClientRect();
-      const dotX = r.left + r.width / 2 - h1Rect.left;
-      const dotY = r.top + r.height * 0.22 - h1Rect.top;
+      const rect = eye.characterElement.getBoundingClientRect();
+      const dotX = rect.left + rect.width / 2 - headingRect.left;
+      const dotY = rect.top + rect.height * 0.22 - headingRect.top;
       eye.sclera.style.left = dotX + 'px';
       eye.sclera.style.top = dotY + 'px';
       eye.pupil.style.left = dotX + 'px';
@@ -1220,37 +1220,37 @@ function selectEditorFile(editor, tab, view) {
   positionEyes();
   window.addEventListener('resize', positionEyes);
 
-  let rafId = null;
+  let animationFrameId = null;
 
   /**
    * Tracks the mouse and moves the banner eyes to follow it.
    *
-   * @param {MouseEvent} e Mouse move event.
+   * @param {MouseEvent} event Mouse move event.
    */
-  banner.addEventListener('mousemove', function (e) {
-    if (rafId) return;
+  banner.addEventListener('mousemove', function (event) {
+    if (animationFrameId) return;
     /**
      * Moves the pupils toward the cursor once per animation frame.
      */
-    rafId = requestAnimationFrame(function () {
-      rafId = null;
+    animationFrameId = requestAnimationFrame(function () {
+      animationFrameId = null;
       /**
        * Offsets a single pupil toward the cursor within its travel limit.
        *
        * @param {Object} eye Eye element group to move.
        */
       eyes.forEach(function (eye) {
-        const r = eye.chEl.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const cy = r.top + r.height * 0.22;
-        let dx = e.clientX - cx;
-        let dy = e.clientY - cy;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > eye.maxDisp) {
-          dx = dx / dist * eye.maxDisp;
-          dy = dy / dist * eye.maxDisp;
+        const rect = eye.characterElement.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height * 0.22;
+        let deltaX = event.clientX - centerX;
+        let deltaY = event.clientY - centerY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        if (distance > eye.maxDisplacement) {
+          deltaX = deltaX / distance * eye.maxDisplacement;
+          deltaY = deltaY / distance * eye.maxDisplacement;
         }
-        eye.pupil.style.transform = 'translate(calc(-50% + ' + dx + 'px),calc(-50% + ' + dy + 'px))';
+        eye.pupil.style.transform = 'translate(calc(-50% + ' + deltaX + 'px),calc(-50% + ' + deltaY + 'px))';
       });
     });
   });
@@ -1296,9 +1296,9 @@ let MOBILE_MQ = null;
  */
 async function loadCV() {
   showLoading();
-  const res = await fetch('../../src/cv.md');
-  if (!res.ok) throw new Error('Failed to fetch CV');
-  const text = await res.text();
+  const response = await fetch('../../src/cv.md');
+  if (!response.ok) throw new Error('Failed to fetch CV');
+  const text = await response.text();
   Object.assign(cvData, parseCV(text));
 }
 
@@ -1325,10 +1325,10 @@ if (MOBILE_MQ.addEventListener) {
 loadCV().then(renderProfessional).catch(/**
  * Logs the load failure and shows the error state.
  *
- * @param {Error} e The fetch or parse error.
+ * @param {Error} error The fetch or parse error.
  */
-e => {
-  console.error('Error loading CV:', e);
+error => {
+  console.error('Error loading CV:', error);
   showError('Failed to load CV data.');
 });
 
@@ -1336,9 +1336,9 @@ e => {
  * Injects the profile strips and launch button behavior once, at load time.
  */
 (function initLaunchBanner() {
-  const profilesEl = document.getElementById('profiles-strip');
-  if (profilesEl) {
-    profilesEl.appendChild(buildProfilesStrip());
+  const profilesElement = document.getElementById('profiles-strip');
+  if (profilesElement) {
+    profilesElement.appendChild(buildProfilesStrip());
   }
 
   const bannerTooltip = new Tooltip();

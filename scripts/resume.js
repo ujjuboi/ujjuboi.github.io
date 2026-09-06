@@ -20,9 +20,9 @@ let contact = {};
 async function loadCV() {
   const resumeContainer = document.getElementById('resume-container');
   try {
-    const res = await fetch('../../src/cv.md');
-    if (!res.ok) throw new Error('Failed to fetch CV');
-    const text = await res.text();
+    const response = await fetch('../../src/cv.md');
+    if (!response.ok) throw new Error('Failed to fetch CV');
+    const text = await response.text();
     const data = parseCV(text);
 
     contact = data.contact;
@@ -33,7 +33,7 @@ async function loadCV() {
     sections.push({ category: 'Skills', body: renderSkills(data.skills) });
 
     renderResume();
-  } catch (e) {
+  } catch (error) {
     resumeContainer.innerHTML = '<p style="text-align:center;padding:2rem;">Failed to load CV data.</p>';
   }
 }
@@ -48,7 +48,7 @@ function renderResume() {
   container.appendChild(renderHeader(contact));
 
   categories.forEach((category, index) => {
-    const match = sections.find(s => s.category === category);
+    const match = sections.find(section => section.category === category);
     if (!match) return;
     new Section({
       title: category,
@@ -69,8 +69,8 @@ function renderHeader(contact) {
   const header = document.createElement('div');
   header.id = 'resume-header';
 
-  const p = document.createElement('p');
-  p.className = 'resume-contact';
+  const paragraph = document.createElement('p');
+  paragraph.className = 'resume-contact';
 
   const parts = [];
   if (contact.location) parts.push('<span>' + escapeHtml(contact.location) + '</span>');
@@ -79,8 +79,8 @@ function renderHeader(contact) {
   if (contact.portfolio) parts.push('<a href="https://' + escapeHtml(contact.portfolio) + '" target="_blank">Portfolio</a>');
   if (contact.github) parts.push('<a href="https://' + escapeHtml(contact.github) + '" target="_blank">GitHub</a>');
 
-  p.innerHTML = parts.join(' | ');
-  header.appendChild(p);
+  paragraph.innerHTML = parts.join(' | ');
+  header.appendChild(paragraph);
   return header;
 }
 
@@ -91,9 +91,9 @@ function renderHeader(contact) {
  * @returns {HTMLParagraphElement} Paragraph element ready to append.
  */
 function renderSummary(text) {
-  const p = document.createElement('p');
-  p.innerHTML = renderInlineMarkdown(text);
-  return p;
+  const paragraph = document.createElement('p');
+  paragraph.innerHTML = renderInlineMarkdown(text);
+  return paragraph;
 }
 
 /**
@@ -107,27 +107,27 @@ function renderExperience(jobs) {
   const timeline = document.createElement('div');
   timeline.className = 'timeline';
   jobs.forEach(job => {
-    const div = document.createElement('div');
-    div.className = 'job';
+    const jobDiv = document.createElement('div');
+    jobDiv.className = 'job';
 
-    const h3 = document.createElement('h3');
-    h3.textContent = job.company || '';
-    div.appendChild(h3);
+    const companyHeading = document.createElement('h3');
+    companyHeading.textContent = job.company || '';
+    jobDiv.appendChild(companyHeading);
 
-    const h4 = document.createElement('h4');
-    h4.textContent = job.role || '';
-    div.appendChild(h4);
+    const roleHeading = document.createElement('h4');
+    roleHeading.textContent = job.role || '';
+    jobDiv.appendChild(roleHeading);
 
-    const p = document.createElement('p');
-    p.className = 'job-date';
-    p.textContent = job.date || '';
-    div.appendChild(p);
+    const dateParagraph = document.createElement('p');
+    dateParagraph.className = 'job-date';
+    dateParagraph.textContent = job.date || '';
+    jobDiv.appendChild(dateParagraph);
 
     if (job.bullets && job.bullets.length) {
-      div.appendChild(renderMarkdownBullets(job.bullets));
+      jobDiv.appendChild(renderMarkdownBullets(job.bullets));
     }
 
-    timeline.appendChild(div);
+    timeline.appendChild(jobDiv);
   });
   wrapper.appendChild(timeline);
   return wrapper;
@@ -141,27 +141,27 @@ function renderExperience(jobs) {
  */
 function renderProjects(projects) {
   const wrapper = document.createDocumentFragment();
-  projects.forEach(proj => {
-    const div = document.createElement('div');
-    div.className = 'project';
+  projects.forEach(project => {
+    const projectDiv = document.createElement('div');
+    projectDiv.className = 'project';
 
-    const h3 = document.createElement('h3');
-    h3.innerHTML = renderInlineMarkdown(proj.name || '');
-    if (proj.tag) {
+    const heading = document.createElement('h3');
+    heading.innerHTML = renderInlineMarkdown(project.name || '');
+    if (project.tag) {
       const tag = document.createElement('span');
       tag.className = 'project-tag';
-      tag.innerHTML = renderInlineMarkdown(proj.tag);
-      h3.appendChild(tag);
+      tag.innerHTML = renderInlineMarkdown(project.tag);
+      heading.appendChild(tag);
     }
-    div.appendChild(h3);
+    projectDiv.appendChild(heading);
 
-    if (proj.desc) {
-      const p = document.createElement('p');
-      p.innerHTML = renderInlineMarkdown(proj.desc);
-      div.appendChild(p);
+    if (project.description) {
+      const descriptionParagraph = document.createElement('p');
+      descriptionParagraph.innerHTML = renderInlineMarkdown(project.description);
+      projectDiv.appendChild(descriptionParagraph);
     }
 
-    wrapper.appendChild(div);
+    wrapper.appendChild(projectDiv);
   });
   return wrapper;
 }
@@ -174,26 +174,28 @@ function renderProjects(projects) {
  */
 function renderEducation(items) {
   const wrapper = document.createDocumentFragment();
-  items.forEach(edu => {
-    const div = document.createElement('div');
-    div.className = 'education';
+  items.forEach(educationEntry => {
+    const educationDiv = document.createElement('div');
+    educationDiv.className = 'education';
 
-    const h3 = document.createElement('h3');
-    h3.innerHTML = renderInlineMarkdown(edu.degree || '');
-    div.appendChild(h3);
+    const degreeHeading = document.createElement('h3');
+    degreeHeading.innerHTML = renderInlineMarkdown(educationEntry.degree || '');
+    educationDiv.appendChild(degreeHeading);
 
-    const p = document.createElement('p');
-    p.innerHTML = renderInlineMarkdown([edu.school, edu.cgpa].filter(Boolean).join(' ') || edu.school || '');
-    div.appendChild(p);
+    const schoolParagraph = document.createElement('p');
+    schoolParagraph.innerHTML = renderInlineMarkdown(
+      [educationEntry.school, educationEntry.cgpa].filter(Boolean).join(' ') || educationEntry.school || ''
+    );
+    educationDiv.appendChild(schoolParagraph);
 
-    if (edu.dates) {
-      const dateP = document.createElement('p');
-      dateP.className = 'job-date';
-      dateP.innerHTML = renderInlineMarkdown(edu.dates);
-      div.appendChild(dateP);
+    if (educationEntry.dates) {
+      const dateParagraph = document.createElement('p');
+      dateParagraph.className = 'job-date';
+      dateParagraph.innerHTML = renderInlineMarkdown(educationEntry.dates);
+      educationDiv.appendChild(dateParagraph);
     }
 
-    wrapper.appendChild(div);
+    wrapper.appendChild(educationDiv);
   });
   return wrapper;
 }
@@ -201,26 +203,26 @@ function renderEducation(items) {
 /**
  * Builds the skills grid grouped by category.
  *
- * @param {Object[]} categories Parsed skill categories.
+ * @param {Object[]} skillCategories Parsed skill categories.
  * @returns {HTMLDivElement} Skills grid element ready to append.
  */
-function renderSkills(categories) {
-  const div = document.createElement('div');
-  div.className = 'skills-grid';
+function renderSkills(skillCategories) {
+  const gridDiv = document.createElement('div');
+  gridDiv.className = 'skills-grid';
 
-  categories.forEach(cat => {
-    const catDiv = document.createElement('div');
-    catDiv.className = 'skill-category';
+  skillCategories.forEach(skillCategory => {
+    const categoryDiv = document.createElement('div');
+    categoryDiv.className = 'skill-category';
 
-    const h3 = document.createElement('h3');
-    h3.innerHTML = renderInlineMarkdown(cat.category || '');
-    catDiv.appendChild(h3);
+    const heading = document.createElement('h3');
+    heading.innerHTML = renderInlineMarkdown(skillCategory.category || '');
+    categoryDiv.appendChild(heading);
 
     const wrapper = document.createElement('div');
     wrapper.className = 'skills-wrapper';
 
-    if (cat.items) {
-      cat.items.forEach(item => {
+    if (skillCategory.items) {
+      skillCategory.items.forEach(item => {
         const span = document.createElement('span');
         span.className = 'skill-item';
         span.innerHTML = renderInlineMarkdown(item);
@@ -228,11 +230,11 @@ function renderSkills(categories) {
       });
     }
 
-    catDiv.appendChild(wrapper);
-    div.appendChild(catDiv);
+    categoryDiv.appendChild(wrapper);
+    gridDiv.appendChild(categoryDiv);
   });
 
-  return div;
+  return gridDiv;
 }
 
 loadCV();

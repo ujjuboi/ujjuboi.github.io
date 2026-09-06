@@ -13,15 +13,15 @@ const posts = [];
  */
 async function loadPosts() {
   try {
-    const res = await fetch('../../src/Blogs/posts.json');
-    if (!res.ok) throw new Error('Failed to fetch posts.json');
-    const filenames = await res.json();
+    const response = await fetch('../../src/Blogs/posts.json');
+    if (!response.ok) throw new Error('Failed to fetch posts.json');
+    const filenames = await response.json();
 
     for (const file of filenames) {
       try {
-        const mdRes = await fetch('../../src/Blogs/' + file);
-        if (!mdRes.ok) throw new Error('Failed to fetch ' + file);
-        const text = await mdRes.text();
+        const markdownResponse = await fetch('../../src/Blogs/' + file);
+        if (!markdownResponse.ok) throw new Error('Failed to fetch ' + file);
+        const text = await markdownResponse.text();
         const meta = parsePostHeaders(text);
         posts.push({
           file: file,
@@ -32,12 +32,12 @@ async function loadPosts() {
           category: meta.category || 'Personal Projects',
           paragraphs: parsePostBody(text)
         });
-      } catch (e) {
-        console.error('Error loading post:', file, e);
+      } catch (error) {
+        console.error('Error loading post:', file, error);
       }
     }
-  } catch (e) {
-    console.error('Error loading posts manifest:', e);
+  } catch (error) {
+    console.error('Error loading posts manifest:', error);
   }
 }
 
@@ -141,9 +141,9 @@ loadPosts().then(() => {
 
   const hash = window.location.hash;
   if (hash && hash.startsWith('#post-')) {
-    const idx = parseInt(hash.replace('#post-', ''), 10);
-    if (!isNaN(idx) && idx >= 0 && idx < posts.length) {
-      showPost(idx);
+    const postIndex = parseInt(hash.replace('#post-', ''), 10);
+    if (!isNaN(postIndex) && postIndex >= 0 && postIndex < posts.length) {
+      showPost(postIndex);
     }
   }
 });

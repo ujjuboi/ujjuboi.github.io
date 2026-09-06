@@ -20,7 +20,7 @@ Create a blog post for this portfolio site from user-provided bullet points.
 3. **Generate the blog post** as a markdown file in `src/Blogs/` following the template format:
    - Filename format: `XX-slug-title.md` (e.g., `09-my-new-post.md`)
    - Use the template at `src/Blogs/template.md` as the structure reference
-   - Paragraphs must be HTML `<p>` tags prefixed with `- ` (one per line)
+   - Paragraphs are plain text blocks separated by a blank line (no `<p>` tags, no `- ` prefix)
    - **Minimum 500 words total across all paragraphs** — expand on the user's bullet points with detail, context, and technical depth
    - Date should be the current date formatted as `Month DD, YYYY`
    - Excerpt should be a single sentence (under 160 chars) summarizing the post
@@ -32,25 +32,24 @@ Create a blog post for this portfolio site from user-provided bullet points.
 ## Template Reference
 
 ```
-## Title: <title>
+# title of the post
 
-## Date: <Month DD, YYYY>
+**Date:** <Month DD, YYYY>
 
-## Excerpt: <one-line summary under 160 chars>
+**Excerpt:** <one-line summary under 160 chars>
 
-## Banner: ../../Images/Graphics/<image>.svg
+**Banner:** ../../Images/Graphics/<image>.svg
 
-## Category: <Deloitte|Personal Projects|Research>
+**Category:** <Deloitte|Personal Projects|Research>
 
-## Paragraphs
+First paragraph with at least 100 words of content...
 
-- <p>First paragraph with at least 100 words of content...</p>
-- <p>Second paragraph...</p>
+Second paragraph...
 ```
 
 ## Rules
 
-- Each `- <p>...</p>` line is one paragraph
+- Each blank-line-separated block of text is one paragraph
 - Paragraphs should be substantive — no filler or fluff
 - Use technical language appropriate to the topic
 - Write in first person, matching the tone of existing posts

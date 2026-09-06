@@ -42,17 +42,17 @@ function initMenuToggle(contentSelector, restoreDisplay) {
 /**
  * Escapes HTML-significant characters in a string.
  *
- * @param {*} str Value to escape; null/undefined become an empty string.
+ * @param {*} value Value to escape; null/undefined become an empty string.
  * @returns {string} Escaped HTML-safe string.
  */
-function escapeHtml(str) {
-  return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (character) => ({
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
     "'": '&#39;'
-  }[c]));
+  }[character]));
 }
 
 /**
@@ -84,14 +84,14 @@ function mdInline(text) {
  * Renders a markdown string to HTML using the vendored Marked library,
  * falling back to escaped plain text when Marked is unavailable.
  *
- * @param {string} md Markdown source to render.
+ * @param {string} markdown Markdown source to render.
  * @returns {string} Rendered HTML.
  */
-function renderMarkdown(md) {
+function renderMarkdown(markdown) {
   if (typeof marked !== 'undefined') {
-    return marked.parse(String(md || ''), { headerIds: false, mangle: false });
+    return marked.parse(String(markdown || ''), { headerIds: false, mangle: false });
   }
-  return escapeHtml(String(md || ''));
+  return escapeHtml(String(markdown || ''));
 }
 
 /**
@@ -99,14 +99,14 @@ function renderMarkdown(md) {
  * library, falling back to escaped plain text when Marked is unavailable.
  * Unlike renderMarkdown, no surrounding block element is emitted.
  *
- * @param {string} md Markdown inline source to render.
+ * @param {string} markdown Markdown inline source to render.
  * @returns {string} Rendered inline HTML.
  */
-function renderInlineMarkdown(md) {
+function renderInlineMarkdown(markdown) {
   if (typeof marked !== 'undefined') {
-    return marked.parseInline(String(md || ''));
+    return marked.parseInline(String(markdown || ''));
   }
-  return escapeHtml(String(md || ''));
+  return escapeHtml(String(markdown || ''));
 }
 
 /**
@@ -120,29 +120,29 @@ function renderInlineMarkdown(md) {
  * @returns {HTMLUListElement} Completed list element ready to append.
  */
 function renderMarkdownBullets(bullets, subheadingClass) {
-  const ul = document.createElement('ul');
+  const list = document.createElement('ul');
   (bullets || []).forEach(bullet => {
     if (bullet.kind === 'heading') {
       const heading = document.createElement('li');
       heading.className = subheadingClass || 'resume-subheading';
       heading.innerHTML = renderMarkdown(bullet.text);
-      ul.appendChild(heading);
+      list.appendChild(heading);
       return;
     }
-    const li = document.createElement('li');
-    li.innerHTML = renderMarkdown(bullet.text);
+    const listItem = document.createElement('li');
+    listItem.innerHTML = renderMarkdown(bullet.text);
     if (bullet.sub && bullet.sub.length) {
-      const subUl = document.createElement('ul');
+      const subList = document.createElement('ul');
       bullet.sub.forEach(sub => {
-        const sl = document.createElement('li');
-        sl.innerHTML = renderMarkdown(sub);
-        subUl.appendChild(sl);
+        const subListItem = document.createElement('li');
+        subListItem.innerHTML = renderMarkdown(sub);
+        subList.appendChild(subListItem);
       });
-      li.appendChild(subUl);
+      listItem.appendChild(subList);
     }
-    ul.appendChild(li);
+    list.appendChild(listItem);
   });
-  return ul;
+  return list;
 }
 
 /**
@@ -157,8 +157,8 @@ function renderMarkdownBullets(bullets, subheadingClass) {
  */
 class Section {
   constructor({ title = '', content = null, className = 'section', expanded = false } = {}) {
-    this.el = document.createElement('div');
-    this.el.className = className;
+    this.element = document.createElement('div');
+    this.element.className = className;
 
     this.heading = document.createElement('h2');
     this.heading.className = 'section-heading collapsible';
@@ -181,8 +181,8 @@ class Section {
       this.content.innerHTML = content;
     }
 
-    this.el.appendChild(this.heading);
-    this.el.appendChild(this.content);
+    this.element.appendChild(this.heading);
+    this.element.appendChild(this.content);
 
     if (expanded) {
       this.expand();
@@ -236,7 +236,7 @@ class Section {
    * @returns {Section} This section, for chaining.
    */
   addTo(parent) {
-    parent.appendChild(this.el);
+    parent.appendChild(this.element);
     return this;
   }
 }
@@ -263,35 +263,35 @@ function renderPostCard(post, index, onClick, includeBanner) {
   }
 
   if (includeBanner && post.banner) {
-    const img = document.createElement('img');
-    img.className = 'latest-post-banner';
-    img.src = post.banner;
-    img.alt = post.title + ' banner';
-    card.appendChild(img);
+    const image = document.createElement('img');
+    image.className = 'latest-post-banner';
+    image.src = post.banner;
+    image.alt = post.title + ' banner';
+    card.appendChild(image);
   }
 
-  const h3 = document.createElement('h3');
-  h3.className = 'card-title';
-  h3.textContent = post.title;
-  card.appendChild(h3);
+  const titleHeading = document.createElement('h3');
+  titleHeading.className = 'card-title';
+  titleHeading.textContent = post.title;
+  card.appendChild(titleHeading);
 
-  const dateP = document.createElement('p');
-  dateP.className = 'card-date';
-  dateP.textContent = post.date;
-  card.appendChild(dateP);
+  const dateParagraph = document.createElement('p');
+  dateParagraph.className = 'card-date';
+  dateParagraph.textContent = post.date;
+  card.appendChild(dateParagraph);
 
-  const excerptP = document.createElement('p');
-  excerptP.className = 'card-excerpt';
-  excerptP.textContent = post.excerpt;
-  card.appendChild(excerptP);
+  const excerptParagraph = document.createElement('p');
+  excerptParagraph.className = 'card-excerpt';
+  excerptParagraph.textContent = post.excerpt;
+  card.appendChild(excerptParagraph);
 
   const link = document.createElement('a');
   link.className = 'card-link';
   link.href = '#post-' + index;
   link.target = '_self';
   link.textContent = 'Read more →';
-  link.onclick = (e) => {
-    e.stopPropagation();
+  link.onclick = (event) => {
+    event.stopPropagation();
     if (onClick) {
       onClick();
     } else {
@@ -314,30 +314,30 @@ function renderPostContent(post) {
   const fragment = document.createDocumentFragment();
 
   if (post.banner) {
-    const img = document.createElement('img');
-    img.id = 'post-banner';
-    img.src = post.banner;
-    img.alt = post.title + ' banner';
-    fragment.appendChild(img);
+    const image = document.createElement('img');
+    image.id = 'post-banner';
+    image.src = post.banner;
+    image.alt = post.title + ' banner';
+    fragment.appendChild(image);
   }
 
-  const h1 = document.createElement('h1');
-  h1.id = 'post-title';
-  h1.textContent = post.title;
-  fragment.appendChild(h1);
+  const titleHeading = document.createElement('h1');
+  titleHeading.id = 'post-title';
+  titleHeading.textContent = post.title;
+  fragment.appendChild(titleHeading);
 
-  const dateP = document.createElement('p');
-  dateP.id = 'post-date';
-  dateP.textContent = post.date;
-  fragment.appendChild(dateP);
+  const dateParagraph = document.createElement('p');
+  dateParagraph.id = 'post-date';
+  dateParagraph.textContent = post.date;
+  fragment.appendChild(dateParagraph);
 
   const contentDiv = document.createElement('div');
   contentDiv.id = 'post-content';
-  (post.paragraphs || []).forEach(p => {
-    const div = document.createElement('div');
-    div.className = 'post-paragraph';
-    div.innerHTML = renderMarkdown(p);
-    contentDiv.appendChild(div);
+  (post.paragraphs || []).forEach(paragraph => {
+    const paragraphDiv = document.createElement('div');
+    paragraphDiv.className = 'post-paragraph';
+    paragraphDiv.innerHTML = renderMarkdown(paragraph);
+    contentDiv.appendChild(paragraphDiv);
   });
   fragment.appendChild(contentDiv);
 
@@ -385,18 +385,18 @@ function parsePostHeaders(text) {
 function parsePostBody(text) {
   const lines = text.split('\n');
   let bodyStart = 0;
-  for (let i = 0; i < lines.length; i++) {
-    const trimmed = lines[i].trim();
+  for (let index = 0; index < lines.length; index++) {
+    const trimmed = lines[index].trim();
     if (trimmed === '' || trimmed.startsWith('# ') || trimmed.startsWith('**')) {
-      bodyStart = i + 1;
+      bodyStart = index + 1;
     } else if (trimmed !== '') {
       break;
     }
   }
   const paragraphs = [];
   let current = [];
-  for (let i = bodyStart; i < lines.length; i++) {
-    const trimmed = lines[i].trim();
+  for (let index = bodyStart; index < lines.length; index++) {
+    const trimmed = lines[index].trim();
     if (trimmed === '') {
       if (current.length) {
         paragraphs.push(current.join(' '));
@@ -422,11 +422,11 @@ const SORT_MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, au
  * @returns {number} Sortable key, or 0 when the date cannot be parsed.
  */
 function parseStartSortKey(dateStr) {
-  const m = String(dateStr || '').trim().match(/^([A-Za-z]+)\s+(\d{4})/);
-  if (!m) return 0;
-  const mon = SORT_MONTHS[m[1].toLowerCase().slice(0, 3)];
-  if (!mon) return 0;
-  return parseInt(m[2], 10) * 100 + mon;
+  const match = String(dateStr || '').trim().match(/^([A-Za-z]+)\s+(\d{4})/);
+  if (!match) return 0;
+  const month = SORT_MONTHS[match[1].toLowerCase().slice(0, 3)];
+  if (!month) return 0;
+  return parseInt(match[2], 10) * 100 + month;
 }
 
 /**
@@ -437,9 +437,9 @@ function parseStartSortKey(dateStr) {
  * @returns {number} Index of the next non-blank line.
  */
 function nextNonBlank(lines, start) {
-  let j = start;
-  while (j < lines.length && lines[j].trim() === '') j++;
-  return j;
+  let index = start;
+  while (index < lines.length && lines[index].trim() === '') index++;
+  return index;
 }
 
 /**
@@ -451,10 +451,10 @@ function nextNonBlank(lines, start) {
  */
 function sectionLines(lines, start) {
   const result = [];
-  let j = start;
-  while (j < lines.length && !lines[j].startsWith('## ')) {
-    result.push(lines[j]);
-    j++;
+  let index = start;
+  while (index < lines.length && !lines[index].startsWith('## ')) {
+    result.push(lines[index]);
+    index++;
   }
   return result;
 }
@@ -470,126 +470,126 @@ function parseCV(text) {
   const data = { contact: {}, summary: '', experience: [], projects: [], education: [], skills: [] };
   const fields = { Location: 'location', Email: 'email', LinkedIn: 'linkedin', Portfolio: 'portfolio', GitHub: 'github' };
 
-  let i = 0;
-  while (i < lines.length && !lines[i].startsWith('## ')) {
-    const line = lines[i].trim();
+  let index = 0;
+  while (index < lines.length && !lines[index].startsWith('## ')) {
+    const line = lines[index].trim();
     for (const [key, field] of Object.entries(fields)) {
       if (line.startsWith('**' + key + ':**')) {
         data.contact[field] = line.split('**' + key + ':**')[1].trim();
       }
     }
-    i++;
+    index++;
   }
 
-  while (i < lines.length) {
-    const section = lines[i].replace(/^## /, '').trim();
+  while (index < lines.length) {
+    const section = lines[index].replace(/^## /, '').trim();
 
     if (section === 'Professional Summary') {
-      i = nextNonBlank(lines, i + 1);
-      const end = sectionLines(lines, i);
-      data.summary = end.filter(line => line.trim()).join(' ');
-      i += end.length;
+      index = nextNonBlank(lines, index + 1);
+      const summaryLines = sectionLines(lines, index);
+      data.summary = summaryLines.filter(line => line.trim()).join(' ');
+      index += summaryLines.length;
       continue;
     }
 
     if (section === 'Work Experience') {
-      const block = sectionLines(lines, i + 1);
+      const block = sectionLines(lines, index + 1);
       let job = null;
       for (const line of block) {
         if (line.startsWith('### ')) {
           if (job) data.experience.push(job);
           job = { company: line.replace(/^### /, '').trim(), role: '', date: '', banner: '', readMore: null, bullets: [] };
         } else if (job) {
-          const t = line.trim();
-          if (t === '') continue;
-          if (t.startsWith('**') && t.endsWith('**') && !job.role) {
-            job.role = t.slice(2, -2);
-          } else if (/^#{3,6}\s/.test(t)) {
-            job.bullets.push({ kind: 'heading', level: t.match(/^#+/)[0].length, text: t.replace(/^#+\s*/, '') });
-          } else if (/^[-+*]\s/.test(t) && line !== t) {
+          const trimmed = line.trim();
+          if (trimmed === '') continue;
+          if (trimmed.startsWith('**') && trimmed.endsWith('**') && !job.role) {
+            job.role = trimmed.slice(2, -2);
+          } else if (/^#{3,6}\s/.test(trimmed)) {
+            job.bullets.push({ kind: 'heading', level: trimmed.match(/^#+/)[0].length, text: trimmed.replace(/^#+\s*/, '') });
+          } else if (/^[-+*]\s/.test(trimmed) && line !== trimmed) {
             const last = job.bullets[job.bullets.length - 1];
             if (last && last.kind === 'bullet') {
-              last.sub.push(t.replace(/^[-+*]\s*/, ''));
+              last.sub.push(trimmed.replace(/^[-+*]\s*/, ''));
             }
-          } else if (t.startsWith('- ')) {
-            job.bullets.push({ kind: 'bullet', text: t.slice(2), sub: [] });
-          } else if (/^>\s*\[([^\]]+)\]\(([^)]+)\)/.test(t)) {
-            const m = t.match(/^>\s*\[([^\]]+)\]\(([^)]+)\)/);
-            job.readMore = { label: m[1], url: m[2] };
-          } else if (/^!\[[^\]]*\]\(([^)]+)\)/.test(t)) {
-            const m = t.match(/^!\[[^\]]*\]\(([^)]+)\)/);
-            job.banner = m[1].trim();
-          } else if (t && !job.date) {
-            job.date = t;
-            job.sortKey = parseStartSortKey(t);
+          } else if (trimmed.startsWith('- ')) {
+            job.bullets.push({ kind: 'bullet', text: trimmed.slice(2), sub: [] });
+          } else if (/^>\s*\[([^\]]+)\]\(([^)]+)\)/.test(trimmed)) {
+            const match = trimmed.match(/^>\s*\[([^\]]+)\]\(([^)]+)\)/);
+            job.readMore = { label: match[1], url: match[2] };
+          } else if (/^!\[[^\]]*\]\(([^)]+)\)/.test(trimmed)) {
+            const match = trimmed.match(/^!\[[^\]]*\]\(([^)]+)\)/);
+            job.banner = match[1].trim();
+          } else if (trimmed && !job.date) {
+            job.date = trimmed;
+            job.sortKey = parseStartSortKey(trimmed);
           }
         }
       }
       if (job) data.experience.push(job);
-      i += block.length;
+      index += block.length;
       continue;
     }
 
     if (section === 'Projects') {
-      const block = sectionLines(lines, i + 1);
-      let proj = null;
+      const block = sectionLines(lines, index + 1);
+      let project = null;
       for (const line of block) {
-        const t = line.trim();
-        if (/^>\s*\[([^\]]+)\]\(([^)]+)\)/.test(t)) {
-          const m = t.match(/^>\s*\[([^\]]+)\]\(([^)]+)\)/);
-          if (proj) proj.readMore = { label: m[1], url: m[2] };
+        const trimmed = line.trim();
+        if (/^>\s*\[([^\]]+)\]\(([^)]+)\)/.test(trimmed)) {
+          const match = trimmed.match(/^>\s*\[([^\]]+)\]\(([^)]+)\)/);
+          if (project) project.readMore = { label: match[1], url: match[2] };
           continue;
         }
-        if (/^!\[[^\]]*\]\(([^)]+)\)/.test(t)) {
-          const m = t.match(/^!\[[^\]]*\]\(([^)]+)\)/);
-          if (proj) proj.banner = m[1].trim();
+        if (/^!\[[^\]]*\]\(([^)]+)\)/.test(trimmed)) {
+          const match = trimmed.match(/^!\[[^\]]*\]\(([^)]+)\)/);
+          if (project) project.banner = match[1].trim();
           continue;
         }
-        if (!t.startsWith('- ')) continue;
-        const content = t.slice(2);
+        if (!trimmed.startsWith('- ')) continue;
+        const content = trimmed.slice(2);
         const name = content.split('**')[1] || '';
         const afterName = content.split(')')[0] || '';
         const tag = afterName.split('(')[1] || '';
-        const desc = content.split('--')[1] || '';
-        proj = { name: name.trim(), tag: tag.trim(), desc: desc.trim(), banner: '', readMore: null };
-        data.projects.push(proj);
+        const description = content.split('--')[1] || '';
+        project = { name: name.trim(), tag: tag.trim(), description: description.trim(), banner: '', readMore: null };
+        data.projects.push(project);
       }
-      i += block.length;
+      index += block.length;
       continue;
     }
 
     if (section === 'Education') {
-      const block = sectionLines(lines, i + 1);
+      const block = sectionLines(lines, index + 1);
       for (const line of block) {
-        const t = line.trim();
-        if (!t.startsWith('- ')) continue;
-        const content = t.slice(2);
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('- ')) continue;
+        const content = trimmed.slice(2);
         const degree = content.split(',')[0].trim();
-        const rest = content.split(',')[1] || '';
-        const school = rest.split('(')[0].trim();
-        const cgpa = rest.includes('(') ? rest.split('(')[1].split(')')[0].trim() : '';
-        const dates = rest.includes(')') ? rest.split(')')[1].trim() : '';
+        const remaining = content.split(',')[1] || '';
+        const school = remaining.split('(')[0].trim();
+        const cgpa = remaining.includes('(') ? remaining.split('(')[1].split(')')[0].trim() : '';
+        const dates = remaining.includes(')') ? remaining.split(')')[1].trim() : '';
         data.education.push({ degree, school, cgpa, dates });
       }
-      i += block.length;
+      index += block.length;
       continue;
     }
 
     if (section === 'Skills') {
-      const block = sectionLines(lines, i + 1);
+      const block = sectionLines(lines, index + 1);
       for (const line of block) {
-        const t = line.trim();
-        if (!t.startsWith('- ')) continue;
-        const content = t.slice(2);
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('- ')) continue;
+        const content = trimmed.slice(2);
         const category = (content.split('**')[1] || '').replace(/:$/, '');
-        const items = (content.split(':**')[1] || '').split(',').map(s => s.trim());
+        const items = (content.split(':**')[1] || '').split(',').map(item => item.trim());
         data.skills.push({ category, items });
       }
-      i += block.length;
+      index += block.length;
       continue;
     }
 
-    i++;
+    index++;
   }
 
   return data;
@@ -675,18 +675,18 @@ class Tooltip {
    * outside clicks.
    */
   constructor() {
-    this.el = document.querySelector('.tooltip');
-    if (!this.el) {
-      this.el = document.createElement('div');
-      this.el.className = 'tooltip';
-      this.el.setAttribute('role', 'tooltip');
-      this.el.setAttribute('aria-hidden', 'true');
-      document.body.appendChild(this.el);
+    this.element = document.querySelector('.tooltip');
+    if (!this.element) {
+      this.element = document.createElement('div');
+      this.element.className = 'tooltip';
+      this.element.setAttribute('role', 'tooltip');
+      this.element.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(this.element);
     }
     this.anchor = null;
 
-    document.addEventListener('click', (e) => {
-      if (this.isVisible && !(this.anchor && this.anchor.contains(e.target))) {
+    document.addEventListener('click', (event) => {
+      if (this.isVisible && !(this.anchor && this.anchor.contains(event.target))) {
         this.hide();
       }
     });
@@ -698,7 +698,7 @@ class Tooltip {
    * @returns {boolean} True when visible.
    */
   get isVisible() {
-    return this.el.style.display !== 'none';
+    return this.element.style.display !== 'none';
   }
 
   /**
@@ -708,14 +708,14 @@ class Tooltip {
    */
   position(anchor) {
     const rect = anchor.getBoundingClientRect();
-    let left = rect.left + rect.width / 2 - this.el.offsetWidth / 2;
-    left = Math.max(8, Math.min(left, window.innerWidth - this.el.offsetWidth - 8));
+    let left = rect.left + rect.width / 2 - this.element.offsetWidth / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - this.element.offsetWidth - 8));
     let top = rect.bottom + 10;
-    if (top + this.el.offsetHeight > window.innerHeight - 8) {
-      top = rect.top - this.el.offsetHeight - 10;
+    if (top + this.element.offsetHeight > window.innerHeight - 8) {
+      top = rect.top - this.element.offsetHeight - 10;
     }
-    this.el.style.left = left + 'px';
-    this.el.style.top = top + 'px';
+    this.element.style.left = left + 'px';
+    this.element.style.top = top + 'px';
   }
 
   /**
@@ -725,10 +725,10 @@ class Tooltip {
    */
   setContent(content) {
     if (content instanceof Node) {
-      this.el.innerHTML = '';
-      this.el.appendChild(content);
+      this.element.innerHTML = '';
+      this.element.appendChild(content);
     } else {
-      this.el.innerHTML = String(content);
+      this.element.innerHTML = String(content);
     }
   }
 
@@ -741,12 +741,12 @@ class Tooltip {
   show(content, anchor) {
     this.anchor = anchor;
     this.setContent(content);
-    this.el.style.display = 'block';
-    this.el.setAttribute('aria-hidden', 'false');
-    this.el.style.opacity = '0';
+    this.element.style.display = 'block';
+    this.element.setAttribute('aria-hidden', 'false');
+    this.element.style.opacity = '0';
     this.position(anchor);
     requestAnimationFrame(() => {
-      this.el.style.opacity = '1';
+      this.element.style.opacity = '1';
     });
   }
 
@@ -754,8 +754,8 @@ class Tooltip {
    * Hides the tooltip.
    */
   hide() {
-    this.el.style.display = 'none';
-    this.el.setAttribute('aria-hidden', 'true');
+    this.element.style.display = 'none';
+    this.element.setAttribute('aria-hidden', 'true');
   }
 
   /**
@@ -767,8 +767,8 @@ class Tooltip {
   attach(anchor, content) {
     anchor.addEventListener('mouseenter', () => this.show(content, anchor));
     anchor.addEventListener('mouseleave', () => this.hide());
-    anchor.addEventListener('click', (e) => {
-      e.stopPropagation();
+    anchor.addEventListener('click', (event) => {
+      event.stopPropagation();
       if (this.isVisible) {
         this.hide();
       } else {
@@ -800,10 +800,10 @@ function buildProfilesStrip() {
       const item = document.createElement('span');
       item.className = 'profiles-item';
       item.textContent = profile;
-      const sep = document.createElement('span');
-      sep.className = 'profiles-sep';
-      sep.textContent = '\u2022';
-      item.appendChild(sep);
+      const separator = document.createElement('span');
+      separator.className = 'profiles-sep';
+      separator.textContent = '\u2022';
+      item.appendChild(separator);
       group.appendChild(item);
 
       tooltip.attach(item, PROFILE_INFO[profile] || profile);
