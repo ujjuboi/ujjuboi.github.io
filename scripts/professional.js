@@ -174,34 +174,42 @@ function setupEditorWindow() {
   const titlebar = document.createElement('div');
   titlebar.className = 'editor-titlebar';
 
+  const dotTooltip = new Tooltip();
+
   /**
    * Creates a traffic-light dot that doubles as a back control.
    *
    * @param {string} colorClass Dot color class.
    * @param {string} label Accessible label and tooltip.
+   * @param {Function} [onClick] Custom click action; defaults to returning to the banner.
    * @returns {HTMLButtonElement} Dot button element.
    */
-  function makeBackDot(colorClass, label) {
+  function makeBackDot(colorClass, label, onClick) {
     const dot = document.createElement('button');
     dot.type = 'button';
     dot.className = 'editor-dot ' + colorClass + ' editor-dot-back';
-    dot.title = label;
     dot.setAttribute('aria-label', label);
     dot.addEventListener('click', function () {
-      exitFullscreen();
-      showBanner();
+      if (onClick) {
+        onClick.call(this);
+      } else {
+        exitFullscreen();
+        showBanner();
+      }
       this.blur();
     });
+    dotTooltip.attach(dot, label);
     return dot;
   }
 
-  const redDot = makeBackDot('dot-red', 'Back to banner');
+  const redDot = makeBackDot('dot-red', 'Close and go back to mySpace', function () {
+    window.location.href = '../../index.html';
+  });
   const yellowDot = makeBackDot('dot-yellow', 'Back to banner');
 
   const greenDot = document.createElement('button');
   greenDot.type = 'button';
   greenDot.className = 'editor-dot dot-green editor-dot-back';
-  greenDot.title = 'Toggle full screen';
   greenDot.setAttribute('aria-label', 'Toggle full screen');
   greenDot.addEventListener('click', function () {
     this.blur();
@@ -214,6 +222,7 @@ function setupEditorWindow() {
       container.webkitRequestFullscreen();
     }
   });
+  dotTooltip.attach(greenDot, 'Toggle full screen');
 
   titlebar.appendChild(redDot);
   titlebar.appendChild(yellowDot);
@@ -257,11 +266,12 @@ function setupEditorWindow() {
   backBtn.type = 'button';
   backBtn.className = 'directory-back';
   backBtn.innerHTML = '<svg class="directory-back-icon" width="20" height="20" viewBox="0 0 219.151 219.151" xmlns="http://www.w3.org/2000/svg"><path d="M109.576,219.151c60.419,0,109.573-49.156,109.573-109.576C219.149,49.156,169.995,0,109.576,0S0.002,49.156,0.002,109.575C0.002,169.995,49.157,219.151,109.576,219.151z M109.576,15c52.148,0,94.573,42.426,94.574,94.575c0,52.149-42.425,94.575-94.574,94.576c-52.148-0.001-94.573-42.427-94.573-94.577C15.003,57.427,57.428,15,109.576,15z"/><path d="M94.861,156.507c2.929,2.928,7.678,2.927,10.606,0c2.93-2.93,2.93-7.678-0.001-10.608l-28.82-28.819l83.457-0.008c4.142-0.001,7.499-3.358,7.499-7.502c-0.001-4.142-3.358-7.498-7.5-7.498l-83.46,0.008l28.827-28.825c2.929-2.929,2.929-7.679,0-10.607c-1.465-1.464-3.384-2.197-5.304-2.197c-1.919,0-3.838,0.733-5.303,2.196l-41.629,41.628c-1.407,1.406-2.197,3.313-2.197,5.303c0.001,1.99,0.791,3.896,2.198,5.305L94.861,156.507z"/></svg>Back';
-  backBtn.title = 'Back';
+  backBtn.setAttribute('aria-label', 'Back to banner');
   backBtn.addEventListener('click', function () {
     exitFullscreen();
     showBanner();
   });
+  dotTooltip.attach(backBtn, 'Back to banner');
   titlebar.appendChild(backBtn);
 
   content.appendChild(sidebar);
@@ -1154,121 +1164,6 @@ if (MOBILE_MQ.addEventListener) {
 loadCV();
 
 /**
- * Profile headlines shown in the launching banners.
- */
-const PROFILES = [
-  'Full Stack Developer',
-  'AI Developer',
-  'Forward Deployed Engineer',
-  'DevSecOps Engineer',
-  'IAM/PAM Analyst'
-];
-
-/**
- * Tooltip copy shown when hovering each profile headline.
- */
-const PROFILE_INFO = {
-  'Full Stack Developer': 'I\u2019ve spent 4+ years building enterprise-scale applications end-to-end \u2014 Next.js, ExpressJS, and SpringBoot backed by MongoDB and Redis, from API-heavy features to data analytics platforms like DDPX.',
-  'AI Developer': 'I\u2019ve built AI agents and workflows in production \u2014 autonomous GitHub agentic workflows that review PRs and update docs, LangChain high/low-code agents, and an NLTK/Spacy agent that identifies owners of IAM principals.',
-  'Forward Deployed Engineer': 'I\u2019ve delivered directly on client engagements \u2014 turning identity-data requirements into shipped features, scaling bulk imports from 100K to 400K records and ingestion to 1,500 records/sec, and analyzing 100,000+ records across domains.',
-  'DevSecOps Engineer': 'I\u2019ve automated PR-triggered CI/CD on GitHub Actions with secure guardrails \u2014 review, lint, documentation, testing, and quality-gate checks that run automatically before data reaches production.',
-  'IAM/PAM Analyst': 'I\u2019ve worked hands-on across identity and access management \u2014 designing RBAC in Java, setting up SAML SSO with Okta and AWS Cognito, mapping SailPoint/Okta/PingFederate data, and building analytics for orphan groups and privileged entitlements with 95% ownership accuracy.'
-};
-
-/**
- * Builds the scrolling profile strip with hover tooltips.
- */
-function buildProfilesStrip() {
-  const strip = document.createElement('div');
-  strip.className = 'profiles-strip';
-
-  const tooltip = document.createElement('div');
-  tooltip.className = 'profile-tooltip';
-  tooltip.setAttribute('role', 'tooltip');
-  document.body.appendChild(tooltip);
-
-  /**
-   * Positions the tooltip near an item, staying inside the viewport.
-   *
-   * @param {HTMLElement} item The hovered profile item.
-   */
-  function positionTooltip(item) {
-    const rect = item.getBoundingClientRect();
-    const tipRect = tooltip.getBoundingClientRect();
-    let left = rect.left + rect.width / 2 - tipRect.width / 2;
-    left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
-    let top = rect.bottom + 10;
-    if (top + tipRect.height > window.innerHeight - 8) {
-      top = rect.top - tipRect.height - 10;
-    }
-    tooltip.style.left = left + 'px';
-    tooltip.style.top = top + 'px';
-    tooltip.style.opacity = '1';
-  }
-
-  /**
-   * Builds a single marquee group of profile items.
-   *
-   * @returns {HTMLDivElement} The completed group element.
-   */
-  function buildProfile() {
-    const group = document.createElement('div');
-    group.className = 'profiles-group';
-    PROFILES.forEach(function (profile) {
-      const item = document.createElement('span');
-      item.className = 'profiles-item';
-      item.textContent = profile;
-      const sep = document.createElement('span');
-      sep.className = 'profiles-sep';
-      sep.textContent = '\u2022';
-      item.appendChild(sep);
-      group.appendChild(item);
-
-      /**
-       * Shows the tooltip for the current profile item.
-       */
-      function showTooltip() {
-        tooltip.textContent = PROFILE_INFO[profile] || profile;
-        tooltip.style.display = 'block';
-        tooltip.style.opacity = '0';
-        positionTooltip(item);
-        requestAnimationFrame(function () {
-          tooltip.style.opacity = '1';
-        });
-      }
-
-      /**
-       * Hides the tooltip.
-       */
-      function hideTooltip() {
-        tooltip.style.display = 'none';
-      }
-
-      item.addEventListener('mouseenter', showTooltip);
-      item.addEventListener('mouseleave', hideTooltip);
-
-      item.addEventListener('click', function (e) {
-        e.stopPropagation();
-        if (tooltip.style.display === 'block') {
-          hideTooltip();
-        } else {
-          showTooltip();
-        }
-      });
-
-      document.addEventListener('click', function (e) {
-        if (!item.contains(e.target)) hideTooltip();
-      });
-    });
-    return group;
-  }
-
-  strip.appendChild(buildProfile());
-  strip.appendChild(buildProfile());
-  return strip;
-}
-
-/**
  * Injects the profile strips and launch button behavior once, at load time.
  */
 (function initLaunchBanner() {
@@ -1276,6 +1171,11 @@ function buildProfilesStrip() {
   if (profilesEl) {
     profilesEl.appendChild(buildProfilesStrip());
   }
+
+  const bannerTooltip = new Tooltip();
+  document.querySelectorAll('#banner-links a[data-tooltip]').forEach(function (link) {
+    bannerTooltip.attach(link, link.getAttribute('data-tooltip') || '');
+  });
 
   const launchBtn = document.getElementById('launch-btn');
   if (launchBtn) {

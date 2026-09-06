@@ -396,3 +396,109 @@ body.sub-page section {
   height: 1.6rem;
   fill: var(--borderColor);
 }
+
+.profiles-block {
+  width: 100vw;
+  margin: clamp(1.5rem, 5vh, 3.5rem) calc(50% - 50vw);
+}
+
+.profiles {
+  font-family: var(--theme-content-font);
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  font-weight: 500;
+  color: var(--backgroundColor);
+  margin: 0;
+  height: clamp(2.5rem, 7vh, 3rem);
+  line-height: clamp(2.5rem, 7vh, 3rem);
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  align-self: stretch;
+  background-color: var(--shadowColor);
+}
+
+.profiles-strip {
+  display: flex;
+  flex-direction: row;
+  width: max-content;
+  animation: profiles-marquee 22s linear infinite;
+  will-change: transform;
+}
+
+.profiles-strip:hover {
+  animation-play-state: paused;
+}
+
+.profiles-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+@keyframes profiles-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.profiles-item {
+  flex: 0 0 auto;
+  height: clamp(2.5rem, 7vh, 3rem);
+  line-height: clamp(2.5rem, 7vh, 3rem);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.profiles-item::after {
+  content: '';
+  position: absolute;
+  left: 0.1rem;
+  right: 0.1rem;
+  bottom: 0.4rem;
+  height: 0.18rem;
+  border-radius: 0.1rem;
+  background-color: var(--backgroundColor);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+.profiles-item:hover::after {
+  transform: scaleX(1);
+}
+
+.profiles-sep {
+  color: var(--backgroundColor);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  margin: 0 1.2rem;
+  align-self: center;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 3000;
+  display: none;
+  max-width: 280px;
+  background-color: var(--contentColor);
+  border: 0.1rem solid var(--borderColor);
+  border-left: 0.2rem solid var(--shadowColor);
+  border-radius: 0.4rem;
+  padding: 0.6rem 0.8rem;
+  font-family: var(--theme-content-font);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--borderColor);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}

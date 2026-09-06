@@ -326,42 +326,8 @@
   justify-content: flex-end;
 }
 
-.lc-tooltip {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-0.5rem);
-  z-index: 100;
-  pointer-events: none;
-  white-space: nowrap;
-  display: none;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.55rem 0.7rem;
-  background-color: var(--backgroundColor);
-  border: 0.12rem solid var(--borderColor);
-  box-shadow: 0.2rem 0.2rem var(--shadowColor);
-  border-radius: 0.25rem;
-  font-size: var(--text-xs);
-  color: var(--shadowColor);
-}
-
-.lc-bar:hover + .lc-tooltip,
-.lc-col:hover .lc-tooltip {
-  display: flex;
-}
-
-.lc-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 0.35rem solid transparent;
-  border-top-color: var(--borderColor);
-}
-
 .lc-tooltip-date {
+  display: block;
   font-family: var(--headings);
   font-size: var(--text-sm);
 }
@@ -374,17 +340,21 @@
 }
 
 .lc-tooltip-count {
+  display: block;
   font-size: var(--text-sm);
+  margin-top: 0.35rem;
 }
 
 .lc-tooltip-meter {
+  display: block;
   width: 9rem;
   max-width: 100%;
   height: 0.3rem;
-  background-color: var(--contentColor);
+  background-color: var(--backgroundColor);
   border: 0.05rem solid var(--borderColor);
   border-radius: 0.15rem;
   overflow: hidden;
+  margin-top: 0.35rem;
 }
 
 .lc-tooltip-meter span {
@@ -394,8 +364,10 @@
 }
 
 .lc-tooltip-max {
+  display: block;
   font-size: var(--text-xs);
   opacity: 0.85;
+  margin-top: 0.15rem;
 }
 
 .lc-bar {

@@ -36,7 +36,6 @@ body.pro-page {
   --green: #27c93f;
   --commentGreen: #6a9955;
   --statusBarBlue: #007acc;
-  --tooltipShadow: rgba(0, 0, 0, 0.45);
   --tabHoverBg: rgba(255, 255, 255, 0.1);
 
   display: block;
@@ -153,30 +152,7 @@ body.pro-page {
   transition: transform 0.15s ease;
 }
 
-.banner-links a::before {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 0.5rem);
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--borderPanel);
-  color: var(--editorText);
-  font-family: var(--poppins);
-  font-size: var(--text-xs);
-  padding: 0.3rem 0.6rem;
-  border-radius: 0.3rem;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  z-index: 2100;
-}
-
-.banner-links a:hover::before {
-  opacity: 1;
-}
-
-.launch-banner .banner-links a:hover {
+.banner-links a:hover {
   transform: translateY(-2px);
 }
 
@@ -303,24 +279,12 @@ body.pro-page {
   align-self: center;
 }
 
-.profile-tooltip {
-  position: fixed;
-  z-index: 3000;
-  display: none;
-  max-width: 280px;
+body.pro-page .tooltip {
   background-color: var(--borderPanel);
   border: 0.1rem solid var(--borderDark);
   border-left: 0.2rem solid var(--accentPrimary);
-  border-radius: 0.4rem;
-  padding: 0.6rem 0.8rem;
   font-family: var(--poppins);
-  font-size: var(--text-sm);
-  line-height: 1.5;
   color: var(--editorText);
-  box-shadow: 0 0.4rem 1rem var(--tooltipShadow);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s ease;
 }
 
 .launch-banner .hero-summary {

@@ -259,23 +259,22 @@ function renderLeetCodeActivity(submissionCalendar) {
   const total = months.reduce((sum, m) => sum + m.count, 0);
   const max = Math.max(...months.map(m => m.count));
 
-  const cols = months.map(m => {
+  const chartData = months.map(m => {
     const height = max > 0 ? Math.max(8, (m.count / max) * 100) : 8;
     const filledPct = total > 0 ? Math.round((m.count / total) * 100) : 0;
     const label = `${monthNames[m.date.getMonth()]} ${m.date.getFullYear()}`;
+    const shortLabel = `${monthNames[m.date.getMonth()]} ${String(m.date.getFullYear()).slice(2)}`;
 
-    return `
-      <div class="lc-col">
-        <div class="lc-bar" style="height:${height}%;"></div>
-        <span class="lc-col-label">${monthNames[m.date.getMonth()]} ${String(m.date.getFullYear()).slice(2)}</span>
-        <div class="lc-tooltip" role="tooltip">
-          <span class="lc-tooltip-date">${label}</span>
-          <span class="lc-tooltip-count">${m.count} submission${m.count === 1 ? '' : 's'}</span>
-          <span class="lc-tooltip-meter"><span style="width:${filledPct}%"></span></span>
-          <span class="lc-tooltip-max"><em>${filledPct}%</em> of total submissions</span>
-        </div>
-      </div>`;
-  }).join('');
+    return {
+      height,
+      shortLabel,
+      content: `
+        <span class="lc-tooltip-date">${label}</span>
+        <span class="lc-tooltip-count">${m.count} submission${m.count === 1 ? '' : 's'}</span>
+        <span class="lc-tooltip-meter"><span style="width:${filledPct}%"></span></span>
+        <span class="lc-tooltip-max"><em>${filledPct}%</em> of total submissions</span>`
+    };
+  });
 
   container.innerHTML = `
     <div class="lc-activity-chart">
@@ -284,10 +283,20 @@ function renderLeetCodeActivity(submissionCalendar) {
       </div>
       <div class="lc-plot">
         <div class="lc-total">${total} total submissions</div>
-        <div class="lc-activity-bars">${cols}</div>
+        <div class="lc-activity-bars">${chartData.map(d => `
+          <div class="lc-col">
+            <div class="lc-bar" style="height:${d.height}%;"></div>
+            <span class="lc-col-label">${d.shortLabel}</span>
+          </div>`).join('')}
+        </div>
       </div>
     </div>
   `;
+
+  const tooltip = new Tooltip();
+  container.querySelectorAll('.lc-col').forEach((col, i) => {
+    tooltip.attach(col, chartData[i].content);
+  });
   return true;
 }
 

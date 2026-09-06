@@ -441,4 +441,178 @@ function updateThemeButtons() {
   });
 }
 
+/**
+ * Profile headlines shown in the scrolling profile strip.
+ */
+const PROFILES = [
+  'Full Stack Developer',
+  'AI Developer',
+  'Forward Deployed Engineer',
+  'DevSecOps Engineer',
+  'IAM/PAM Analyst'
+];
+
+/**
+ * Tooltip copy shown when hovering each profile headline.
+ */
+const PROFILE_INFO = {
+  'Full Stack Developer': 'I\u2019ve spent 4+ years building enterprise-scale applications end-to-end \u2014 Next.js, ExpressJS, and SpringBoot backed by MongoDB and Redis, from API-heavy features to data analytics platforms like DDPX.',
+  'AI Developer': 'I\u2019ve built AI agents and workflows in production \u2014 autonomous GitHub agentic workflows that review PRs and update docs, LangChain high/low-code agents, and an NLTK/Spacy agent that identifies owners of IAM principals.',
+  'Forward Deployed Engineer': 'I\u2019ve delivered directly on client engagements \u2014 turning identity-data requirements into shipped features, scaling bulk imports from 100K to 400K records and ingestion to 1,500 records/sec, and analyzing 100,000+ records across domains.',
+  'DevSecOps Engineer': 'I\u2019ve automated PR-triggered CI/CD on GitHub Actions with secure guardrails \u2014 review, lint, documentation, testing, and quality-gate checks that run automatically before data reaches production.',
+  'IAM/PAM Analyst': 'I\u2019ve worked hands-on across identity and access management \u2014 designing RBAC in Java, setting up SAML SSO with Okta and AWS Cognito, mapping SailPoint/Okta/PingFederate data, and building analytics for orphan groups and privileged entitlements with 95% ownership accuracy.'
+};
+
+/**
+ * Shared floating tooltip backed by a single element appended to the body.
+ * Positions itself near an attached anchor, staying inside the viewport,
+ * and toggles on hover and tap.
+ */
+class Tooltip {
+  /**
+   * Creates the tooltip element (reusing an existing one) and closes it on
+   * outside clicks.
+   */
+  constructor() {
+    this.el = document.querySelector('.tooltip');
+    if (!this.el) {
+      this.el = document.createElement('div');
+      this.el.className = 'tooltip';
+      this.el.setAttribute('role', 'tooltip');
+      this.el.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(this.el);
+    }
+    this.anchor = null;
+
+    document.addEventListener('click', (e) => {
+      if (this.isVisible && !(this.anchor && this.anchor.contains(e.target))) {
+        this.hide();
+      }
+    });
+  }
+
+  /**
+   * Whether the tooltip is currently visible.
+   *
+   * @returns {boolean} True when visible.
+   */
+  get isVisible() {
+    return this.el.style.display !== 'none';
+  }
+
+  /**
+   * Positions the tooltip next to an anchor, staying inside the viewport.
+   *
+   * @param {HTMLElement} anchor Element to position the tooltip near.
+   */
+  position(anchor) {
+    const rect = anchor.getBoundingClientRect();
+    let left = rect.left + rect.width / 2 - this.el.offsetWidth / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - this.el.offsetWidth - 8));
+    let top = rect.bottom + 10;
+    if (top + this.el.offsetHeight > window.innerHeight - 8) {
+      top = rect.top - this.el.offsetHeight - 10;
+    }
+    this.el.style.left = left + 'px';
+    this.el.style.top = top + 'px';
+  }
+
+  /**
+   * Sets the tooltip content from a trusted HTML string or DOM node.
+   *
+   * @param {string|Node} content Content to display.
+   */
+  setContent(content) {
+    if (content instanceof Node) {
+      this.el.innerHTML = '';
+      this.el.appendChild(content);
+    } else {
+      this.el.innerHTML = String(content);
+    }
+  }
+
+  /**
+   * Shows the tooltip near the given anchor with the given content.
+   *
+   * @param {string|Node} content Content to display.
+   * @param {HTMLElement} anchor Element to position the tooltip near.
+   */
+  show(content, anchor) {
+    this.anchor = anchor;
+    this.setContent(content);
+    this.el.style.display = 'block';
+    this.el.setAttribute('aria-hidden', 'false');
+    this.el.style.opacity = '0';
+    this.position(anchor);
+    requestAnimationFrame(() => {
+      this.el.style.opacity = '1';
+    });
+  }
+
+  /**
+   * Hides the tooltip.
+   */
+  hide() {
+    this.el.style.display = 'none';
+    this.el.setAttribute('aria-hidden', 'true');
+  }
+
+  /**
+   * Shows on hover, toggles on tap, and closes on outside clicks.
+   *
+   * @param {HTMLElement} anchor Element that triggers the tooltip.
+   * @param {string|Node} content Content to show near the anchor.
+   */
+  attach(anchor, content) {
+    anchor.addEventListener('mouseenter', () => this.show(content, anchor));
+    anchor.addEventListener('mouseleave', () => this.hide());
+    anchor.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (this.isVisible) {
+        this.hide();
+      } else {
+        this.show(content, anchor);
+      }
+    });
+  }
+}
+
+/**
+ * Builds the scrolling profile strip with hover tooltips.
+ *
+ * @returns {HTMLDivElement} The completed strip element.
+ */
+function buildProfilesStrip() {
+  const strip = document.createElement('div');
+  strip.className = 'profiles-strip';
+  const tooltip = new Tooltip();
+
+  /**
+   * Builds a single marquee group of profile items.
+   *
+   * @returns {HTMLDivElement} The completed group element.
+   */
+  function buildProfile() {
+    const group = document.createElement('div');
+    group.className = 'profiles-group';
+    PROFILES.forEach(function (profile) {
+      const item = document.createElement('span');
+      item.className = 'profiles-item';
+      item.textContent = profile;
+      const sep = document.createElement('span');
+      sep.className = 'profiles-sep';
+      sep.textContent = '\u2022';
+      item.appendChild(sep);
+      group.appendChild(item);
+
+      tooltip.attach(item, PROFILE_INFO[profile] || profile);
+    });
+    return group;
+  }
+
+  strip.appendChild(buildProfile());
+  strip.appendChild(buildProfile());
+  return strip;
+}
+
 initFontSwitcher();
