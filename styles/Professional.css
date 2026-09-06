@@ -1266,35 +1266,6 @@ body.pro-page .page-container {
 }
 
 /* Footer on the dark editor background */
-body.pro-page footer {
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2.5rem 2rem 3rem;
-  gap: 1rem;
-  text-align: center;
-}
-
-body.pro-page footer h1 {
-  color: var(--editorText);
-}
-
-body.pro-page footer #footer_nav li .link-svg,
-body.pro-page footer #footer_nav li svg {
-  width: 2.75rem;
-  height: 2.75rem;
-  display: block;
-  transition: transform 0.2s ease;
-}
-
-body.pro-page footer #footer_nav li:hover .link-svg,
-body.pro-page footer #footer_nav li:hover svg {
-  transform: scale(1.15);
-}
-
 body.pro-page footer #footer_nav li .link-svg .link-path,
 body.pro-page footer #footer_nav li svg path {
   fill: var(--accentPrimary);
@@ -1505,23 +1476,6 @@ body.pro-page footer #footer_nav {
 
   .directory-toggle {
     display: flex;
-  }
-
-  body.pro-page footer {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 2rem 1rem 2.5rem;
-  }
-
-  body.pro-page footer #footer_nav {
-    width: 100%;
-    gap: 1rem;
-  }
-
-  body.pro-page footer #footer_nav li .link-svg,
-  body.pro-page footer #footer_nav li svg {
-    width: 2.25rem;
-    height: 2.25rem;
   }
 
   .page-container {

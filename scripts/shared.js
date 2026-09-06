@@ -647,10 +647,6 @@ const FOOTER_LINKS = [
  */
 function buildSiteFooter() {
   const footer = document.createElement('footer');
-  const heading = document.createElement('h1');
-  heading.textContent = 'About Me';
-  footer.appendChild(heading);
-
   const list = document.createElement('ul');
   list.id = 'footer_nav';
   const tooltip = new Tooltip();
