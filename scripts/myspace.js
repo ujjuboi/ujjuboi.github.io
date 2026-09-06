@@ -10,13 +10,6 @@ const CACHE_TTL = 6 * 60 * 60 * 1000;
 const currentProjectRepos = ['ujjuboi/jobhunt'];
 
 /**
- * GitHub username whose commit history the Commit Activity chart aggregates,
- * spanning every public repository on the user's account. Derived from the
- * project repos' owner so the account name is defined in exactly one place.
- */
-const gitHubUsername = currentProjectRepos[0].split('/')[0];
-
-/**
  * How many trailing months of commit activity the chart shows.
  */
 const commitChartMonths = 6;
@@ -107,7 +100,7 @@ function buildActivitySection() {
 </div>
 <div id="commit-card" class="card" style="display: none;">
   <h3 class="card-title">Commit Activity</h3>
-  <p class="card-subtitle">Across all public repositories</p>
+  <p class="card-subtitle" id="commit-subtitle"></p>
   <div class="lc-activity" id="commit-activity">
     <div class="lc-activity-state lc-loading">
       <span class="lc-spinner"></span>
@@ -683,7 +676,7 @@ function offsetMonthKey(monthKey, monthOffset) {
 
 /**
  * Tells whether the collected commits already span the chart's trailing
- * window, so no further search pages are needed.
+ * window, so no further result pages are needed.
  *
  * @param {Object[]} commits Collected commits, newest first.
  * @param {string} windowStartKey The earliest YYYY-MM key the chart shows.
@@ -696,16 +689,19 @@ function commitsCoverChartWindow(commits, windowStartKey) {
 }
 
 /**
- * Fetches the user's commit history across all public repos via the GitHub
- * commit search API, walking result pages (sorted by author date) only until
- * the accumulated commits cover the chart's trailing window. A single failed
- * continuation page is treated as the end of history so partial data still
- * renders instead of dropping to the fallback.
+ * Fetches a single repository's commit history via the GitHub commits
+ * API, walking result pages (newest first) only until the accumulated
+ * commits cover the chart's trailing window. The endpoint returns every
+ * commit on the repo, regardless of author. A single failed continuation
+ * page is treated as the end of history so partial data still renders
+ * instead of dropping to the fallback.
  *
- * @returns {Promise<Object[]>} Flat list of commit objects, newest first.
+ * @param {string} repoFullName Owner/repo identifier whose commits to chart.
+ * @returns {Promise<Object[]>} Flat list of unique commit objects, newest first.
  */
-async function fetchCommitHistory() {
+async function fetchCommitHistory(repoFullName) {
   const commits = [];
+  const seenShas = new Set();
   let chartWindowStartKey = null;
 
   for (let page = 1; page <= 5; page++) {
@@ -714,33 +710,46 @@ async function fetchCommitHistory() {
     }
     let data = null;
     try {
-      data = await cachedFetch(`https://api.github.com/search/commits?q=author:${gitHubUsername}&sort=author-date&order=desc&per_page=100&page=${page}`);
+      data = await cachedFetch('https://api.github.com/repos/' + repoFullName + '/commits?per_page=100&page=' + page);
     } catch (error) {
       if (commits.length === 0) throw error;
       console.error('Commit history page error:', error);
       break;
     }
-    if (!data || !Array.isArray(data.items) || data.items.length === 0) break;
+    if (!Array.isArray(data) || data.length === 0) break;
     if (!chartWindowStartKey) {
-      const latestDate = getCommitAuthorDate(data.items[0]);
+      const latestDate = getCommitAuthorDate(data[0]);
       if (latestDate) {
         chartWindowStartKey = offsetMonthKey(latestDate.slice(0, 7), -(commitChartMonths - 1));
       }
     }
-    commits.push(...data.items);
-    if (data.items.length < 100) break;
+    data.forEach(commit => {
+      if (!seenShas.has(commit.sha)) {
+        seenShas.add(commit.sha);
+        commits.push(commit);
+      }
+    });
+    commits.sort((firstCommit, secondCommit) => {
+      const firstDate = getCommitAuthorDate(firstCommit) || '';
+      const secondDate = getCommitAuthorDate(secondCommit) || '';
+      return secondDate.localeCompare(firstDate);
+    });
+    if (data.length < 100) break;
   }
   if (commits.length === 0) throw new Error('No commits');
   return commits;
 }
 
 /**
- * Loads and renders the commit line chart into the commit card.
+ * Loads and renders the commit line chart for a single repo into the commit card.
+ *
+ * @param {string} repoFullName Owner/repo identifier whose commits to chart.
  */
-async function renderCommitCard() {
+async function renderCommitCard(repoFullName) {
   try {
-    const commits = await fetchCommitHistory();
+    const commits = await fetchCommitHistory(repoFullName);
     renderCommitChart(commits);
+    document.getElementById('commit-subtitle').textContent = repoFullName;
     document.getElementById('commit-card').style.display = '';
     document.getElementById('commit-fallback').style.display = 'none';
   } catch (error) {
@@ -789,7 +798,7 @@ async function fetchCurrentProject() {
       document.getElementById('project-link').href = repo.html_url;
       renderProjectBanner(repo, repoFullName, readmeText, branch);
 
-      await renderCommitCard();
+      await renderCommitCard(repoFullName);
       document.getElementById('project-fallback').style.display = 'none';
       return;
     } catch (error) {
