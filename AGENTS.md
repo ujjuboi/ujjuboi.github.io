@@ -34,8 +34,49 @@ Static portfolio site. Plain HTML + external vanilla JS/CSS. **No build system, 
   function renderBlogList() { ... }
   ```
 - Use single quotes for strings.
+- In all JS files under `scripts/`, never use abbreviated names for variables, functions, or other identifiers — always use descriptive, full names (e.g. `postCount` not `pc`, `renderBlogList` not `rbl`).
 - Cross-page logic goes in `scripts/shared.js`; page-specific logic in the page's own script (e.g. `scripts/blog.js`). Never duplicate shared helpers per page.
 - Use `fetch()` with relative paths; the site must work when opened from `file://` and GitHub Pages.
+
+### Standardized page-script form
+
+Every page script follows the same shape; mirror it rather than inventing a
+new structure:
+
+1. **Hardcoded `const` array(s)** at the top describing display/config data —
+   labels, categories, and any content structure that must not change. Declared
+   as a literal array (e.g. `categories = [...]` in `blog.js` / `resume.js`).
+   `let`/mutation is only allowed when the script genuinely reassigns a value.
+2. **`const` array(s) populated by `fetch`** that hold parsed content loaded
+   from a source manifest (e.g. `posts`, `books`, `studyPlans`, `sections`).
+3. **Loading via manifest** — never enumerate files or hardcode content in the
+   script. A `loadX()` async function fetches the area's manifest JSON (e.g.
+   `src/Blogs/posts.json`, `src/Books/books.json`, `src/StudyPlans/plans.json`,
+   `src/cv.md`), iterates the returned filenames, fetches each markdown, and
+   parses it into the content array:
+   ```js
+   async function loadBooks() {
+     const res = await fetch('../../src/Books/books.json');
+     const filenames = await res.json();
+     for (const file of filenames) {
+       const mdRes = await fetch('../../src/Books/' + file);
+       const text = await mdRes.text();
+       books.push(parseBook(text, file));
+     }
+   }
+   ```
+4. **Rendering** — a `renderX()` function converts the loaded arrays into DOM,
+   usually via shared collapsible `Section` components; tuck parsing helpers
+   (`parseBook`, `parseStudyPlan`, `parseCV`) in the same script.
+5. **Bootstrap** — call the loader(s), then render, honoring any incoming
+   `#hash` deep-link after load resolves:
+   ```js
+   Promise.all([loadBooks(), loadStudyPlans()]).then(() => {
+     renderBooks();
+     renderStudyPlans();
+     if (window.location.hash.startsWith('#book-')) { ... }
+   });
+   ```
 
 ## CSS
 
@@ -56,4 +97,5 @@ Static portfolio site. Plain HTML + external vanilla JS/CSS. **No build system, 
 
 - **Git/branch/commit workflow**: handled by the user.
 - **README.md**: protected — never edit.
-- **Content publishing (blogs, CV)**: use the `quick-blog` skill; do not reinvent its workflow.
+- **Skills in `.opencode/`** (`quick-blog`, `quick-book`, `quick-study-plan`): all content publishing. Use the relevant skill; do not reinvent its workflow.
+- **quick-test** (`.opencode/skills/quick-test`): triggered **manually by the user only** — never invoked by the AI on its own.

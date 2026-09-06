@@ -1,16 +1,16 @@
-## Title: Grokking Algorithms
+# Grokking Algorithms
 
-## Author: Aditya Y. Bhargava
+**Author:** Aditya Y. Bhargava
 
-## Excerpt: An illustrated guide to algorithms for programmers and curious readers, using friendly diagrams and real-world examples to explain complex topics.
+**Excerpt:** An illustrated guide to algorithms for programmers and curious readers, using friendly diagrams and real-world examples to explain complex topics.
 
-## Thoughts:
+**Thoughts:**
 
-## Banner: ../../Images/Books/grokking-algorithms.png
+**Banner:** ../../Images/Books/grokking-algorithms.png
 
-## Category: Software Engineering
+**Category:** Software Engineering
 
-## Status: Reading
+**Status:** Reading
 
 ## Chapters:
 

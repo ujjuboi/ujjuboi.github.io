@@ -23,3 +23,6 @@ function setGreet() {
 
 document.getElementById('salutation').innerHTML = setGreet();
 initMenuToggle('#hero', 'flex');
+
+const profilesStrip = document.getElementById('profiles-strip');
+if (profilesStrip) profilesStrip.appendChild(buildProfilesStrip());

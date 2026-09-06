@@ -1,14 +1,11 @@
-## Title: title of the post
+# title of the post
 
-## Date: date of the post
+**Date:** date of the post
 
-## Excerpt: excerpt of the post
+**Excerpt:** excerpt of the post
 
-## Banner: ../../Images/Graphics/<>.svg
+**Banner:** ../../Images/Graphics/<>.svg
 
-## Category: Deloitte/Personal Projects/Research
+**Category:** Deloitte/Personal Projects/Research
 
-## Paragraphs:
-
-- <p></p>
-- <p></p>
+Paragraph of the post.

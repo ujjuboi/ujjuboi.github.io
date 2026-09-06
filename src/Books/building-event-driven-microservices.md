@@ -1,16 +1,16 @@
-## Title: Building Event-Driven Microservices
+# Building Event-Driven Microservices
 
-## Author: Adam Bellemare
+**Author:** Adam Bellemare
 
-## Excerpt: A practical guide to leveraging event-driven architectures and microservices patterns for unlocking near-real-time data access at scale.
+**Excerpt:** A practical guide to leveraging event-driven architectures and microservices patterns for unlocking near-real-time data access at scale.
 
-## Thoughts:
+**Thoughts:**
 
-## Banner: ../../Images/Books/building-event-driven-microservices.png
+**Banner:** ../../Images/Books/building-event-driven-microservices.png
 
-## Category: System Design
+**Category:** System Design
 
-## Status: Read
+**Status:** Read
 
 ## Chapters:
 

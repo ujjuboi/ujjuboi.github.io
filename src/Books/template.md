@@ -1,16 +1,16 @@
-## Title: title of the book
+# title of the book
 
-## Author: author of the book
+**Author:** author of the book
 
-## Excerpt: excerpt of the book
+**Excerpt:** excerpt of the book
 
-## Thoughts: a paragraph of personal thoughts about the book
+**Thoughts:** a paragraph of personal thoughts about the book
 
-## Banner: ../../Images/Books/<>.svg
+**Banner:** ../../Images/Books/<>.png
 
-## Category: Software Engineering/System Design/Novels/Self Help/Devotion
+**Category:** Software Engineering/System Design/Novels/Self Help/Devotion
 
-## Status: Currently Reading/Read/Interested
+**Status:** Currently Reading/Read/Interested
 
 ## Chapters:
 

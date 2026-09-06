@@ -25,7 +25,13 @@ function mdBlock(text) {
       const level = Math.round(listMatch[1].replace(/\t/g, '  ').length / 2);
       const marker = listMatch[2];
       const content = listMatch[3];
-      let depth = stack.filter(function (t) { return t === 'ul' || t === 'ol'; }).length - 1;
+      /**
+       * Returns whether a stack tag is a list container.
+       *
+       * @param {string} tagName Tag name from the stack.
+       * @returns {boolean} True when the tag is a list.
+       */
+      let depth = stack.filter(function (tagName) { return tagName === 'ul' || tagName === 'ol'; }).length - 1;
 
       if (depth < level) {
         while (depth < level) {
@@ -96,6 +102,11 @@ function showError(message) {
 function refreshModebarVisibility() {
   if (!editorWindow || !editorWindow.modebars) return;
   const mobile = MOBILE_MQ && MOBILE_MQ.matches;
+  /** 
+   * Hides or shows a single modebar based on the current mobile state.
+   *
+   * @param {Object} entry Modebar and its parent panel reference.
+   */
   editorWindow.modebars.forEach(function (entry) {
     const modebar = entry.modebar;
     const section = entry.panel.closest('.pro-section');
@@ -127,6 +138,11 @@ function placeModebar(modebar) {
 function setupModebarPlacement() {
   if (!editorWindow || !MOBILE_MQ) return;
   editorWindow.modebars = editorWindow.modebars || [];
+  /**
+   * Registers and places the modebar of a single editor panel.
+   *
+   * @param {HTMLElement} panel Panel containing an editor modebar.
+   */
   editorWindow.main.querySelectorAll('.editor-panel').forEach(function (panel) {
     const modebar = panel.querySelector('.editor-modebar');
     if (!modebar) return;
@@ -155,7 +171,7 @@ function showBanner() {
  */
 function exitFullscreen() {
   if (document.fullscreenElement) {
-    if (document.exitFullscreen) document.exitFullscreen().catch(function () {});
+    if (document.exitFullscreen) document.exitFullscreen().catch(/** @returns {void} */ function () {});
   } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
     document.webkitExitFullscreen();
   }
@@ -174,46 +190,64 @@ function setupEditorWindow() {
   const titlebar = document.createElement('div');
   titlebar.className = 'editor-titlebar';
 
+  const dotTooltip = new Tooltip();
+
   /**
    * Creates a traffic-light dot that doubles as a back control.
    *
    * @param {string} colorClass Dot color class.
    * @param {string} label Accessible label and tooltip.
+   * @param {Function} [onClick] Custom click action; defaults to returning to the banner.
    * @returns {HTMLButtonElement} Dot button element.
    */
-  function makeBackDot(colorClass, label) {
+  function makeBackDot(colorClass, label, onClick) {
     const dot = document.createElement('button');
     dot.type = 'button';
     dot.className = 'editor-dot ' + colorClass + ' editor-dot-back';
-    dot.title = label;
     dot.setAttribute('aria-label', label);
+    /**
+     * Handles a click on the back dot, running the custom action or returning to the banner.
+     */
     dot.addEventListener('click', function () {
-      exitFullscreen();
-      showBanner();
+      if (onClick) {
+        onClick.call(this);
+      } else {
+        exitFullscreen();
+        showBanner();
+      }
       this.blur();
     });
+    dotTooltip.attach(dot, label);
     return dot;
   }
 
-  const redDot = makeBackDot('dot-red', 'Back to banner');
+  const redDot = makeBackDot('dot-red', 'Close and go back to mySpace', /**
+   * Navigates back to the portfolio index on red-dot click.
+   */
+  function () {
+    window.location.href = '../../index.html';
+  });
   const yellowDot = makeBackDot('dot-yellow', 'Back to banner');
 
   const greenDot = document.createElement('button');
   greenDot.type = 'button';
   greenDot.className = 'editor-dot dot-green editor-dot-back';
-  greenDot.title = 'Toggle full screen';
   greenDot.setAttribute('aria-label', 'Toggle full screen');
+  /**
+   * Toggles the editor container between fullscreen and windowed display.
+   */
   greenDot.addEventListener('click', function () {
     this.blur();
     const container = document.getElementById('pro-container');
     if (document.fullscreenElement || document.webkitFullscreenElement) {
       exitFullscreen();
     } else if (container && container.requestFullscreen) {
-      container.requestFullscreen().catch(function () {});
+      container.requestFullscreen().catch(/** @returns {void} */ function () {});
     } else if (container && container.webkitRequestFullscreen) {
       container.webkitRequestFullscreen();
     }
   });
+  dotTooltip.attach(greenDot, 'Toggle full screen');
 
   titlebar.appendChild(redDot);
   titlebar.appendChild(yellowDot);
@@ -234,6 +268,9 @@ function setupEditorWindow() {
   toggle.setAttribute('aria-expanded', 'false');
   toggle.title = 'Toggle sidebar';
   toggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  /**
+   * Toggles the sidebar's open state and syncs the aria-expanded attribute.
+   */
   toggle.addEventListener('click', function () {
     const open = sidebar.classList.toggle('open');
     this.setAttribute('aria-expanded', String(open));
@@ -257,11 +294,15 @@ function setupEditorWindow() {
   backBtn.type = 'button';
   backBtn.className = 'directory-back';
   backBtn.innerHTML = '<svg class="directory-back-icon" width="20" height="20" viewBox="0 0 219.151 219.151" xmlns="http://www.w3.org/2000/svg"><path d="M109.576,219.151c60.419,0,109.573-49.156,109.573-109.576C219.149,49.156,169.995,0,109.576,0S0.002,49.156,0.002,109.575C0.002,169.995,49.157,219.151,109.576,219.151z M109.576,15c52.148,0,94.573,42.426,94.574,94.575c0,52.149-42.425,94.575-94.574,94.576c-52.148-0.001-94.573-42.427-94.573-94.577C15.003,57.427,57.428,15,109.576,15z"/><path d="M94.861,156.507c2.929,2.928,7.678,2.927,10.606,0c2.93-2.93,2.93-7.678-0.001-10.608l-28.82-28.819l83.457-0.008c4.142-0.001,7.499-3.358,7.499-7.502c-0.001-4.142-3.358-7.498-7.5-7.498l-83.46,0.008l28.827-28.825c2.929-2.929,2.929-7.679,0-10.607c-1.465-1.464-3.384-2.197-5.304-2.197c-1.919,0-3.838,0.733-5.303,2.196l-41.629,41.628c-1.407,1.406-2.197,3.313-2.197,5.303c0.001,1.99,0.791,3.896,2.198,5.305L94.861,156.507z"/></svg>Back';
-  backBtn.title = 'Back';
+  backBtn.setAttribute('aria-label', 'Back to banner');
+  /**
+   * Returns to the launch banner, exiting fullscreen first.
+   */
   backBtn.addEventListener('click', function () {
     exitFullscreen();
     showBanner();
   });
+  dotTooltip.attach(backBtn, 'Back to banner');
   titlebar.appendChild(backBtn);
 
   content.appendChild(sidebar);
@@ -325,11 +366,15 @@ function shortName(label) {
  */
 function setActiveFolderHeader() {
   if (!editorWindow || !editorWindow.folders) return;
+  /**
+   * Deactivates a single folder header.
+   *
+   * @param {HTMLElement} folder Folder element to deactivate.
+   */
   editorWindow.folders.forEach(folder => {
     folder.__setActive(false);
   });
 }
-
 /**
  * Marks a single directory tree item as selected and highlights its parent folder.
  *
@@ -337,6 +382,11 @@ function setActiveFolderHeader() {
  */
 function setActiveTreeItem(item) {
   if (!editorWindow) return;
+  /**
+   * Clears the active class from a single tree entry.
+   *
+   * @param {Object} entry Directory entry with an item element.
+   */
   editorWindow.entries.forEach(entry => {
     entry.item.classList.remove('active');
   });
@@ -357,8 +407,13 @@ function setActiveTreeItem(item) {
 function activateSection(sectionEl, item) {
   if (!editorWindow) return;
   if (editorWindow.sidebar) editorWindow.sidebar.classList.add('open');
-  editorWindow.main.querySelectorAll('.pro-section').forEach(function (s) {
-    s.style.display = 'none';
+  /**
+   * Hides a single professional section.
+   *
+   * @param {HTMLElement} sectionElement Section element to hide.
+   */
+  editorWindow.main.querySelectorAll('.pro-section').forEach(function (sectionElement) {
+    sectionElement.style.display = 'none';
   });
   sectionEl.style.display = 'block';
   setActiveTreeItem(item);
@@ -390,6 +445,9 @@ function registerDirectoryEntry(title, sectionEl, item) {
     item.appendChild(name);
   }
   name.textContent = title;
+  /**
+   * Activates the section and marks this tree item selected on click.
+   */
   item.onclick = function () { activateSection(sectionEl, item); };
   sectionEl.style.display = 'none';
   editorWindow.entries.push({ section: sectionEl, item: item });
@@ -431,12 +489,20 @@ function registerSectionFolder(name, sectionEl, tabRefs) {
   const body = document.createElement('div');
   body.className = 'directory-folder-body';
 
+  /**
+   * Registers one file entry inside the folder and wires its click behavior.
+   *
+   * @param {Object} ref Tab reference with fileName/editor/tab/view.
+   */
   tabRefs.forEach(ref => {
     const item = document.createElement('div');
     item.className = 'directory-file directory-file-nested';
     const fileName = (ref.fileName || shortName(ref.label) || 'file') + '.md';
     registerDirectoryEntry(fileName, sectionEl, item);
     const baseClick = item.onclick;
+    /**
+     * Opens the section and selects the correlated editor file on click.
+     */
     item.onclick = function () {
       if (baseClick) baseClick.call(this);
       if (ref.editor && ref.tab && ref.view) {
@@ -462,6 +528,9 @@ function registerSectionFolder(name, sectionEl, tabRefs) {
     return open;
   }
 
+  /**
+   * Toggles the folder's open state on header click.
+   */
   header.addEventListener('click', function () {
     toggle();
   });
@@ -486,32 +555,40 @@ function registerSectionFolder(name, sectionEl, tabRefs) {
 }
 
 /**
- * Renders the full professional page from parsed CV data.
- *
- * @param {Object} data Structured CV from parseCV().
+ * Professional sections, rendered as sidebar folders in display order. Each
+ * entry maps its folder label to the parsed-CV key and the renderer that
+ * builds the panel content.
  */
-function renderProfessional(data) {
+const sections = [
+  { label: 'Experience', key: 'experience', render: renderExperience },
+  { label: 'Projects', key: 'projects', render: renderProjects },
+  { label: 'Skills', key: 'skills', render: renderSkills }
+];
+
+/**
+ * Parsed CV content staged from the `src/cv.md` manifest.
+ */
+const cvData = {};
+
+/**
+ * Renders the full professional page from the staged CV data, building one
+ * editor folder per configured section.
+ */
+function renderProfessional() {
   const container = document.getElementById('pro-container');
   container.innerHTML = '';
 
   setupEditorWindow();
 
-  const exp = renderExperience(data.experience);
-  const expSection = renderSection('Experience', exp.wrapper);
-  editorWindow.main.appendChild(expSection);
-  registerSectionFolder('Experience', expSection, exp.tabRefs);
+  sections.forEach(section => {
+    const built = section.render(cvData[section.key]);
+    const sectionEl = renderSection(section.label, built.wrapper);
+    editorWindow.main.appendChild(sectionEl);
+    registerSectionFolder(section.label, sectionEl, built.tabRefs);
+  });
 
-  const projects = renderProjects(data.projects);
-  const projectsSection = renderSection('Projects', projects.wrapper);
-  editorWindow.main.appendChild(projectsSection);
-  registerSectionFolder('Projects', projectsSection, projects.tabRefs);
-
-  const skills = renderSkills(data.skills);
-  const skillsSection = renderSection('Skills', skills.wrapper);
-  editorWindow.main.appendChild(skillsSection);
-  registerSectionFolder('Skills', skillsSection, skills.tabRefs);
-
-  activateSection(expSection, exp.tabRefs[0] && exp.tabRefs[0].item);
+  const first = editorWindow.entries[0];
+  activateSection(editorWindow.main.querySelector('.pro-section'), first && first.item);
 
   setupModebarPlacement();
 }
@@ -557,18 +634,30 @@ function renderExperience(jobs) {
   const editor = createEditorPanel(stack);
   const tabRefs = [];
 
-  const sorted = jobs.slice().sort(function (a, b) {
-    return (b.sortKey || 0) - (a.sortKey || 0);
+  /**
+   * Compares two jobs by sort key, descending.
+   *
+   * @param {Object} firstJob First job.
+   * @param {Object} secondJob Second job.
+   * @returns {number} Negative, zero, or positive sort difference.
+   */
+  const sorted = jobs.slice().sort(function (firstJob, secondJob) {
+    return (secondJob.sortKey || 0) - (firstJob.sortKey || 0);
   });
 
+  /**
+   * Builds one job tab with its source view and preview.
+   *
+   * @param {Object} job Parsed job entry.
+   */
   sorted.forEach(job => {
     const fullName = job.role || job.company || 'Role';
-    const short = shortName(fullName);
+    const fileName = shortName(fullName);
 
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(short + '.md'));
+    tab.appendChild(document.createTextNode(fileName + '.md'));
     tab.title = fullName + (job.company && job.company !== job.role ? ' \u00B7 ' + job.company : '') + (job.date ? ' \u00B7 ' + job.date : '');
 
     const close = document.createElement('span');
@@ -581,7 +670,7 @@ function renderExperience(jobs) {
 
     const comment = document.createElement('p');
     comment.className = 'editor-comment';
-    comment.textContent = '// Experience/' + short + '.md';
+    comment.textContent = '// Experience/' + fileName + '.md';
     view.appendChild(comment);
 
     if (job.banner) {
@@ -607,46 +696,56 @@ function renderExperience(jobs) {
     }
 
     if (job.bullets && job.bullets.length) {
-      const wrap = document.createElement('div');
-      wrap.className = 'editor-bullets';
-      let currentUl = null;
+      const bulletsWrapper = document.createElement('div');
+      bulletsWrapper.className = 'editor-bullets';
+      let currentList = null;
 
       /**
        * Returns the active bullet list, creating one when needed.
        *
        * @returns {HTMLUListElement} The current list element.
        */
-      function ensureUl() {
-        if (!currentUl) {
-          currentUl = document.createElement('ul');
-          wrap.appendChild(currentUl);
+      function ensureList() {
+        if (!currentList) {
+          currentList = document.createElement('ul');
+          bulletsWrapper.appendChild(currentList);
         }
-        return currentUl;
+        return currentList;
       }
 
+      /**
+       * Renders one job bullet as a heading or list item.
+       *
+       * @param {Object} bullet Bullet with kind, text, and optional sub-items.
+       */
       job.bullets.forEach(bullet => {
         if (bullet.kind === 'heading') {
-          currentUl = null;
-          const h = document.createElement('div');
-          h.className = 'editor-subheading';
-          h.innerHTML = mdInline(bullet.text);
-          wrap.appendChild(h);
+          currentList = null;
+          const subheadingDiv = document.createElement('div');
+          subheadingDiv.className = 'editor-subheading';
+          subheadingDiv.innerHTML = mdInline(bullet.text);
+          bulletsWrapper.appendChild(subheadingDiv);
           return;
         }
-        const li = document.createElement('li');
-        li.innerHTML = mdInline(bullet.text);
-        ensureUl().appendChild(li);
+        const listItem = document.createElement('li');
+        listItem.innerHTML = mdInline(bullet.text);
+        ensureList().appendChild(listItem);
         if (bullet.sub && bullet.sub.length) {
-          const subUl = document.createElement('ul');
+          const subList = document.createElement('ul');
+          /**
+           * Renders one sub-bullet under the current list item.
+           *
+           * @param {string} sub Sub-bullet text.
+           */
           bullet.sub.forEach(sub => {
-            const sl = document.createElement('li');
-            sl.innerHTML = mdInline(sub);
-            subUl.appendChild(sl);
+            const subListItem = document.createElement('li');
+            subListItem.innerHTML = mdInline(sub);
+            subList.appendChild(subListItem);
           });
-          li.appendChild(subUl);
+          listItem.appendChild(subList);
         }
       });
-      view.appendChild(wrap);
+      view.appendChild(bulletsWrapper);
 
       if (job.readMore) {
         const readMore = document.createElement('a');
@@ -661,12 +760,22 @@ function renderExperience(jobs) {
       const preview = document.createElement('div');
       preview.className = 'editor-preview';
       const lines = [];
+      /**
+       * Appends a bullet's markdown lines to the preview source.
+       *
+       * @param {Object} bullet Bullet to serialize.
+       */
       job.bullets.forEach(bullet => {
         if (bullet.kind === 'heading') {
           lines.push('');
           lines.push('#'.repeat(bullet.level || 4) + ' ' + bullet.text);
         } else {
           lines.push('- ' + bullet.text);
+          /**
+           * Appends a sub-bullet line to the preview source.
+           *
+           * @param {string} sub Sub-bullet text.
+           */
           (bullet.sub || []).forEach(sub => lines.push('  - ' + sub));
         }
       });
@@ -678,8 +787,11 @@ function renderExperience(jobs) {
       view.appendChild(preview);
     }
 
-    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
+    tabRefs.push({ label: fullName, fileName: fileName, tab: tab, view: view, editor: editor });
 
+    /**
+     * Selects this job's file in the editor on tab click.
+     */
     tab.onclick = function () { selectEditorFile(editor, tab, view); };
 
     editor.tabs.appendChild(tab);
@@ -705,15 +817,20 @@ function renderProjects(projects) {
   const editor = createEditorPanel(wrapper);
   const tabRefs = [];
 
-  projects.forEach(proj => {
-    const fullName = proj.name || 'Untitled';
-    const short = shortName(fullName);
+  /**
+   * Builds one project tab with its source view and preview.
+   *
+   * @param {Object} project Parsed project entry.
+   */
+  projects.forEach(project => {
+    const fullName = project.name || 'Untitled';
+    const fileName = shortName(fullName);
 
     const tab = document.createElement('button');
     tab.type = 'button';
     tab.className = 'editor-tab';
-    tab.appendChild(document.createTextNode(short + '.md'));
-    tab.title = proj.tag || fullName;
+    tab.appendChild(document.createTextNode(fileName + '.md'));
+    tab.title = project.tag || fullName;
 
     const close = document.createElement('span');
     close.className = 'editor-tab-close';
@@ -725,13 +842,13 @@ function renderProjects(projects) {
 
     const comment = document.createElement('p');
     comment.className = 'editor-comment';
-    comment.textContent = '// Projects/' + short + '.md';
+    comment.textContent = '// Projects/' + fileName + '.md';
     view.appendChild(comment);
 
-    if (proj.banner) {
+    if (project.banner) {
       const banner = document.createElement('img');
       banner.className = 'editor-banner';
-      banner.src = proj.banner;
+      banner.src = project.banner;
       banner.alt = fullName || 'banner';
       view.appendChild(banner);
     }
@@ -741,24 +858,24 @@ function renderProjects(projects) {
     title.textContent = fullName;
     view.appendChild(title);
 
-    if (proj.tag) {
+    if (project.tag) {
       const meta = document.createElement('p');
       meta.className = 'editor-meta';
-      meta.textContent = proj.tag;
+      meta.textContent = project.tag;
       view.appendChild(meta);
     }
 
-    if (proj.desc) {
-      const desc = document.createElement('p');
-      desc.className = 'editor-excerpt';
-      desc.innerHTML = mdInline(proj.desc);
-      view.appendChild(desc);
+    if (project.description) {
+      const excerpt = document.createElement('p');
+      excerpt.className = 'editor-excerpt';
+      excerpt.innerHTML = mdInline(project.description);
+      view.appendChild(excerpt);
 
-      if (proj.readMore) {
+      if (project.readMore) {
         const readMore = document.createElement('a');
         readMore.className = 'editor-read-more';
-        readMore.href = proj.readMore.url;
-        readMore.textContent = proj.readMore.label;
+        readMore.href = project.readMore.url;
+        readMore.textContent = project.readMore.label;
         readMore.target = '_blank';
         readMore.rel = 'noopener';
         view.appendChild(readMore);
@@ -766,28 +883,31 @@ function renderProjects(projects) {
 
       const preview = document.createElement('div');
       preview.className = 'editor-preview';
-      const p = document.createElement('p');
-      p.innerHTML = mdInline(proj.desc);
-      preview.appendChild(p);
+      const paragraph = document.createElement('p');
+      paragraph.innerHTML = mdInline(project.description);
+      preview.appendChild(paragraph);
 
-      if (proj.readMore) {
-        const bq = document.createElement('blockquote');
-        const bqP = document.createElement('p');
-        const readMore2 = document.createElement('a');
-        readMore2.href = proj.readMore.url;
-        readMore2.textContent = proj.readMore.label;
-        readMore2.target = '_blank';
-        readMore2.rel = 'noopener';
-        bqP.appendChild(readMore2);
-        bq.appendChild(bqP);
-        preview.appendChild(bq);
+      if (project.readMore) {
+        const blockquote = document.createElement('blockquote');
+        const blockquoteParagraph = document.createElement('p');
+        const readMoreLink = document.createElement('a');
+        readMoreLink.href = project.readMore.url;
+        readMoreLink.textContent = project.readMore.label;
+        readMoreLink.target = '_blank';
+        readMoreLink.rel = 'noopener';
+        blockquoteParagraph.appendChild(readMoreLink);
+        blockquote.appendChild(blockquoteParagraph);
+        preview.appendChild(blockquote);
       }
 
       view.appendChild(preview);
     }
 
-    tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
+    tabRefs.push({ label: fullName, fileName: fileName, tab: tab, view: view, editor: editor });
 
+    /**
+     * Selects this project's file in the editor on tab click.
+     */
     tab.onclick = function () { selectEditorFile(editor, tab, view); };
 
     editor.tabs.appendChild(tab);
@@ -814,12 +934,12 @@ function renderSkills(categories) {
   const tabRefs = [];
 
   const fullName = 'Skills';
-  const short = shortName(fullName);
+  const fileName = shortName(fullName);
 
   const tab = document.createElement('button');
   tab.type = 'button';
   tab.className = 'editor-tab';
-  tab.appendChild(document.createTextNode(short + '.md'));
+  tab.appendChild(document.createTextNode(fileName + '.md'));
   tab.title = fullName;
 
   const close = document.createElement('span');
@@ -832,7 +952,7 @@ function renderSkills(categories) {
 
   const comment = document.createElement('p');
   comment.className = 'editor-comment';
-  comment.textContent = '// Skills/' + short + '.md';
+  comment.textContent = '// Skills/' + fileName + '.md';
   view.appendChild(comment);
 
   const title = document.createElement('h3');
@@ -840,14 +960,19 @@ function renderSkills(categories) {
   title.textContent = fullName;
   view.appendChild(title);
 
-  const ul = document.createElement('ul');
-  ul.className = 'editor-bullets';
-  (categories || []).forEach(cat => {
-    const li = document.createElement('li');
-    li.textContent = (cat.category || '') + ': ' + (cat.items || []).join(', ');
-    ul.appendChild(li);
+  const bulletsList = document.createElement('ul');
+  bulletsList.className = 'editor-bullets';
+  /**
+   * Adds one category line to the skills bullet list.
+   *
+   * @param {Object} skillCategory Category with a name and item list.
+   */
+  (categories || []).forEach(skillCategory => {
+    const listItem = document.createElement('li');
+    listItem.textContent = (skillCategory.category || '') + ': ' + (skillCategory.items || []).join(', ');
+    bulletsList.appendChild(listItem);
   });
-  view.appendChild(ul);
+  view.appendChild(bulletsList);
 
   const preview = document.createElement('div');
   preview.className = 'editor-preview skills-preview';
@@ -863,24 +988,32 @@ function renderSkills(categories) {
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
-  (categories || []).forEach(cat => {
-    const tr = document.createElement('tr');
-    const catTd = document.createElement('td');
-    catTd.className = 'skills-category';
-    catTd.textContent = cat.category || '';
-    tr.appendChild(catTd);
-    const skillsTd = document.createElement('td');
-    skillsTd.className = 'skills-items';
-    skillsTd.textContent = (cat.items || []).join(', ');
-    tr.appendChild(skillsTd);
-    tbody.appendChild(tr);
+  /**
+   * Adds one category row to the skills table.
+   *
+   * @param {Object} skillCategory Category with a name and item list.
+   */
+  (categories || []).forEach(skillCategory => {
+    const tableRow = document.createElement('tr');
+    const categoryCell = document.createElement('td');
+    categoryCell.className = 'skills-category';
+    categoryCell.textContent = skillCategory.category || '';
+    tableRow.appendChild(categoryCell);
+    const skillsCell = document.createElement('td');
+    skillsCell.className = 'skills-items';
+    skillsCell.textContent = (skillCategory.items || []).join(', ');
+    tableRow.appendChild(skillsCell);
+    tbody.appendChild(tableRow);
   });
   table.appendChild(tbody);
   preview.appendChild(table);
   view.appendChild(preview);
 
-  tabRefs.push({ label: fullName, fileName: short, tab: tab, view: view, editor: editor });
+  tabRefs.push({ label: fullName, fileName: fileName, tab: tab, view: view, editor: editor });
 
+  /**
+   * Selects the skills file in the editor on tab click.
+   */
   tab.onclick = function () { selectEditorFile(editor, tab, view); };
 
   editor.tabs.appendChild(tab);
@@ -955,7 +1088,13 @@ function addPreviewToggle(panel, modebar) {
     sourceBtn.setAttribute('aria-pressed', String(!preview));
   }
 
+  /**
+   * Switches the panel to preview mode on click.
+   */
   previewBtn.addEventListener('click', function () { setMode(true); this.blur(); });
+  /**
+   * Switches the panel to source mode on click.
+   */
   sourceBtn.addEventListener('click', function () { setMode(false); this.blur(); });
 
   modebar.appendChild(previewBtn);
@@ -987,21 +1126,21 @@ function selectEditorFile(editor, tab, view) {
  */
 (function initBannerEyes() {
   const banner = document.querySelector('.launch-banner');
-  const h1 = banner && banner.querySelector('h1');
-  if (!h1) return;
+  const bannerHeading = banner && banner.querySelector('h1');
+  if (!bannerHeading) return;
 
-  const text = h1.textContent;
+  const text = bannerHeading.textContent;
   let wrapped = '';
-  for (let i = 0; i < text.length; i++) {
-    if (text[i] === 'j') {
-      wrapped += '<span class="j-char">' + text[i] + '</span>';
+  for (let index = 0; index < text.length; index++) {
+    if (text[index] === 'j') {
+      wrapped += '<span class="j-char">' + text[index] + '</span>';
     } else {
-      wrapped += text[i];
+      wrapped += text[index];
     }
   }
-  h1.innerHTML = wrapped;
+  bannerHeading.innerHTML = wrapped;
 
-  const chars = h1.querySelectorAll('.j-char');
+  const characters = bannerHeading.querySelectorAll('.j-char');
   const eyes = [];
 
   const style = document.createElement('style');
@@ -1013,18 +1152,23 @@ function selectEditorFile(editor, tab, view) {
     '}';
   document.head.appendChild(style);
 
-  chars.forEach(function (ch) {
+  /**
+   * Builds the eye elements for a single 'j' character.
+   *
+   * @param {HTMLElement} characterElement Character element to attach eyes to.
+   */
+  characters.forEach(function (characterElement) {
     const sclera = document.createElement('span');
     sclera.style.cssText =
       'position:absolute;background:var(--accentLight);border-radius:50%;pointer-events:none;z-index:9;' +
       'transform:translate(-50%,-50%);';
-    h1.appendChild(sclera);
+    bannerHeading.appendChild(sclera);
 
     const pupil = document.createElement('span');
     pupil.style.cssText =
       'position:absolute;background:var(--borderColor);border-radius:50%;pointer-events:none;z-index:10;' +
       'transform:translate(-50%,-50%);';
-    h1.appendChild(pupil);
+    bannerHeading.appendChild(pupil);
 
     const lid = document.createElement('span');
     lid.style.cssText =
@@ -1032,33 +1176,38 @@ function selectEditorFile(editor, tab, view) {
       'transform:translateX(-50%) scaleY(0);' +
       'transform-origin:top center;' +
       'animation:jLidBlink ' + (5000 / 1000) + 's infinite;';
-    h1.appendChild(lid);
-    eyes.push({ sclera: sclera, pupil: pupil, lid: lid, chEl: ch });
+    bannerHeading.appendChild(lid);
+    eyes.push({ sclera: sclera, pupil: pupil, lid: lid, characterElement: characterElement });
   });
 
   /**
    * Positions the eye elements over their host characters.
    */
   function positionEyes() {
-    const h1Rect = h1.getBoundingClientRect();
-    const fs = parseFloat(getComputedStyle(h1).fontSize);
-    const scleraSize = Math.round(fs * 0.16);
-    const pupilW = Math.round(scleraSize * 0.6);
-    const pupilH = Math.round(scleraSize * 0.6);
-    const maxDisp = (scleraSize - pupilW) / 2 - 1;
+    const headingRect = bannerHeading.getBoundingClientRect();
+    const fontSize = parseFloat(getComputedStyle(bannerHeading).fontSize);
+    const scleraSize = Math.round(fontSize * 0.16);
+    const pupilWidth = Math.round(scleraSize * 0.6);
+    const pupilHeight = Math.round(scleraSize * 0.6);
+    const maxDisplacement = (scleraSize - pupilWidth) / 2 - 1;
 
+    /**
+     * Positions a single eye's elements over its host character.
+     *
+     * @param {Object} eye Eye element group with sclera, pupil, and lid.
+     */
     eyes.forEach(function (eye) {
       eye.sclera.style.width = scleraSize + 'px';
       eye.sclera.style.height = scleraSize + 'px';
-      eye.pupil.style.width = pupilW + 'px';
-      eye.pupil.style.height = pupilH + 'px';
+      eye.pupil.style.width = pupilWidth + 'px';
+      eye.pupil.style.height = pupilHeight + 'px';
       eye.lid.style.width = scleraSize + 'px';
       eye.lid.style.height = scleraSize + 'px';
-      eye.maxDisp = maxDisp;
+      eye.maxDisplacement = maxDisplacement;
 
-      const r = eye.chEl.getBoundingClientRect();
-      const dotX = r.left + r.width / 2 - h1Rect.left;
-      const dotY = r.top + r.height * 0.22 - h1Rect.top;
+      const rect = eye.characterElement.getBoundingClientRect();
+      const dotX = rect.left + rect.width / 2 - headingRect.left;
+      const dotY = rect.top + rect.height * 0.22 - headingRect.top;
       eye.sclera.style.left = dotX + 'px';
       eye.sclera.style.top = dotY + 'px';
       eye.pupil.style.left = dotX + 'px';
@@ -1071,24 +1220,37 @@ function selectEditorFile(editor, tab, view) {
   positionEyes();
   window.addEventListener('resize', positionEyes);
 
-  let rafId = null;
+  let animationFrameId = null;
 
-  banner.addEventListener('mousemove', function (e) {
-    if (rafId) return;
-    rafId = requestAnimationFrame(function () {
-      rafId = null;
+  /**
+   * Tracks the mouse and moves the banner eyes to follow it.
+   *
+   * @param {MouseEvent} event Mouse move event.
+   */
+  banner.addEventListener('mousemove', function (event) {
+    if (animationFrameId) return;
+    /**
+     * Moves the pupils toward the cursor once per animation frame.
+     */
+    animationFrameId = requestAnimationFrame(function () {
+      animationFrameId = null;
+      /**
+       * Offsets a single pupil toward the cursor within its travel limit.
+       *
+       * @param {Object} eye Eye element group to move.
+       */
       eyes.forEach(function (eye) {
-        const r = eye.chEl.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const cy = r.top + r.height * 0.22;
-        let dx = e.clientX - cx;
-        let dy = e.clientY - cy;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > eye.maxDisp) {
-          dx = dx / dist * eye.maxDisp;
-          dy = dy / dist * eye.maxDisp;
+        const rect = eye.characterElement.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height * 0.22;
+        let deltaX = event.clientX - centerX;
+        let deltaY = event.clientY - centerY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        if (distance > eye.maxDisplacement) {
+          deltaX = deltaX / distance * eye.maxDisplacement;
+          deltaY = deltaY / distance * eye.maxDisplacement;
         }
-        eye.pupil.style.transform = 'translate(calc(-50% + ' + dx + 'px),calc(-50% + ' + dy + 'px))';
+        eye.pupil.style.transform = 'translate(calc(-50% + ' + deltaX + 'px),calc(-50% + ' + deltaY + 'px))';
       });
     });
   });
@@ -1099,6 +1261,11 @@ function selectEditorFile(editor, tab, view) {
    * @param {boolean} visible Whether the eyes should be displayed.
    */
   banner.__setEyesVisible = function (visible) {
+    /**
+     * Toggles visibility of a single eye's elements.
+     *
+     * @param {Object} eye Eye element group to update.
+     */
     eyes.forEach(function (eye) {
       eye.sclera.style.display = visible ? '' : 'none';
       eye.pupil.style.display = visible ? '' : 'none';
@@ -1108,6 +1275,9 @@ function selectEditorFile(editor, tab, view) {
 
   const launchBtn = document.getElementById('launch-btn');
   if (launchBtn) {
+    /**
+     * Hides the banner eyes when the banner is launched.
+     */
     launchBtn.addEventListener('click', function () {
       banner.__setEyesVisible(false);
     });
@@ -1121,164 +1291,71 @@ let editorWindow = null;
 let MOBILE_MQ = null;
 
 /**
- * Loads and renders the CV into the professional editor layout.
+ * Loads `src/cv.md`, parses it into the staged CV content, then rethrows on
+ * failure so the bootstrap render is skipped.
  */
-function loadCV() {
+async function loadCV() {
   showLoading();
-  fetch('../../src/cv.md')
-    .then(res => {
-      if (!res.ok) throw new Error('Failed to fetch CV');
-      return res.text();
-    })
-    .then(text => {
-      const data = parseCV(text);
-      renderProfessional(data);
-    })
-    .catch(e => {
-      console.error('Error loading CV:', e);
-      showError('Failed to load CV data.');
-    });
+  const response = await fetch('../../src/cv.md');
+  if (!response.ok) throw new Error('Failed to fetch CV');
+  const text = await response.text();
+  Object.assign(cvData, parseCV(text));
 }
 
 MOBILE_MQ = window.matchMedia('(max-width: 720px)');
 if (MOBILE_MQ.addEventListener) {
+  /**
+   * Re-places modebars when the mobile breakpoint changes.
+   */
   MOBILE_MQ.addEventListener('change', function () {
     setupModebarPlacement();
   });
 } else {
+  /**
+   * Legacy listener variant re-placing modebars on viewport change.
+   */
   MOBILE_MQ.addListener(function () {
     setupModebarPlacement();
   });
 }
 
-loadCV();
-
 /**
- * Profile headlines shown in the launching banners.
+ * Loads the CV manifest, then renders the professional editor layout.
  */
-const PROFILES = [
-  'Full Stack Developer',
-  'AI Developer',
-  'Forward Deployed Engineer',
-  'DevSecOps Engineer',
-  'IAM/PAM Analyst'
-];
-
-/**
- * Tooltip copy shown when hovering each profile headline.
+loadCV().then(renderProfessional).catch(/**
+ * Logs the load failure and shows the error state.
+ *
+ * @param {Error} error The fetch or parse error.
  */
-const PROFILE_INFO = {
-  'Full Stack Developer': 'I\u2019ve spent 4+ years building enterprise-scale applications end-to-end \u2014 Next.js, ExpressJS, and SpringBoot backed by MongoDB and Redis, from API-heavy features to data analytics platforms like DDPX.',
-  'AI Developer': 'I\u2019ve built AI agents and workflows in production \u2014 autonomous GitHub agentic workflows that review PRs and update docs, LangChain high/low-code agents, and an NLTK/Spacy agent that identifies owners of IAM principals.',
-  'Forward Deployed Engineer': 'I\u2019ve delivered directly on client engagements \u2014 turning identity-data requirements into shipped features, scaling bulk imports from 100K to 400K records and ingestion to 1,500 records/sec, and analyzing 100,000+ records across domains.',
-  'DevSecOps Engineer': 'I\u2019ve automated PR-triggered CI/CD on GitHub Actions with secure guardrails \u2014 review, lint, documentation, testing, and quality-gate checks that run automatically before data reaches production.',
-  'IAM/PAM Analyst': 'I\u2019ve worked hands-on across identity and access management \u2014 designing RBAC in Java, setting up SAML SSO with Okta and AWS Cognito, mapping SailPoint/Okta/PingFederate data, and building analytics for orphan groups and privileged entitlements with 95% ownership accuracy.'
-};
-
-/**
- * Builds the scrolling profile strip with hover tooltips.
- */
-function buildProfilesStrip() {
-  const strip = document.createElement('div');
-  strip.className = 'profiles-strip';
-
-  const tooltip = document.createElement('div');
-  tooltip.className = 'profile-tooltip';
-  tooltip.setAttribute('role', 'tooltip');
-  document.body.appendChild(tooltip);
-
-  /**
-   * Positions the tooltip near an item, staying inside the viewport.
-   *
-   * @param {HTMLElement} item The hovered profile item.
-   */
-  function positionTooltip(item) {
-    const rect = item.getBoundingClientRect();
-    const tipRect = tooltip.getBoundingClientRect();
-    let left = rect.left + rect.width / 2 - tipRect.width / 2;
-    left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
-    let top = rect.bottom + 10;
-    if (top + tipRect.height > window.innerHeight - 8) {
-      top = rect.top - tipRect.height - 10;
-    }
-    tooltip.style.left = left + 'px';
-    tooltip.style.top = top + 'px';
-    tooltip.style.opacity = '1';
-  }
-
-  /**
-   * Builds a single marquee group of profile items.
-   *
-   * @returns {HTMLDivElement} The completed group element.
-   */
-  function buildProfile() {
-    const group = document.createElement('div');
-    group.className = 'profiles-group';
-    PROFILES.forEach(function (profile) {
-      const item = document.createElement('span');
-      item.className = 'profiles-item';
-      item.textContent = profile;
-      const sep = document.createElement('span');
-      sep.className = 'profiles-sep';
-      sep.textContent = '\u2022';
-      item.appendChild(sep);
-      group.appendChild(item);
-
-      /**
-       * Shows the tooltip for the current profile item.
-       */
-      function showTooltip() {
-        tooltip.textContent = PROFILE_INFO[profile] || profile;
-        tooltip.style.display = 'block';
-        tooltip.style.opacity = '0';
-        positionTooltip(item);
-        requestAnimationFrame(function () {
-          tooltip.style.opacity = '1';
-        });
-      }
-
-      /**
-       * Hides the tooltip.
-       */
-      function hideTooltip() {
-        tooltip.style.display = 'none';
-      }
-
-      item.addEventListener('mouseenter', showTooltip);
-      item.addEventListener('mouseleave', hideTooltip);
-
-      item.addEventListener('click', function (e) {
-        e.stopPropagation();
-        if (tooltip.style.display === 'block') {
-          hideTooltip();
-        } else {
-          showTooltip();
-        }
-      });
-
-      document.addEventListener('click', function (e) {
-        if (!item.contains(e.target)) hideTooltip();
-      });
-    });
-    return group;
-  }
-
-  strip.appendChild(buildProfile());
-  strip.appendChild(buildProfile());
-  return strip;
-}
+error => {
+  console.error('Error loading CV:', error);
+  showError('Failed to load CV data.');
+});
 
 /**
  * Injects the profile strips and launch button behavior once, at load time.
  */
 (function initLaunchBanner() {
-  const profilesEl = document.getElementById('profiles-strip');
-  if (profilesEl) {
-    profilesEl.appendChild(buildProfilesStrip());
+  const profilesElement = document.getElementById('profiles-strip');
+  if (profilesElement) {
+    profilesElement.appendChild(buildProfilesStrip());
   }
+
+  const bannerTooltip = new Tooltip();
+  /**
+   * Attaches a tooltip to each banner link that declares one.
+   *
+   * @param {HTMLAnchorElement} link Banner link element.
+   */
+  document.querySelectorAll('#banner-links a[data-tooltip]').forEach(function (link) {
+    bannerTooltip.attach(link, link.getAttribute('data-tooltip') || '');
+  });
 
   const launchBtn = document.getElementById('launch-btn');
   if (launchBtn) {
+    /**
+     * Marks the banner as launched when the launch button is clicked.
+     */
     launchBtn.addEventListener('click', function () {
       const banner = document.getElementById('launch-banner');
       if (banner) {

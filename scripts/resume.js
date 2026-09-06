@@ -1,33 +1,62 @@
 /**
- * Loads `src/cv.md`, parses it, and renders the resume into the page container.
+ * Resume sections, shown as collapsible blocks in order.
+ */
+const categories = ['Professional Summary', 'Work Experience', 'Projects', 'Education', 'Skills'];
+
+/**
+ * Parsed resume content loaded from the manifest, keyed by category.
+ */
+const sections = [];
+
+/**
+ * Contact details parsed from the resume manifest.
+ */
+let contact = {};
+
+/**
+ * Loads `src/cv.md`, parses it, and stages each resume section's content
+ * before rendering the page.
  */
 async function loadCV() {
   const resumeContainer = document.getElementById('resume-container');
   try {
-    const res = await fetch('../../src/cv.md');
-    if (!res.ok) throw new Error('Failed to fetch CV');
-    const text = await res.text();
+    const response = await fetch('../../src/cv.md');
+    if (!response.ok) throw new Error('Failed to fetch CV');
+    const text = await response.text();
     const data = parseCV(text);
-    renderResume(data);
-  } catch (e) {
+
+    contact = data.contact;
+    sections.push({ category: 'Professional Summary', body: renderSummary(data.summary) });
+    sections.push({ category: 'Work Experience', body: renderExperience(data.experience) });
+    sections.push({ category: 'Projects', body: renderProjects(data.projects) });
+    sections.push({ category: 'Education', body: renderEducation(data.education) });
+    sections.push({ category: 'Skills', body: renderSkills(data.skills) });
+
+    renderResume();
+  } catch (error) {
     resumeContainer.innerHTML = '<p style="text-align:center;padding:2rem;">Failed to load CV data.</p>';
   }
 }
 
 /**
- * Renders the parsed CV into the resume container.
- *
- * @param {Object} data Structured CV from parseCV().
+ * Renders the contact header and each category as a shared collapsible
+ * section. The first category starts expanded; the rest start collapsed.
  */
-function renderResume(data) {
+function renderResume() {
   const container = document.getElementById('resume-container');
   container.innerHTML = '';
-  container.appendChild(renderHeader(data.contact));
-  container.appendChild(renderSection('Professional Summary', renderSummary(data.summary), true));
-  container.appendChild(renderSection('Work Experience', renderExperience(data.experience), false));
-  container.appendChild(renderSection('Projects', renderProjects(data.projects), false));
-  container.appendChild(renderSection('Education', renderEducation(data.education), false));
-  container.appendChild(renderSection('Skills', renderSkills(data.skills), false));
+  container.appendChild(renderHeader(contact));
+
+  categories.forEach((category, index) => {
+    const match = sections.find(section => section.category === category);
+    if (!match) return;
+    new Section({
+      title: category,
+      content: match.body,
+      className: 'resume-section',
+      expanded: index === 0
+    }).addTo(container);
+  });
 }
 
 /**
@@ -40,8 +69,8 @@ function renderHeader(contact) {
   const header = document.createElement('div');
   header.id = 'resume-header';
 
-  const p = document.createElement('p');
-  p.className = 'resume-contact';
+  const paragraph = document.createElement('p');
+  paragraph.className = 'resume-contact';
 
   const parts = [];
   if (contact.location) parts.push('<span>' + escapeHtml(contact.location) + '</span>');
@@ -50,52 +79,9 @@ function renderHeader(contact) {
   if (contact.portfolio) parts.push('<a href="https://' + escapeHtml(contact.portfolio) + '" target="_blank">Portfolio</a>');
   if (contact.github) parts.push('<a href="https://' + escapeHtml(contact.github) + '" target="_blank">GitHub</a>');
 
-  p.innerHTML = parts.join(' | ');
-  header.appendChild(p);
+  paragraph.innerHTML = parts.join(' | ');
+  header.appendChild(paragraph);
   return header;
-}
-
-/**
- * Builds a collapsible resume section with heading and content.
- *
- * @param {string} title Section heading text.
- * @param {Node} contentEl Content node to place inside the section.
- * @param {boolean} active Whether the section starts expanded.
- * @returns {HTMLDivElement} Section element ready to append.
- */
-function renderSection(title, contentEl, active) {
-  const section = document.createElement('div');
-  section.className = 'resume-section';
-  if (active) {
-    section.className += ' active';
-  }
-
-  const h2 = document.createElement('h2');
-  h2.className = 'section-heading collapsible' + (active ? ' active' : '');
-  h2.onclick = function () { toggleSection(this); };
-
-  const titleText = document.createElement('span');
-  titleText.className = 'title-text';
-  titleText.textContent = title;
-
-  const toggleIcon = document.createElement('span');
-  toggleIcon.className = 'toggle-icon';
-  toggleIcon.textContent = active ? '-' : '+';
-
-  h2.appendChild(titleText);
-  h2.appendChild(toggleIcon);
-
-  const content = document.createElement('div');
-  content.className = 'section-content';
-  content.style.display = active ? 'block' : 'none';
-
-  if (contentEl) {
-    content.appendChild(contentEl);
-  }
-
-  section.appendChild(h2);
-  section.appendChild(content);
-  return section;
 }
 
 /**
@@ -105,9 +91,9 @@ function renderSection(title, contentEl, active) {
  * @returns {HTMLParagraphElement} Paragraph element ready to append.
  */
 function renderSummary(text) {
-  const p = document.createElement('p');
-  p.textContent = text || '';
-  return p;
+  const paragraph = document.createElement('p');
+  paragraph.innerHTML = renderInlineMarkdown(text);
+  return paragraph;
 }
 
 /**
@@ -121,49 +107,27 @@ function renderExperience(jobs) {
   const timeline = document.createElement('div');
   timeline.className = 'timeline';
   jobs.forEach(job => {
-    const div = document.createElement('div');
-    div.className = 'job';
+    const jobDiv = document.createElement('div');
+    jobDiv.className = 'job';
 
-    const h3 = document.createElement('h3');
-    h3.textContent = job.company || '';
-    div.appendChild(h3);
+    const companyHeading = document.createElement('h3');
+    companyHeading.textContent = job.company || '';
+    jobDiv.appendChild(companyHeading);
 
-    const h4 = document.createElement('h4');
-    h4.textContent = job.role || '';
-    div.appendChild(h4);
+    const roleHeading = document.createElement('h4');
+    roleHeading.textContent = job.role || '';
+    jobDiv.appendChild(roleHeading);
 
-    const p = document.createElement('p');
-    p.className = 'job-date';
-    p.textContent = job.date || '';
-    div.appendChild(p);
+    const dateParagraph = document.createElement('p');
+    dateParagraph.className = 'job-date';
+    dateParagraph.textContent = job.date || '';
+    jobDiv.appendChild(dateParagraph);
 
     if (job.bullets && job.bullets.length) {
-      const ul = document.createElement('ul');
-      job.bullets.forEach(bullet => {
-        if (bullet.kind === 'heading') {
-          const h = document.createElement('li');
-          h.className = 'resume-subheading';
-          h.innerHTML = mdInline(bullet.text);
-          ul.appendChild(h);
-          return;
-        }
-        const li = document.createElement('li');
-        li.innerHTML = mdInline(bullet.text);
-        if (bullet.sub && bullet.sub.length) {
-          const subUl = document.createElement('ul');
-          bullet.sub.forEach(sub => {
-            const sl = document.createElement('li');
-            sl.innerHTML = mdInline(sub);
-            subUl.appendChild(sl);
-          });
-          li.appendChild(subUl);
-        }
-        ul.appendChild(li);
-      });
-      div.appendChild(ul);
+      jobDiv.appendChild(renderMarkdownBullets(job.bullets));
     }
 
-    timeline.appendChild(div);
+    timeline.appendChild(jobDiv);
   });
   wrapper.appendChild(timeline);
   return wrapper;
@@ -177,27 +141,27 @@ function renderExperience(jobs) {
  */
 function renderProjects(projects) {
   const wrapper = document.createDocumentFragment();
-  projects.forEach(proj => {
-    const div = document.createElement('div');
-    div.className = 'project';
+  projects.forEach(project => {
+    const projectDiv = document.createElement('div');
+    projectDiv.className = 'project';
 
-    const h3 = document.createElement('h3');
-    h3.textContent = proj.name || '';
-    if (proj.tag) {
+    const heading = document.createElement('h3');
+    heading.innerHTML = renderInlineMarkdown(project.name || '');
+    if (project.tag) {
       const tag = document.createElement('span');
       tag.className = 'project-tag';
-      tag.textContent = proj.tag;
-      h3.appendChild(tag);
+      tag.innerHTML = renderInlineMarkdown(project.tag);
+      heading.appendChild(tag);
     }
-    div.appendChild(h3);
+    projectDiv.appendChild(heading);
 
-    if (proj.desc) {
-      const p = document.createElement('p');
-      p.textContent = proj.desc;
-      div.appendChild(p);
+    if (project.description) {
+      const descriptionParagraph = document.createElement('p');
+      descriptionParagraph.innerHTML = renderInlineMarkdown(project.description);
+      projectDiv.appendChild(descriptionParagraph);
     }
 
-    wrapper.appendChild(div);
+    wrapper.appendChild(projectDiv);
   });
   return wrapper;
 }
@@ -210,26 +174,28 @@ function renderProjects(projects) {
  */
 function renderEducation(items) {
   const wrapper = document.createDocumentFragment();
-  items.forEach(edu => {
-    const div = document.createElement('div');
-    div.className = 'education';
+  items.forEach(educationEntry => {
+    const educationDiv = document.createElement('div');
+    educationDiv.className = 'education';
 
-    const h3 = document.createElement('h3');
-    h3.textContent = edu.degree || '';
-    div.appendChild(h3);
+    const degreeHeading = document.createElement('h3');
+    degreeHeading.innerHTML = renderInlineMarkdown(educationEntry.degree || '');
+    educationDiv.appendChild(degreeHeading);
 
-    const p = document.createElement('p');
-    p.textContent = [edu.school, edu.cgpa].filter(Boolean).join(' ') || edu.school || '';
-    div.appendChild(p);
+    const schoolParagraph = document.createElement('p');
+    schoolParagraph.innerHTML = renderInlineMarkdown(
+      [educationEntry.school, educationEntry.cgpa].filter(Boolean).join(' ') || educationEntry.school || ''
+    );
+    educationDiv.appendChild(schoolParagraph);
 
-    if (edu.dates) {
-      const dateP = document.createElement('p');
-      dateP.className = 'job-date';
-      dateP.textContent = edu.dates;
-      div.appendChild(dateP);
+    if (educationEntry.dates) {
+      const dateParagraph = document.createElement('p');
+      dateParagraph.className = 'job-date';
+      dateParagraph.innerHTML = renderInlineMarkdown(educationEntry.dates);
+      educationDiv.appendChild(dateParagraph);
     }
 
-    wrapper.appendChild(div);
+    wrapper.appendChild(educationDiv);
   });
   return wrapper;
 }
@@ -237,39 +203,39 @@ function renderEducation(items) {
 /**
  * Builds the skills grid grouped by category.
  *
- * @param {Object[]} categories Parsed skill categories.
+ * @param {Object[]} skillCategories Parsed skill categories.
  * @returns {HTMLDivElement} Skills grid element ready to append.
  */
-function renderSkills(categories) {
-  const div = document.createElement('div');
-  div.className = 'skills-grid';
+function renderSkills(skillCategories) {
+  const gridDiv = document.createElement('div');
+  gridDiv.className = 'skills-grid';
 
-  categories.forEach(cat => {
-    const catDiv = document.createElement('div');
-    catDiv.className = 'skill-category';
+  skillCategories.forEach(skillCategory => {
+    const categoryDiv = document.createElement('div');
+    categoryDiv.className = 'skill-category';
 
-    const h3 = document.createElement('h3');
-    h3.textContent = cat.category || '';
-    catDiv.appendChild(h3);
+    const heading = document.createElement('h3');
+    heading.innerHTML = renderInlineMarkdown(skillCategory.category || '');
+    categoryDiv.appendChild(heading);
 
     const wrapper = document.createElement('div');
     wrapper.className = 'skills-wrapper';
 
-    if (cat.items) {
-      cat.items.forEach(item => {
+    if (skillCategory.items) {
+      skillCategory.items.forEach(item => {
         const span = document.createElement('span');
         span.className = 'skill-item';
-        span.textContent = item;
+        span.innerHTML = renderInlineMarkdown(item);
         wrapper.appendChild(span);
       });
     }
 
-    catDiv.appendChild(wrapper);
-    div.appendChild(catDiv);
+    categoryDiv.appendChild(wrapper);
+    gridDiv.appendChild(categoryDiv);
   });
 
-  return div;
+  return gridDiv;
 }
 
-initMenuToggle('#resume-container');
 loadCV();
+initMenuToggle('#resume-container');

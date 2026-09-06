@@ -1,16 +1,16 @@
-## Title: System Design Interview – An Insider's Guide, Second Edition
+# System Design Interview – An Insider's Guide, Second Edition
 
-## Author: Alex Xu
+**Author:** Alex Xu
 
-## Excerpt: A practical guide to system design interviews with 15 real-world problems walked through step by step, from scaling to zero with detailed solutions and modern architecture patterns.
+**Excerpt:** A practical guide to system design interviews with 15 real-world problems walked through step by step, from scaling to zero with detailed solutions and modern architecture patterns.
 
-## Thoughts: 
+**Thoughts:**
 
-## Banner: ../../Images/Books/system-design-interview.png
+**Banner:** ../../Images/Books/system-design-interview.png
 
-## Category: System Design
+**Category:** System Design
 
-## Status: Interested
+**Status:** Interested
 
 ## Chapters:
 

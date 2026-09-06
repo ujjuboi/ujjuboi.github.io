@@ -4,6 +4,216 @@
 const CACHE_TTL = 6 * 60 * 60 * 1000;
 
 /**
+ * MySpace sections, shown as collapsible blocks in order.
+ * The first section starts expanded; the rest start collapsed.
+ */
+const categories = ['Currently Studying', 'Currently Working On', 'GitHub Repositories', 'LeetCode Progress', 'My Library'];
+
+/**
+ * Staged section content for each category, populated by stageSections().
+ */
+const sections = [];
+
+/**
+ * Rendered Section instances, keyed by category label.
+ */
+const sectionInstances = {};
+
+/**
+ * Stages each section's widget shells. The shells have no data dependency,
+ * so this runs synchronously at startup.
+ */
+function stageSections() {
+  sections.push({ category: 'Currently Studying', full: true, content: buildStudySection() });
+  sections.push({ category: 'Currently Working On', content: buildActivitySection() });
+  sections.push({ category: 'GitHub Repositories', content: buildGitHubSection() });
+  sections.push({ category: 'LeetCode Progress', content: buildLeetCodeSection() });
+  sections.push({ category: 'My Library', full: true, content: buildBooksSection() });
+}
+
+/**
+ * Builds the study plan section's widget markup.
+ *
+ * @returns {string} Inner HTML for the section content.
+ */
+function buildStudySection() {
+  return `
+<div id="study-loading" class="loading-placeholder">
+  Loading study plans<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+</div>
+<div id="study-plans-grid"></div>
+<div id="study-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+  Unable to load study plans
+</div>
+<div id="study-plan-view" style="display: none;">
+  <button id="study-plan-back-btn" type="button" onclick="showStudyPlansList()">← Back to study plans</button>
+  <div class="study-summary">
+    <h3 class="study-title" id="study-title"></h3>
+    <div class="study-progress-track">
+      <div class="study-progress-fill" id="study-progress-fill" style="width: 0%"></div>
+      <span class="study-progress-label" id="study-progress-label">0/0</span>
+    </div>
+    <div class="study-focus" id="study-focus"></div>
+  </div>
+  <div id="study-tree" class="word-tree"></div>
+</div>`;
+}
+
+/**
+ * Builds the recent-activity section's widget markup.
+ *
+ * @returns {string} Inner HTML for the section content.
+ */
+function buildActivitySection() {
+  return `
+<div id="activity-card" class="card">
+  <h3 class="card-title">
+    <span id="repo-name"></span>
+    <span class="myspace-tag">Commit</span>
+  </h3>
+  <p id="commit-message" class="card-excerpt"></p>
+  <a id="commit-link" class="card-link" href="#" target="_blank">View on GitHub →</a>
+</div>
+<div id="issues-grid" class="post-grid"></div>
+<div class="loading-placeholder" id="issues-loading" style="display: none;">
+  Loading open issues and PRs<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+</div>
+<div id="activity-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+  Unable to fetch recent activity
+</div>`;
+}
+
+/**
+ * Builds the GitHub repositories section's widget markup.
+ *
+ * @returns {string} Inner HTML for the section content.
+ */
+function buildGitHubSection() {
+  return `
+<div id="github-repos-grid">
+  <div class="loading-placeholder" id="github-loading">
+    Fetching data<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+  </div>
+</div>
+<div id="github-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+  Unable to fetch GitHub repos
+</div>`;
+}
+
+/**
+ * Builds the LeetCode progress section's widget markup.
+ *
+ * @returns {string} Inner HTML for the section content.
+ */
+function buildLeetCodeSection() {
+  return `
+<div id="leetcode-content">
+  <div class="loading-placeholder" id="leetcode-loading">
+    Fetching data<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+  </div>
+  <div class="leetcode-stats-grid" id="leetcode-grid" style="display: none;">
+    <div class="stat-card card">
+      <span id="lc-solved" class="stat-number">--</span>
+      <span class="stat-label">Solved</span>
+    </div>
+    <div class="stat-card card">
+      <span id="lc-easy" class="stat-number">--</span>
+      <span class="stat-label">Easy</span>
+    </div>
+    <div class="stat-card card">
+      <span id="lc-medium" class="stat-number">--</span>
+      <span class="stat-label">Medium</span>
+    </div>
+    <div class="stat-card card">
+      <span id="lc-hard" class="stat-number">--</span>
+      <span class="stat-label">Hard</span>
+    </div>
+  </div>
+  <div id="lc-submissions-card" class="card" style="display: none;">
+    <h3 class="card-title">Recent Submissions &amp; Activity</h3>
+    <div class="lc-activity" id="lc-activity"></div>
+    <ul class="lc-submission-list" id="lc-submissions"></ul>
+  </div>
+  <div id="lc-recent" style="display: none;">
+    <p id="lc-total-active-days">Total active days: -- days ago</p>
+    <p id="lc-ranking">Ranking: --</p>
+    <p id="lc-link">
+      <a id="lc-profile-link" class="card-link" href="https://leetcode.com/ujjuboi/" target="_blank" style="display: none;">View LeetCode Profile →</a>
+    </p>
+  </div>
+</div>
+<div id="lc-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+  Unable to fetch LeetCode stats
+</div>`;
+}
+
+/**
+ * Builds the My Library section's widget markup.
+ *
+ * @returns {string} Inner HTML for the section content.
+ */
+function buildBooksSection() {
+  return `
+<div id="books-loading" class="loading-placeholder">
+  Loading books<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
+</div>
+<div id="books-grid"></div>
+<div id="books-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
+  No books to show
+</div>
+<div id="book-view" style="display: none;">
+  <button id="book-back-btn" onclick="showBooksList()">← Back to books</button>
+  <div class="book-detail">
+    <div class="book-detail-cover">
+      <img id="book-banner" src="" alt="Book cover">
+    </div>
+    <div class="book-detail-main">
+      <div class="book-detail-content">
+        <h1 id="book-title"></h1>
+        <p id="book-author"></p>
+        <p id="book-meta"></p>
+        <div id="book-excerpt"></div>
+        <div id="book-thoughts"></div>
+      </div>
+    </div>
+  </div>
+</div>`;
+}
+
+/**
+ * Renders each category as a shared collapsible section.
+ * The first category starts expanded; the rest start collapsed.
+ */
+function renderMyspaceSections() {
+  const container = document.getElementById('myspace-sections');
+  if (!container) return;
+  container.innerHTML = '';
+
+  categories.forEach((category, index) => {
+    const match = sections.find(section => section.category === category);
+    if (!match) return;
+    sectionInstances[category] = new Section({
+      title: category,
+      content: match.content,
+      className: 'myspace-section' + (match.full ? ' myspace-section--full' : ''),
+      expanded: index === 0
+    }).addTo(container);
+  });
+}
+
+/**
+ * Expands the section for the given category so its content is visible.
+ *
+ * @param {string} category The category label whose section to expand.
+ */
+function expandSection(category) {
+  const section = sectionInstances[category];
+  if (section && !section.isExpanded) {
+    section.expand();
+  }
+}
+
+/**
  * Renders the LeetCode activity bar chart into the submissions card.
  *
  * @param {Object|string} submissionCalendar Day-timestamp to submissions map (or JSON string).
@@ -16,16 +226,16 @@ function renderLeetCodeActivity(submissionCalendar) {
   if (typeof submissionCalendar === 'string' && submissionCalendar) {
     try {
       submissionCalendar = JSON.parse(submissionCalendar);
-    } catch (e) {
+    } catch (error) {
       submissionCalendar = null;
     }
   }
   if (!submissionCalendar || typeof submissionCalendar !== 'object') return false;
 
   const days = Object.entries(submissionCalendar)
-    .map(([ts, count]) => ({ ts: Number(ts) * 1000, count: Number(count) || 0 }))
-    .filter(d => d.count > 0)
-    .sort((a, b) => a.ts - b.ts);
+    .map(([timestamp, count]) => ({ timestamp: Number(timestamp) * 1000, count: Number(count) || 0 }))
+    .filter(day => day.count > 0)
+    .sort((firstDay, secondDay) => firstDay.timestamp - secondDay.timestamp);
 
   if (days.length === 0) return false;
 
@@ -35,37 +245,36 @@ function renderLeetCodeActivity(submissionCalendar) {
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   const monthMap = new Map();
-  days.forEach(d => {
-    const date = new Date(d.ts);
+  days.forEach(day => {
+    const date = new Date(day.timestamp);
     const key = `${date.getFullYear()}-${date.getMonth()}`;
-    const entry = monthMap.get(key) || { ts: d.ts, count: 0, date };
-    entry.ts = Math.min(entry.ts, d.ts);
-    entry.count += d.count;
+    const entry = monthMap.get(key) || { timestamp: day.timestamp, count: 0, date };
+    entry.timestamp = Math.min(entry.timestamp, day.timestamp);
+    entry.count += day.count;
     monthMap.set(key, entry);
   });
 
-  const months = Array.from(monthMap.values()).sort((a, b) => a.ts - b.ts);
+  const months = Array.from(monthMap.values()).sort((firstMonth, secondMonth) => firstMonth.timestamp - secondMonth.timestamp);
 
-  const total = months.reduce((sum, m) => sum + m.count, 0);
-  const max = Math.max(...months.map(m => m.count));
+  const total = months.reduce((sum, month) => sum + month.count, 0);
+  const max = Math.max(...months.map(month => month.count));
 
-  const cols = months.map(m => {
-    const height = max > 0 ? Math.max(8, (m.count / max) * 100) : 8;
-    const filledPct = total > 0 ? Math.round((m.count / total) * 100) : 0;
-    const label = `${monthNames[m.date.getMonth()]} ${m.date.getFullYear()}`;
+  const chartData = months.map(month => {
+    const height = max > 0 ? Math.max(8, (month.count / max) * 100) : 8;
+    const filledPct = total > 0 ? Math.round((month.count / total) * 100) : 0;
+    const label = `${monthNames[month.date.getMonth()]} ${month.date.getFullYear()}`;
+    const shortLabel = `${monthNames[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}`;
 
-    return `
-      <div class="lc-col">
-        <div class="lc-bar" style="height:${height}%;"></div>
-        <span class="lc-col-label">${monthNames[m.date.getMonth()]} ${String(m.date.getFullYear()).slice(2)}</span>
-        <div class="lc-tooltip" role="tooltip">
-          <span class="lc-tooltip-date">${label}</span>
-          <span class="lc-tooltip-count">${m.count} submission${m.count === 1 ? '' : 's'}</span>
-          <span class="lc-tooltip-meter"><span style="width:${filledPct}%"></span></span>
-          <span class="lc-tooltip-max"><em>${filledPct}%</em> of total submissions</span>
-        </div>
-      </div>`;
-  }).join('');
+    return {
+      height,
+      shortLabel,
+      content: `
+        <span class="lc-tooltip-date">${label}</span>
+        <span class="lc-tooltip-count">${month.count} submission${month.count === 1 ? '' : 's'}</span>
+        <span class="lc-tooltip-meter"><span style="width:${filledPct}%"></span></span>
+        <span class="lc-tooltip-max"><em>${filledPct}%</em> of total submissions</span>`
+    };
+  });
 
   container.innerHTML = `
     <div class="lc-activity-chart">
@@ -74,10 +283,20 @@ function renderLeetCodeActivity(submissionCalendar) {
       </div>
       <div class="lc-plot">
         <div class="lc-total">${total} total submissions</div>
-        <div class="lc-activity-bars">${cols}</div>
+        <div class="lc-activity-bars">${chartData.map(dataPoint => `
+          <div class="lc-col">
+            <div class="lc-bar" style="height:${dataPoint.height}%;"></div>
+            <span class="lc-col-label">${dataPoint.shortLabel}</span>
+          </div>`).join('')}
+        </div>
       </div>
     </div>
   `;
+
+  const tooltip = new Tooltip();
+  container.querySelectorAll('.lc-col').forEach((col, colIndex) => {
+    tooltip.attach(col, chartData[colIndex].content);
+  });
   return true;
 }
 
@@ -150,14 +369,14 @@ function renderRecentSubmissions(submissions) {
   if (!list || !Array.isArray(submissions) || submissions.length === 0) return;
 
   const now = Date.now();
-  const items = submissions.map(s => {
-    const title = escapeHtml(s.title);
-    const slug = escapeHtml(s.titleSlug);
-    const status = escapeHtml(s.statusDisplay || 'Other');
-    const lang = escapeHtml(s.lang || '');
-    const seconds = Number(s.timestamp);
-    const ms = seconds > 1e12 ? seconds : seconds * 1000;
-    const diff = Math.max(0, now - ms);
+  const items = submissions.map(submission => {
+    const title = escapeHtml(submission.title);
+    const slug = escapeHtml(submission.titleSlug);
+    const status = escapeHtml(submission.statusDisplay || 'Other');
+    const lang = escapeHtml(submission.lang || '');
+    const seconds = Number(submission.timestamp);
+    const milliseconds = seconds > 1e12 ? seconds : seconds * 1000;
+    const diff = Math.max(0, now - milliseconds);
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
@@ -209,14 +428,14 @@ async function cachedFetch(url) {
   if (cached) {
     const parsed = JSON.parse(cached);
     staleData = parsed.data;
-    if (Date.now() - parsed.ts < CACHE_TTL) return parsed.data;
+    if (typeof parsed.cachedAt === 'number' && Date.now() - parsed.cachedAt < CACHE_TTL) return parsed.data;
   }
 
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    localStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() }));
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    localStorage.setItem(cacheKey, JSON.stringify({ data, cachedAt: Date.now() }));
     return data;
   } catch (error) {
     if (staleData !== null) return staleData;
@@ -245,10 +464,10 @@ async function fetchGitHubStats() {
       try {
         const readmeData = await cachedFetch(`https://api.github.com/repos/ujjuboi/${repo.name}/readme`);
         const decoded = atob(readmeData.content);
-        const lines = decoded.split('\n').filter(l => l.trim());
-        const firstParagraph = lines.find(l => !l.startsWith('#') && !l.startsWith('!') && !l.startsWith('[') && l.length > 10);
+        const lines = decoded.split('\n').filter(line => line.trim());
+        const firstParagraph = lines.find(line => !line.startsWith('#') && !line.startsWith('!') && !line.startsWith('[') && line.length > 10);
         if (firstParagraph) description = firstParagraph.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
-      } catch (e) { /* use repo description as fallback */ }
+      } catch (error) { /* use repo description as fallback */ }
 
       if (description.length > 120) description = description.slice(0, 117) + '...';
 
@@ -266,7 +485,7 @@ async function fetchGitHubStats() {
 
     const cards = await Promise.all(repos.map(buildCard));
 
-    cards.forEach(c => grid.appendChild(c));
+    cards.forEach(card => grid.appendChild(card));
     document.getElementById('github-loading').style.display = 'none';
   } catch (error) {
     console.error('GitHub stats error:', error);
@@ -307,7 +526,7 @@ async function fetchRecentActivity() {
 
     const latestRepo = repos[0];
     const commits = await cachedFetch(`https://api.github.com/repos/ujjuboi/${latestRepo.name}/commits?per_page=10`);
-    const userCommit = commits.find(c => c.author && c.author.login === 'ujjuboi');
+    const userCommit = commits.find(commit => commit.author && commit.author.login === 'ujjuboi');
     if (!userCommit) {
       syncActivityFallback();
       return;
@@ -373,13 +592,13 @@ async function fetchGitHubIssues() {
     document.getElementById('issues-loading').style.display = '';
 
     const cards = items.slice(0, 6).map((item) => {
-      const isPR = item.pull_request !== undefined;
+      const isPullRequest = item.pull_request !== undefined;
       const repoName = (item.repository_url || '').replace('https://api.github.com/repos/', '');
       const card = document.createElement('a');
       card.className = 'post-card card';
       card.href = item.html_url;
       card.target = '_blank';
-      const tag = isPR ? 'PR' : 'Issue';
+      const tag = isPullRequest ? 'PR' : 'Issue';
       const created = new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
       const title = document.createElement('h3');
@@ -398,9 +617,9 @@ async function fetchGitHubIssues() {
 
       let excerpt = (item.body || '').replace(/[#*`>\[\]()!-]/g, ' ').replace(/\s+/g, ' ').trim();
       if (excerpt.length > 120) excerpt = excerpt.slice(0, 117) + '...';
-      const excerptP = document.createElement('p');
-      excerptP.className = 'card-excerpt';
-      excerptP.textContent = excerpt;
+      const excerptParagraph = document.createElement('p');
+      excerptParagraph.className = 'card-excerpt';
+      excerptParagraph.textContent = excerpt;
 
       const link = document.createElement('span');
       link.className = 'card-link';
@@ -408,13 +627,13 @@ async function fetchGitHubIssues() {
 
       card.appendChild(title);
       card.appendChild(date);
-      card.appendChild(excerptP);
+      card.appendChild(excerptParagraph);
       card.appendChild(link);
       return card;
     });
 
     grid.style.display = '';
-    cards.forEach(c => grid.appendChild(c));
+    cards.forEach(card => grid.appendChild(card));
     document.getElementById('issues-loading').style.display = 'none';
     gitHubIssuesOk = true;
     syncActivityFallback();
@@ -439,14 +658,12 @@ const books = [];
  * @returns {Object|null} Parsed book object or null on failure.
  */
 function parseBook(text, filename) {
-  const meta = {};
+  const meta = parsePostHeaders(text);
   const lines = text.split('\n');
   let inChapters = false;
   const chapterLines = [];
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
+  for (const line of lines) {
     if (inChapters) {
       if (line.startsWith('## ')) {
         inChapters = false;
@@ -459,11 +676,6 @@ function parseBook(text, filename) {
     if (line.startsWith('## Chapters:')) {
       inChapters = true;
       continue;
-    }
-
-    const match = line.match(/^## (\w+):\s*(.+)/);
-    if (match) {
-      meta[match[1].toLowerCase()] = match[2].trim();
     }
   }
 
@@ -490,7 +702,7 @@ function parseBook(text, filename) {
   }
 
   const totalChapters = chapters.length;
-  const doneChapters = chapters.filter(c => c.done).length;
+  const doneChapters = chapters.filter(chapter => chapter.done).length;
   const progress = totalChapters > 0 ? Math.round((doneChapters / totalChapters) * 100) : 0;
 
   let status = meta.status || 'Interested';
@@ -501,7 +713,7 @@ function parseBook(text, filename) {
     progressText = 'Finished';
   } else if (progress > 0) {
     status = 'Currently Reading';
-    const nextUp = chapters.find(c => !c.done);
+    const nextUp = chapters.find(chapter => !chapter.done);
     if (nextUp) {
       progressText = 'Currently on: ' + nextUp.name + ' · ' + progress + '%';
     } else {
@@ -529,25 +741,25 @@ function parseBook(text, filename) {
  */
 async function loadBooks() {
   try {
-    const res = await fetch('../../src/Books/books.json');
-    if (!res.ok) throw new Error('Failed to fetch books.json');
-    const filenames = await res.json();
+    const response = await fetch('../../src/Books/books.json');
+    if (!response.ok) throw new Error('Failed to fetch books.json');
+    const filenames = await response.json();
 
     for (const file of filenames) {
       try {
-        const mdRes = await fetch('../../src/Books/' + file);
-        if (!mdRes.ok) throw new Error('Failed to fetch ' + file);
-        const text = await mdRes.text();
+        const markdownResponse = await fetch('../../src/Books/' + file);
+        if (!markdownResponse.ok) throw new Error('Failed to fetch ' + file);
+        const text = await markdownResponse.text();
         const book = parseBook(text, file);
         if (book) {
           books.push(book);
         }
-      } catch (e) {
-        console.error('Error loading book:', file, e);
+      } catch (error) {
+        console.error('Error loading book:', file, error);
       }
     }
-  } catch (e) {
-    console.error('Error loading books manifest:', e);
+  } catch (error) {
+    console.error('Error loading books manifest:', error);
   }
 }
 
@@ -557,10 +769,10 @@ async function loadBooks() {
  */
 function sortBooksByStatus() {
   const order = { 'Currently Reading': 0, 'Interested': 1, 'Read': 2 };
-  books.sort((a, b) => {
-    const ai = order[a.status] !== undefined ? order[a.status] : 2;
-    const bi = order[b.status] !== undefined ? order[b.status] : 2;
-    return ai - bi;
+  books.sort((firstBook, secondBook) => {
+    const firstBookOrder = order[firstBook.status] !== undefined ? order[firstBook.status] : 2;
+    const secondBookOrder = order[secondBook.status] !== undefined ? order[secondBook.status] : 2;
+    return firstBookOrder - secondBookOrder;
   });
 }
 
@@ -639,8 +851,8 @@ function showBook(index) {
   document.getElementById('book-author').textContent = book.author;
   document.getElementById('book-meta').textContent =
     book.category + ' · ' + book.status + ' · ' + book.progressText;
-  document.getElementById('book-excerpt').textContent = book.excerpt;
-  document.getElementById('book-thoughts').textContent = book.thoughts;
+  document.getElementById('book-excerpt').innerHTML = renderMarkdown(book.excerpt);
+  document.getElementById('book-thoughts').innerHTML = renderMarkdown(book.thoughts);
 
   history.replaceState(null, '', '#book-' + index);
   bookView.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -691,11 +903,11 @@ function openStudyDrawer(node, triggerBtn) {
 
   let html = '';
 
-  html += '<p class="drawer-breadcrumb">' + escapeHtml(node.phaseBreadCrumb) + '</p>';
-  html += '<h2 class="drawer-title">' + escapeHtml(node.title) + '</h2>';
+  html += '<p class="drawer-breadcrumb">' + mdInline(node.phaseBreadCrumb) + '</p>';
+  html += '<h2 class="drawer-title">' + mdInline(node.title) + '</h2>';
 
   if (node.items && node.items.length > 0) {
-    const done = node.items.filter(i => i.done).length;
+    const done = node.items.filter(item => item.done).length;
     const total = node.items.length;
     const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
@@ -715,15 +927,15 @@ function openStudyDrawer(node, triggerBtn) {
       html += '<li class="drawer-checklist-item ' + doneClass + '">';
       html += '<span class="check-mark">' + mark + '</span>';
       html += '<span class="drawer-item-main">';
-      html += escapeHtml(item.text);
+      html += mdInline(item.text);
       if (item.subs && item.subs.length > 0) {
         html += '<span class="drawer-item-subs">';
         for (const sub of item.subs) {
           if (sub.url) {
-            const linkLabel = sub.label ? escapeHtml(sub.label) + ': ' : '';
-            html += '<a class="drawer-item-sub" href="' + escapeHtml(sub.url) + '" target="_blank" rel="noopener">' + linkLabel + escapeHtml(sub.text) + '</a>';
+            const linkLabel = sub.label ? mdInline(sub.label) + ': ' : '';
+            html += '<a class="drawer-item-sub" href="' + escapeHtml(sub.url) + '" target="_blank" rel="noopener">' + linkLabel + mdInline(sub.text) + '</a>';
           } else {
-            html += '<span class="drawer-item-sub">' + escapeHtml(sub.text) + '</span>';
+            html += '<span class="drawer-item-sub">' + mdInline(sub.text) + '</span>';
           }
         }
         html += '</span>';
@@ -761,7 +973,7 @@ function openStudyDrawer(node, triggerBtn) {
  * @returns {HTMLElement} The completed leaf button.
  */
 function renderStudyNode(phase, node, isActive) {
-  const done = node.items ? node.items.filter(i => i.done).length : 0;
+  const done = node.items ? node.items.filter(item => item.done).length : 0;
   const total = node.items ? node.items.length : 0;
   const isComplete = total > 0 && done === total;
 
@@ -776,7 +988,7 @@ function renderStudyNode(phase, node, isActive) {
 
   const text = document.createElement('span');
   text.className = 'wt-leaf-text';
-  text.textContent = node.topic || node.label;
+  text.innerHTML = mdInline(node.topic || node.label);
 
   leafEl.appendChild(kicker);
   leafEl.appendChild(text);
@@ -818,8 +1030,8 @@ function parseStudyPlan(text) {
   let phaseNum = 0;
   let titleParsed = false;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index];
 
     if (!titleParsed && line.startsWith('# ')) {
       result.title = line.slice(2).trim();
@@ -956,7 +1168,7 @@ function buildWordTree(plan) {
     let phaseTotal = 0;
     for (const week of phase.weeks) {
       if (!week.items) continue;
-      phaseDone += week.items.filter(i => i.done).length;
+      phaseDone += week.items.filter(item => item.done).length;
       phaseTotal += week.items.length;
     }
 
@@ -990,7 +1202,7 @@ function buildWordTree(plan) {
 }
 
 /**
- * Returns a plan's title with the "Study Plan:" prefix stripped.
+ * Returns a plan's title with the 'Study Plan:' prefix stripped.
  *
  * @param {object} plan Parsed study plan object.
  * @returns {string} Display title.
@@ -1004,25 +1216,25 @@ function studyPlanDisplayTitle(plan) {
  */
 async function loadStudyPlans() {
   try {
-    const res = await fetch('../../src/StudyPlans/plans.json');
-    if (!res.ok) throw new Error('Failed to fetch plans.json');
-    const filenames = await res.json();
+    const response = await fetch('../../src/StudyPlans/plans.json');
+    if (!response.ok) throw new Error('Failed to fetch plans.json');
+    const filenames = await response.json();
 
     for (const file of filenames) {
       try {
-        const mdRes = await fetch('../../src/StudyPlans/' + file);
-        if (!mdRes.ok) throw new Error('Failed to fetch ' + file);
-        const text = await mdRes.text();
+        const markdownResponse = await fetch('../../src/StudyPlans/' + file);
+        if (!markdownResponse.ok) throw new Error('Failed to fetch ' + file);
+        const text = await markdownResponse.text();
         const plan = parseStudyPlan(text);
         if (plan.phases.length > 0) {
           studyPlans.push(plan);
         }
-      } catch (e) {
-        console.error('Error loading study plan:', file, e);
+      } catch (error) {
+        console.error('Error loading study plan:', file, error);
       }
     }
-  } catch (e) {
-    console.error('Error loading study plans manifest:', e);
+  } catch (error) {
+    console.error('Error loading study plans manifest:', error);
   }
 }
 
@@ -1062,8 +1274,8 @@ function renderStudyPlans() {
       : '';
 
     card.innerHTML = `
-      <span class="study-plan-card-title">${escapeHtml(title)}</span>
-      <span class="study-plan-card-focus">${escapeHtml(focus)}</span>
+      <span class="study-plan-card-title">${mdInline(title)}</span>
+      <span class="study-plan-card-focus">${mdInline(focus)}</span>
       <div class="study-plan-card-progress">
         <div class="study-plan-card-track">
           <div class="study-plan-card-fill" style="width: ${plan.pct}%"></div>
@@ -1092,7 +1304,7 @@ function showStudyPlan(index) {
   const view = document.getElementById('study-plan-view');
   view.style.display = 'block';
 
-  document.getElementById('study-title').textContent = studyPlanDisplayTitle(plan);
+  document.getElementById('study-title').innerHTML = mdInline(studyPlanDisplayTitle(plan));
 
   const progressFill = document.getElementById('study-progress-fill');
   const progressLabel = document.getElementById('study-progress-label');
@@ -1101,9 +1313,9 @@ function showStudyPlan(index) {
 
   const focusEl = document.getElementById('study-focus');
   if (focusEl) {
-    focusEl.textContent = plan.focus
+    focusEl.innerHTML = mdInline(plan.focus
       ? plan.focus.phase + ' · ' + plan.focus.label + ' — ' + plan.focus.topic
-      : '';
+      : '');
   }
 
   const treeEl = document.getElementById('study-tree');
@@ -1150,36 +1362,37 @@ function initStudyDrawerHandlers() {
     });
   }
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && drawer && drawer.classList.contains('is-open')) {
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && drawer && drawer.classList.contains('is-open')) {
       closeStudyDrawer(window._studyDrawerPreviousFocus);
     }
   });
 }
 
+stageSections();
+renderMyspaceSections();
 fetchGitHubStats();
 fetchRecentActivity();
 fetchLeetCodeStats();
 fetchGitHubIssues();
-loadBooks().then(() => {
-  renderBooks();
 
-  const hash = window.location.hash;
-  if (hash && hash.startsWith('#book-')) {
-    const idx = parseInt(hash.replace('#book-', ''), 10);
-    if (!isNaN(idx) && idx >= 0 && idx < books.length) {
-      showBook(idx);
-    }
-  }
-});
-loadStudyPlans().then(() => {
+Promise.all([loadBooks(), loadStudyPlans()]).then(() => {
+  renderBooks();
   renderStudyPlans();
 
   const hash = window.location.hash;
+  if (hash && hash.startsWith('#book-')) {
+    const bookIndex = parseInt(hash.replace('#book-', ''), 10);
+    if (!isNaN(bookIndex) && bookIndex >= 0 && bookIndex < books.length) {
+      expandSection('My Library');
+      showBook(bookIndex);
+    }
+  }
   if (hash && hash.startsWith('#plan-')) {
-    const idx = parseInt(hash.replace('#plan-', ''), 10);
-    if (!isNaN(idx) && idx >= 0 && idx < studyPlans.length) {
-      showStudyPlan(idx);
+    const planIndex = parseInt(hash.replace('#plan-', ''), 10);
+    if (!isNaN(planIndex) && planIndex >= 0 && planIndex < studyPlans.length) {
+      expandSection('Currently Studying');
+      showStudyPlan(planIndex);
     }
   }
 });
