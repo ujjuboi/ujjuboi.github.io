@@ -60,6 +60,7 @@ section {
 }
 
 section #hero {
+  box-sizing: border-box;
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -207,8 +208,6 @@ footer h1 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 0.4rem solid var(--borderColor);
-    box-shadow: 0.4rem 0.4rem var(--shadowColor);
     margin-left: auto;
     margin-right: auto;
   }
