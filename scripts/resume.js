@@ -129,17 +129,17 @@ function renderExperience(jobs) {
         if (bullet.kind === 'heading') {
           const h = document.createElement('li');
           h.className = 'resume-subheading';
-          h.innerHTML = mdInline(bullet.text);
+          h.innerHTML = renderMarkdown(bullet.text);
           ul.appendChild(h);
           return;
         }
         const li = document.createElement('li');
-        li.innerHTML = mdInline(bullet.text);
+        li.innerHTML = renderMarkdown(bullet.text);
         if (bullet.sub && bullet.sub.length) {
           const subUl = document.createElement('ul');
           bullet.sub.forEach(sub => {
             const sl = document.createElement('li');
-            sl.innerHTML = mdInline(sub);
+            sl.innerHTML = renderMarkdown(sub);
             subUl.appendChild(sl);
           });
           li.appendChild(subUl);
@@ -179,7 +179,7 @@ function renderProjects(projects) {
 
     if (proj.desc) {
       const p = document.createElement('p');
-      p.textContent = proj.desc;
+      p.innerHTML = renderMarkdown(proj.desc);
       div.appendChild(p);
     }
 

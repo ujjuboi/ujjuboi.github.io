@@ -124,55 +124,9 @@ section #myImage {
   animation-fill-mode: forwards;
 }
 
-footer {
-  animation: fadeIn ease 2s;
-  animation-fill-mode: forwards;
-  display: flex;
-  width: 90%;
-  margin-top: 1.5rem;
-  justify-content: space-evenly;
-  align-items: center;
-  text-align: center;
-}
-
-footer #footer_nav {
-  width: 60%;
-  display: flex;
-          align-items: center;
-          justify-content: space-evenly;
-  list-style: none;
-}
-
-footer #footer_nav li svg {
-  width: 130%;
-  height: 130%;
-  transition: all .2s linear;
-}
-
-footer #footer_nav li:hover svg{
-  width: 150%;
-  height: 150%;
-}
-
-footer #footer_nav li svg rect{
-  fill: var(--backgroundColor);
-}
-
-footer #footer_nav li svg path{
-  fill: var(--borderColor);
-}
-
-footer #footer_nav li a {
-  text-decoration: none;
-}
-
 #brand {
   font-family: var(--theme-heading-font);
   color: var(--borderColor);
-}
-
-footer h1 {
-  font-family: var(--theme-heading-font);
 }
 
 
@@ -278,24 +232,9 @@ footer h1 {
     font-size: var(--text-lg);
   }
 
-  footer h1{
-    width: 1rem;
-  }
-
   footer {
     margin-top: auto;
     flex-shrink: 0;
-  }
-  
-
-  footer #footer_nav li svg{
-    width: 100%;
-    height: 100%;
-  }
-  
-  footer #footer_nav li:hover svg{
-    width: 130%;
-    height: 130%;
   }
 }
 

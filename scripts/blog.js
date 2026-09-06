@@ -140,7 +140,7 @@ function showPost(index) {
   post.paragraphs.forEach(p => {
     const div = document.createElement('div');
     div.className = 'post-paragraph';
-    div.innerHTML = p;
+    div.innerHTML = renderMarkdown(p);
     content.appendChild(div);
   });
 
