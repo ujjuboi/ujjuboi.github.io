@@ -960,20 +960,43 @@ function renderSkills(categories) {
   title.textContent = fullName;
   view.appendChild(title);
 
-  const bulletsList = document.createElement('ul');
-  bulletsList.className = 'editor-bullets';
+  const bulletsWrapper = document.createElement('div');
+  bulletsWrapper.className = 'editor-bullets';
+  let currentList = null;
+
   /**
-   * Adds one category line to the skills bullet list.
+   * Returns the active bullet list, creating one when needed.
+   *
+   * @returns {HTMLUListElement} The current list element.
+   */
+  function ensureList() {
+    if (!currentList) {
+      currentList = document.createElement('ul');
+      bulletsWrapper.appendChild(currentList);
+    }
+    return currentList;
+  }
+
+  /**
+   * Adds one skill category as a subheading with its items as bullets.
    *
    * @param {Object} skillCategory Category with a name and item list.
    */
   (categories || []).forEach(skillCategory => {
-    const listItem = document.createElement('li');
+    currentList = null;
+    const subheadingDiv = document.createElement('div');
+    subheadingDiv.className = 'editor-subheading';
+    subheadingDiv.textContent = skillCategory.category || '';
+    bulletsWrapper.appendChild(subheadingDiv);
+
     const skillNames = (skillCategory.items || []).map(item => parseSkillItem(item).name);
-    listItem.textContent = (skillCategory.category || '') + ': ' + skillNames.join(', ');
-    bulletsList.appendChild(listItem);
+    skillNames.forEach(function (skillName) {
+      const listItem = document.createElement('li');
+      listItem.textContent = skillName;
+      ensureList().appendChild(listItem);
+    });
   });
-  view.appendChild(bulletsList);
+  view.appendChild(bulletsWrapper);
 
   const preview = document.createElement('div');
   preview.className = 'editor-preview skills-preview';
