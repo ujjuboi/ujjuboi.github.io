@@ -72,7 +72,6 @@ section #hero {
 
 section #myImage {
   object-fit: cover;
-  box-shadow: 0.5rem 0.5rem var(--shadowColor);
   border: 0.3rem solid var(--borderColor);
   width: 100%;
   height: 22rem;

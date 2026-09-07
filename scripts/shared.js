@@ -184,24 +184,28 @@ function renderMarkdownBullets(bullets, subheadingClass) {
  * @param {Node|string} [options.content] Content as a DOM node or HTML string.
  * @param {string} [options.className] Classes for the wrapper element.
  * @param {boolean} [options.expanded=false] Initial state of the section.
+ * @param {boolean} [options.collapsible=true] Whether the heading toggles the content.
  */
 class Section {
-  constructor({ title = '', content = null, className = 'section', expanded = false } = {}) {
+  constructor({ title = '', content = null, className = 'section', expanded = false, collapsible = true } = {}) {
     this.element = document.createElement('div');
     this.element.className = className;
 
     this.heading = document.createElement('h2');
-    this.heading.className = 'section-heading collapsible';
+    this.heading.className = 'section-heading' + (collapsible ? ' collapsible' : ' static');
 
     const titleEl = document.createElement('span');
     titleEl.className = 'title-text';
     titleEl.textContent = title;
     this.heading.appendChild(titleEl);
 
-    this.icon = document.createElement('span');
-    this.icon.className = 'toggle-icon';
-    this.heading.appendChild(this.icon);
-    this.heading.addEventListener('click', () => this.toggle());
+    if (collapsible) {
+      this.icon = document.createElement('span');
+      this.icon.className = 'toggle-icon';
+      this.icon.textContent = '+';
+      this.heading.appendChild(this.icon);
+      this.heading.addEventListener('click', () => this.toggle());
+    }
 
     this.content = document.createElement('div');
     this.content.className = 'section-content';
@@ -216,7 +220,7 @@ class Section {
 
     if (expanded) {
       this.expand();
-    } else {
+    } else if (collapsible) {
       this.collapse();
     }
   }
@@ -235,7 +239,7 @@ class Section {
    */
   expand() {
     this.content.style.display = '';
-    this.icon.textContent = '-';
+    if (this.icon) this.icon.textContent = '-';
     this.heading.classList.add('active');
   }
 
@@ -244,7 +248,7 @@ class Section {
    */
   collapse() {
     this.content.style.display = 'none';
-    this.icon.textContent = '+';
+    if (this.icon) this.icon.textContent = '+';
     this.heading.classList.remove('active');
   }
 
@@ -500,6 +504,17 @@ function sectionLines(lines, start) {
     index++;
   }
   return result;
+}
+
+/**
+ * Splits a single skill entry into its name and one-line description.
+ *
+ * @param {string} item Skill entry in "Name — description" form.
+ * @returns {Object} Object with the skill name and description.
+ */
+function parseSkillItem(item) {
+  const parts = item.split(' — ');
+  return { name: parts[0].trim(), description: (parts[1] || '').trim() };
 }
 
 /**

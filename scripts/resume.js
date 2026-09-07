@@ -40,12 +40,15 @@ async function loadCV() {
 
 /**
  * Renders the contact header and each category as a shared collapsible
- * section. The first category starts expanded; the rest start collapsed.
+ * section. On mobile (≤720px) the sections collapse, with the first one
+ * expanded by default; on desktop every section stays open.
  */
 function renderResume() {
   const container = document.getElementById('resume-container');
   container.innerHTML = '';
   container.appendChild(renderHeader(contact));
+
+  const isMobile = window.matchMedia('(max-width: 720px)').matches;
 
   categories.forEach((category, index) => {
     const match = sections.find(section => section.category === category);
@@ -54,7 +57,8 @@ function renderResume() {
       title: category,
       content: match.body,
       className: 'resume-section',
-      expanded: index === 0
+      collapsible: isMobile,
+      expanded: isMobile && index === 0
     }).addTo(container);
   });
 }
@@ -201,7 +205,9 @@ function renderEducation(items) {
 }
 
 /**
- * Builds the skills grid grouped by category.
+ * Builds the skills grid grouped by category. Each skill renders as a tile
+ * with its one-line definition exposed through the shared tooltip on hover
+ * or tap.
  *
  * @param {Object[]} skillCategories Parsed skill categories.
  * @returns {HTMLDivElement} Skills grid element ready to append.
@@ -209,6 +215,7 @@ function renderEducation(items) {
 function renderSkills(skillCategories) {
   const gridDiv = document.createElement('div');
   gridDiv.className = 'skills-grid';
+  const tooltip = new Tooltip();
 
   skillCategories.forEach(skillCategory => {
     const categoryDiv = document.createElement('div');
@@ -223,9 +230,16 @@ function renderSkills(skillCategories) {
 
     if (skillCategory.items) {
       skillCategory.items.forEach(item => {
+        const parsed = typeof item === 'string' ? parseSkillItem(item) : item;
+
         const span = document.createElement('span');
         span.className = 'skill-item';
-        span.innerHTML = renderInlineMarkdown(item);
+        span.textContent = parsed.name;
+
+        if (parsed.description) {
+          tooltip.attach(span, escapeHtml(parsed.description));
+        }
+
         wrapper.appendChild(span);
       });
     }

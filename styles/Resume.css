@@ -47,9 +47,6 @@
 .section-content {
   animation: fadeIn ease 0.5s;
   padding: 2% 3%;
-  background-color: var(--contentColor);
-  border: 0.2rem solid var(--borderColor);
-  border-radius: 0.4rem;
 }
 
 .section-content p {
@@ -58,8 +55,37 @@
   text-align: justify;
 }
 
+/* Resume sections are always open on desktop, so their headers keep the
+   active (pink background) styling at all times. Mobile collapsible
+   sections only show that styling while expanded. */
+.resume-section .section-heading {
+  color: var(--borderColor);
+  background-color: var(--contentColor);
+  box-shadow: none;
+}
+
 .timeline {
   position: relative;
+}
+
+/* Desktop scroll snapping. Mobile (≤720px) keeps normal scrolling. */
+@media (min-width: 721px) {
+  html {
+    scroll-snap-type: y proximity;
+  }
+
+  .resume-section {
+    scroll-snap-align: start;
+  }
+
+  .resume-section:has(.timeline) {
+    scroll-snap-align: none;
+  }
+
+  .timeline .job {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
 }
 
 .timeline::before {
@@ -199,7 +225,7 @@
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2%;
+  gap: 1rem;
 }
 
 .skill-category h3 {
@@ -217,21 +243,20 @@
 }
 
 .skill-item {
-  background-color: var(--shadowColor);
-  color: var(--backgroundColor);
+  background-color: var(--backgroundColor);
+  color: var(--borderColor);
   padding: 0.4rem 0.8rem;
   border-radius: 0.3rem;
   border: 0.1rem solid var(--borderColor);
+  box-shadow: 0.2rem 0.2rem var(--shadowColor);
   font-size: var(--text-sm);
   transition: all 0.2s ease;
-  cursor: default;
-  box-shadow: 0.15rem 0.15rem var(--shadowColor);
+  cursor: pointer;
 }
 
 .skill-item:hover {
   transform: translateY(-0.2rem) translateX(0.2rem);
-  box-shadow: 0.3rem 0.3rem var(--shadowColor);
-  background-color: var(--backgroundColor);
+  box-shadow: 0.4rem 0.4rem var(--shadowColor);
   color: var(--borderColor);
 }
 
@@ -251,6 +276,11 @@
 
   .section-content {
     padding: 3% 5%;
+  }
+
+  .resume-section .section-heading:not(.active) {
+    color: var(--backgroundColor);
+    background-color: var(--shadowColor);
   }
 
   .job h3 {

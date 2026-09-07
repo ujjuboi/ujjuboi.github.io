@@ -112,8 +112,8 @@ June 2022 - Nov 2023
 
 ## Skills
 
-- **Frontend/Backend:** Next.js, ExpressJS, React Flow, ChartJS, Django
-- **Languages/Tools:** Java, Python, JavaScript, TypeScript, Git, Bash
-- **Databases:** MongoDB, Redis, MySQL
-- **Cloud/AI:** AWS, GCP, Docker, Kubernetes, LangChain, Spacy 3, NLTK, Hadoop, PySpark, Tableau, GCP Vertex AI, Numpy, Pandas
-- **Infrastructure:** GitHub Actions, CI/CD, Microservices, Modular Monolith, Figma MCP
+- **Frontend/Backend:** Next.js — React framework for server-rendered and static web apps, ExpressJS — Node.js web framework for building APIs, React Flow — library for building interactive node-based graphs, ChartJS — lightweight library for animated data charts, Django — Python web framework for scalable backends
+- **Languages/Tools:** Java — object-oriented language for enterprise applications, Python — general-purpose language for scripting and data, JavaScript — language powering interactive web pages, TypeScript — typed superset of JavaScript, Git — distributed version control system, Bash — Unix shell for command-line automation, Tableau — data visualization and analytics platform
+- **Databases:** MongoDB — document database for flexible JSON-like data, Redis — in-memory data store for caching and queues, MySQL — relational database management system
+- **Cloud/AI:** AWS — Amazon's cloud platform for scalable infrastructure, GCP — Google Cloud platform for compute and AI services, LangChain — framework for building LLM-powered applications, Spacy 3 — Python library for production NLP pipelines, NLTK — toolkit for natural language processing in Python, Hadoop — framework for distributed big-data processing, GCP Vertex AI — Google's managed platform for ML models, Numpy — Python library for numerical computing, Pandas — Python library for data analysis and manipulation
+- **Infrastructure:** GitHub Actions — CI/CD automation directly in GitHub repos, CI/CD — automated pipeline for building and deploying code, Microservices — architecture splitting apps into independent services, Modular Monolith — monolith with the boundaries of microservices, MCP — protocol connecting AI models to external tools, Docker — container platform for packaging and running apps, Kubernetes — orchestrator for managing containerized workloads, MongoDB Atlas — managed cloud MongoDB database service

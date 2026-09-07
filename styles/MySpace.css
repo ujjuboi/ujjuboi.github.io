@@ -1,5 +1,11 @@
 .stat-card {
   text-align: center;
+  box-shadow: none;
+}
+
+.stat-card:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .stat-number {
@@ -125,6 +131,7 @@
 #commit-card {
   margin-top: 1.5rem;
   animation: fadeIn ease 0.8s;
+  box-shadow: none;
 }
 
 #commit-card .card-subtitle {
@@ -136,7 +143,7 @@
 
 #commit-card:hover {
   transform: none;
-  box-shadow: 0.3rem 0.3rem var(--shadowColor);
+  box-shadow: none;
 }
 
 .commit-activity-chart {
@@ -263,11 +270,12 @@
 
 #lc-submissions-card {
   margin-top: 1.5rem;
+  box-shadow: none;
 }
 
 #lc-submissions-card:hover {
   transform: none;
-  box-shadow: 0.3rem 0.3rem var(--shadowColor);
+  box-shadow: none;
 }
 
 .lc-activity {

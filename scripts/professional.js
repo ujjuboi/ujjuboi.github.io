@@ -969,7 +969,8 @@ function renderSkills(categories) {
    */
   (categories || []).forEach(skillCategory => {
     const listItem = document.createElement('li');
-    listItem.textContent = (skillCategory.category || '') + ': ' + (skillCategory.items || []).join(', ');
+    const skillNames = (skillCategory.items || []).map(item => parseSkillItem(item).name);
+    listItem.textContent = (skillCategory.category || '') + ': ' + skillNames.join(', ');
     bulletsList.appendChild(listItem);
   });
   view.appendChild(bulletsList);
@@ -1001,7 +1002,8 @@ function renderSkills(categories) {
     tableRow.appendChild(categoryCell);
     const skillsCell = document.createElement('td');
     skillsCell.className = 'skills-items';
-    skillsCell.textContent = (skillCategory.items || []).join(', ');
+    const skillNames = (skillCategory.items || []).map(item => parseSkillItem(item).name);
+    skillsCell.textContent = skillNames.join(', ');
     tableRow.appendChild(skillsCell);
     tbody.appendChild(tableRow);
   });

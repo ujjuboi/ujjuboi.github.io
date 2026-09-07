@@ -85,6 +85,7 @@ new structure:
 - Shared/cross-page styles extend `styles/styles.css`; page CSS files hold only page-specific layout.
 - Responsive breakpoint convention: **720px**.
 - Selectors use lowercase kebab-case (`.post-grid`, `.card-title`).
+- Every interactive and clickable card must have a `box-shadow`, a hover animation, and `cursor: pointer`.
 
 ## Verification
 

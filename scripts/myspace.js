@@ -452,7 +452,9 @@ function parseProjectExcerpt(readmeText) {
 
 /**
  * Renders the project banner image, showing the themed placeholder when
- * the README has no usable image.
+ * the README has no usable image. Loads immediately: the cache warmed by
+ * the home page (prefetchMyspaceData) resolves instantly, with a direct
+ * fetch as fallback.
  *
  * @param {Object} repo Repo object from the GitHub API.
  * @param {string} repoFullName Owner/repo identifier.
@@ -474,51 +476,36 @@ function renderProjectBanner(repo, repoFullName, readmeText, branch) {
   placeholder.style.display = 'flex';
   label.textContent = repo.name;
 
-  let observer = null;
+  loader.hidden = false;
+  label.style.display = 'none';
 
   /**
-   * Starts the lazy banner load: swaps the static placeholder for the
-   * loading animation while the image is fetched, then renders it.
+   * Renders the image into the banner slot on decode; falls back to the
+   * static placeholder when it cannot be shown.
+   *
+   * @param {string} sourceUrl URL or data URL to display.
    */
-  const startBannerLoad = () => {
-    if (observer) observer.disconnect();
-
-    loader.hidden = false;
-    label.style.display = 'none';
-
-    /**
-     * Renders the image into the banner slot on decode; falls back to the
-     * static placeholder when it cannot be shown.
-     *
-     * @param {string} sourceUrl URL or data URL to display.
-     */
-    const showBanner = (sourceUrl) => {
-      image.addEventListener('load', () => {
-        image.style.display = 'block';
-        placeholder.style.display = 'none';
-      }, { once: true });
-      image.addEventListener('error', () => {
-        loader.hidden = true;
-        label.style.display = '';
-        image.style.display = 'none';
-        placeholder.style.display = 'flex';
-      }, { once: true });
-      image.src = sourceUrl;
-      image.alt = repo.name + ' banner';
-    };
-
-    fetchCachedBannerDataUrl(bannerUrl)
-      .then(cachedDataUrl => showBanner(cachedDataUrl))
-      .catch(error => {
-        console.error('Banner data URL fetch failed, loading directly:', error);
-        showBanner(bannerUrl);
-      });
+  const showBanner = (sourceUrl) => {
+    image.addEventListener('load', () => {
+      image.style.display = 'block';
+      placeholder.style.display = 'none';
+    }, { once: true });
+    image.addEventListener('error', () => {
+      loader.hidden = true;
+      label.style.display = '';
+      image.style.display = 'none';
+      placeholder.style.display = 'flex';
+    }, { once: true });
+    image.src = sourceUrl;
+    image.alt = repo.name + ' banner';
   };
 
-  observer = new IntersectionObserver(entries => {
-    if (entries.some(entry => entry.isIntersecting)) startBannerLoad();
-  }, { rootMargin: '300px' });
-  observer.observe(placeholder);
+  fetchCachedBannerDataUrl(bannerUrl)
+    .then(cachedDataUrl => showBanner(cachedDataUrl))
+    .catch(error => {
+      console.error('Banner data URL fetch failed, loading directly:', error);
+      showBanner(bannerUrl);
+    });
 }
 
 /**
