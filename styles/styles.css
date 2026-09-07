@@ -231,7 +231,7 @@ pre code {
     z-index: 20;
     box-sizing: border-box;
     height: 100vh;
-    width: 80vw;
+    width: 100vw;
     margin: 0;
     padding: 18% 5% 5%;
     flex-direction: column;
@@ -240,7 +240,7 @@ pre code {
     gap: 1.5rem;
     text-align: center;
     background-color: var(--backgroundColor);
-    border: 0.2rem solid var(--borderColor);
+    border: none;
     transform: translateX(100%);
     transition: transform 0.3s ease, visibility 0s linear 0.3s;
     overflow-y: auto;
@@ -297,7 +297,7 @@ pre code {
     text-align: center;
     font-size: var(--text-xs);
     width: 100%;
-    margin: 0;
+    margin-top: auto;
     padding: 0.5rem 0;
   }
 
