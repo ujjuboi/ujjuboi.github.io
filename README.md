@@ -117,7 +117,6 @@ Making my own dynamic blogging website!
 │   │   ├── algorithms-and-leetcode.md
 │   │   ├── claude-certified-developer-foundations.md
 │   │   ├── code-architecture-system-design.md
-│   │   ├── networking.md
 │   │   ├── plans.json
 │   │   └── template.md
 │   └── cv.md
