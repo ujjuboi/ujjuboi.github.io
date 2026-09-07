@@ -183,53 +183,10 @@ section #myImage {
     height: 14rem;
   }
 
-  header {
-    display: none;
-    z-index: 10;
-    overflow-x: hidden;
-    overflow-y: auto;
-    max-height: 90vh;
-    padding-top: 15%;
-    text-align: center;
-    flex-direction: column;
-    justify-content: space-around;
-    background-color: var(--contentColor);
-    right: 3%;
-    height: 75vh;
-    width: 91vw;
-    animation-fill-mode: backwards;
-  }
-
   #menuIcon {
     visibility: visible;
     font-size: var(--text-4xl);
-    z-index: 10;
-  }
-
-  header nav {
-    height: 80%;
-    width: 100%;
-  }
-
-  header nav ul {
-    height: 80%;
-    width: 80%;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
-  }
-
-  .active{
-    border-color: var(--shadowColor);
-  }
-  
-  header nav ul li :hover {
-    border-bottom: 0.2rem solid var(--shadowColor);
-  }
-  
-  header nav ul li a{
-    color: var(--borderColor);
-    font-size: var(--text-lg);
+    z-index: 30;
   }
 
   footer {

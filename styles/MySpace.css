@@ -799,9 +799,6 @@
     border-bottom: 0.15rem solid var(--borderColor);
   }
 
-  .study-plans-grid {
-    grid-template-columns: 1fr;
-  }
 
   .book-detail {
     grid-template-columns: 1fr;
@@ -877,7 +874,7 @@
 
 .study-plans-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.25rem;
 }
 
