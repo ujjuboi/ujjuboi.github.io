@@ -1057,8 +1057,15 @@ async function fetchCachedBannerDataUrl(url) {
   if (url.startsWith('data:')) return url;
 
   const cacheKey = 'banner_cache_' + url;
-  const cachedDataUrl = localStorage.getItem(cacheKey);
-  if (cachedDataUrl) return cachedDataUrl;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (typeof parsed.cachedAt === 'number' && Date.now() - parsed.cachedAt < CACHE_TTL) return parsed.dataUrl;
+    } catch (error) {
+      console.error('Banner cache read failed:', error);
+    }
+  }
 
   const response = await fetch(url);
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -1071,7 +1078,7 @@ async function fetchCachedBannerDataUrl(url) {
   });
 
   try {
-    localStorage.setItem(cacheKey, dataUrl);
+    localStorage.setItem(cacheKey, JSON.stringify({ dataUrl, cachedAt: Date.now() }));
   } catch (error) {
     console.error('Banner cache write failed:', error);
   }
