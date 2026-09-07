@@ -1,5 +1,12 @@
 /**
- * Wires up the mobile menu toggle between a hidden header and the compact footer view.
+ * Back arrow SVG shown in place of the hamburger icon while the drawer is open.
+ */
+const MENU_ARROW_ICON = '<svg width="30" height="22" viewBox="0 0 30 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 11h24M13 3L4 11l9 8" style="stroke: var(--shadowColor)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/**
+ * Wires up the mobile menu drawer: toggles the header open from the right,
+ * moves the shared footer into the drawer, and morphs the hamburger icon into
+ * a back arrow. Requires the shared drawer styles from styles.css.
  *
  * @param {string} contentSelector Selector for the page's main content block.
  * @param {string} [restoreDisplay] Display value to restore on the content block.
@@ -10,13 +17,40 @@ function initMenuToggle(contentSelector, restoreDisplay) {
   const menuIcon = document.getElementById('menuIcon');
   const header = document.querySelector('header');
   const content = document.querySelector(contentSelector);
+  const hamburgerIcon = menuIcon.innerHTML;
+
+  /**
+   * Closes the drawer, restores page content, swaps the hamburger icon back,
+   * and returns the footer to the page body.
+   */
+  function closeDrawer() {
+    header.classList.remove('is-open');
+    menuIcon.classList.remove('is-open');
+    menuIcon.innerHTML = hamburgerIcon;
+    content.style.display = defaultDisplay;
+    document.body.appendChild(footer);
+  }
+
+  /**
+   * Moves the footer into the drawer, opens it, hides the page content, and
+   * replaces the hamburger with a back arrow.
+   */
+  function openDrawer() {
+    header.appendChild(footer);
+    header.classList.add('is-open');
+    menuIcon.classList.add('is-open');
+    menuIcon.innerHTML = MENU_ARROW_ICON;
+    content.style.display = 'none';
+  }
 
   menuIcon.addEventListener('click', () => {
-    menuIcon.style.display = 'none';
-    header.style.display = 'block';
-    content.style.display = 'none';
-    footer.style.height = '10vh';
-    footer.style.bottom = '1%';
+    const isMobile = window.matchMedia('(max-width: 720px)').matches;
+    if (!isMobile) return;
+    if (header.classList.contains('is-open')) {
+      closeDrawer();
+    } else {
+      openDrawer();
+    }
   });
 
   footer.addEventListener('click', () => {
@@ -31,11 +65,7 @@ function initMenuToggle(contentSelector, restoreDisplay) {
       }
       document.body.style.overflow = '';
     }
-    menuIcon.style.display = 'block';
-    footer.style.height = '18vh';
-    footer.style.bottom = '4%';
-    header.style.display = 'none';
-    content.style.display = defaultDisplay;
+    closeDrawer();
   });
 }
 

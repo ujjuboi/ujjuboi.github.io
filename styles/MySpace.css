@@ -799,9 +799,6 @@
     border-bottom: 0.15rem solid var(--borderColor);
   }
 
-  .study-plans-grid {
-    grid-template-columns: 1fr;
-  }
 
   .book-detail {
     grid-template-columns: 1fr;
@@ -1332,6 +1329,10 @@
   .study-drawer {
     width: 100vw;
     max-width: 100vw;
+  }
+
+  .study-plans-grid {
+    grid-template-columns: 1fr;
   }
 
   #study-drawer-body {

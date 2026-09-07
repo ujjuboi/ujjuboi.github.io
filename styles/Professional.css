@@ -1330,7 +1330,7 @@ body.pro-page footer #footer_nav {
   }
 
   .editor-title {
-    font-size: clamp(0.8rem, 3.6vw, 1.3rem);
+    font-size: clamp(0.8rem, 5vw, 1.3rem);
   }
 
   .editor-comment,
