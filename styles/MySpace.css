@@ -77,8 +77,10 @@
 
 .project-banner-fallback {
   display: none;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.75rem;
   width: 100%;
   height: 100%;
   min-height: 9rem;
@@ -91,6 +93,14 @@
   color: var(--borderColor);
   text-align: center;
   word-break: break-word;
+}
+
+.project-banner-loader {
+  display: block;
+}
+
+.project-banner-loader[hidden] {
+  display: none;
 }
 
 .project-card-body {

@@ -887,5 +887,253 @@ function initSiteFooter() {
   }
 }
 
+/**
+ * Cache TTL (6 hours) for external API responses.
+ */
+const CACHE_TTL = 6 * 60 * 60 * 1000;
+
+/**
+ * Candidate repos for the "Currently Working On" section.
+ * The first repo that loads successfully is displayed.
+ */
+const currentProjectRepos = ['ujjuboi/jobhunt'];
+
+/**
+ * How many trailing months of commit activity the chart shows.
+ */
+const commitChartMonths = 6;
+
+/**
+ * Fetches JSON with a localStorage cache, storing each URL for CACHE_TTL
+ * milliseconds. On network or rate-limit failure, falls back to the last
+ * cached copy so widgets still render instead of showing error states.
+ *
+ * @param {string} url Endpoint to fetch.
+ * @returns {Promise<Object>} The parsed JSON response (fresh or stale).
+ */
+async function cachedFetch(url) {
+  const cacheKey = 'gh_cache_' + url;
+  const cached = localStorage.getItem(cacheKey);
+  let staleData = null;
+  if (cached) {
+    const parsed = JSON.parse(cached);
+    staleData = parsed.data;
+    if (typeof parsed.cachedAt === 'number' && Date.now() - parsed.cachedAt < CACHE_TTL) return parsed.data;
+  }
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    localStorage.setItem(cacheKey, JSON.stringify({ data, cachedAt: Date.now() }));
+    return data;
+  } catch (error) {
+    if (staleData !== null) return staleData;
+    throw error;
+  }
+}
+
+/**
+ * Extracts the first image URL from a README, resolving relative paths
+ * against the repo's raw content base.
+ *
+ * @param {string} readmeText Raw README markdown source.
+ * @param {string} repoFullName Owner/repo identifier.
+ * @param {string} branch Default branch used to resolve relative paths.
+ * @returns {string|null} Absolute image URL, or null when the README has none.
+ */
+function parseProjectBanner(readmeText, repoFullName, branch) {
+  const markdownImage = readmeText.match(/!\[[^\]]*\]\(([^)]+)\)/);
+  let source = markdownImage ? markdownImage[1] : null;
+  if (!source) {
+    const imageTag = readmeText.match(/<img[^>]+src=["']([^"']+)["']/i);
+    source = imageTag ? imageTag[1] : null;
+  }
+  if (!source) return null;
+  if (source.startsWith('http') || source.startsWith('data:')) return source;
+  const rawBase = 'https://raw.githubusercontent.com/' + repoFullName + '/' + branch + '/';
+  return rawBase + source.replace(/^\/+/, '');
+}
+
+/**
+ * Reads the author date from a commit search result item.
+ *
+ * @param {Object} commitItem A single commit search result item.
+ * @returns {string|null} ISO author date, or null when absent.
+ */
+function getCommitAuthorDate(commitItem) {
+  const date = commitItem && commitItem.commit && commitItem.commit.author && commitItem.commit.author.date;
+  return date || null;
+}
+
+/**
+ * Offsets a YYYY-MM month key by a number of months (negative for past months).
+ *
+ * @param {string} monthKey The YYYY-MM key to offset.
+ * @param {number} monthOffset Signed number of months to shift.
+ * @returns {string} The shifted YYYY-MM key.
+ */
+function offsetMonthKey(monthKey, monthOffset) {
+  const [year, month] = monthKey.split('-').map(Number);
+  const date = new Date(year, month - 1 + monthOffset, 1);
+  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+}
+
+/**
+ * Tells whether the collected commits already span the chart's trailing
+ * window, so no further result pages are needed.
+ *
+ * @param {Object[]} commits Collected commits, newest first.
+ * @param {string} windowStartKey The earliest YYYY-MM key the chart shows.
+ * @returns {boolean} True when the oldest commit predates the window start.
+ */
+function commitsCoverChartWindow(commits, windowStartKey) {
+  const oldestDate = getCommitAuthorDate(commits[commits.length - 1]);
+  if (!oldestDate) return true;
+  return oldestDate.slice(0, 7) <= windowStartKey;
+}
+
+/**
+ * Fetches a single repository's commit history via the GitHub commits
+ * API, walking result pages (newest first) only until the accumulated
+ * commits cover the chart's trailing window. The endpoint returns every
+ * commit on the repo, regardless of author. A single failed continuation
+ * page is treated as the end of history so partial data still renders
+ * instead of dropping to the fallback.
+ *
+ * @param {string} repoFullName Owner/repo identifier whose commits to chart.
+ * @returns {Promise<Object[]>} Flat list of unique commit objects, newest first.
+ */
+async function fetchCommitHistory(repoFullName) {
+  const commits = [];
+  const seenShas = new Set();
+  let chartWindowStartKey = null;
+
+  for (let page = 1; page <= 5; page++) {
+    if (chartWindowStartKey && commitsCoverChartWindow(commits, chartWindowStartKey)) {
+      break;
+    }
+    let data = null;
+    try {
+      data = await cachedFetch('https://api.github.com/repos/' + repoFullName + '/commits?per_page=100&page=' + page);
+    } catch (error) {
+      if (commits.length === 0) throw error;
+      console.error('Commit history page error:', error);
+      break;
+    }
+    if (!Array.isArray(data) || data.length === 0) break;
+    if (!chartWindowStartKey) {
+      const latestDate = getCommitAuthorDate(data[0]);
+      if (latestDate) {
+        chartWindowStartKey = offsetMonthKey(latestDate.slice(0, 7), -(commitChartMonths - 1));
+      }
+    }
+    data.forEach(commit => {
+      if (!seenShas.has(commit.sha)) {
+        seenShas.add(commit.sha);
+        commits.push(commit);
+      }
+    });
+    commits.sort((firstCommit, secondCommit) => {
+      const firstDate = getCommitAuthorDate(firstCommit) || '';
+      const secondDate = getCommitAuthorDate(secondCommit) || '';
+      return secondDate.localeCompare(firstDate);
+    });
+    if (data.length < 100) break;
+  }
+  if (commits.length === 0) throw new Error('No commits');
+  return commits;
+}
+
+/**
+ * Fetches a banner image and returns it as a base64 data URL, reusing a
+ * localStorage cache so repeat visits render instantly. Falls back to a
+ * direct fetch when the image is CORS-blocked or the download fails.
+ *
+ * @param {string} url Absolute banner image URL.
+ * @returns {Promise<string>} Base64 data URL for the image.
+ */
+async function fetchCachedBannerDataUrl(url) {
+  if (url.startsWith('data:')) return url;
+
+  const cacheKey = 'banner_cache_' + url;
+  const cachedDataUrl = localStorage.getItem(cacheKey);
+  if (cachedDataUrl) return cachedDataUrl;
+
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const blob = await response.blob();
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+
+  try {
+    localStorage.setItem(cacheKey, dataUrl);
+  } catch (error) {
+    console.error('Banner cache write failed:', error);
+  }
+  return dataUrl;
+}
+
+/**
+ * Warms the MySpace data caches from the home page so that section renders
+ * instantly on the user's first visit. Fetches the featured repo, its README
+ * banner image, commit history, and LeetCode data into localStorage. Failures
+ * are logged and never block page rendering.
+ */
+async function prefetchMyspaceData() {
+  try {
+    for (const repoFullName of currentProjectRepos) {
+      try {
+        const repo = await cachedFetch(`https://api.github.com/repos/${repoFullName}`);
+        if (!repo || !repo.name) throw new Error('Repo not found');
+        const branch = repo.default_branch || 'main';
+
+        try {
+          const readmeData = await cachedFetch(`https://api.github.com/repos/${repoFullName}/readme`);
+          if (readmeData && readmeData.content) {
+            const readmeBytes = Uint8Array.from(atob(readmeData.content), character => character.charCodeAt(0));
+            const readmeText = new TextDecoder('utf-8').decode(readmeBytes).replace(/\r\n/g, '\n');
+            const bannerUrl = parseProjectBanner(readmeText, repoFullName, branch);
+            if (bannerUrl) await fetchCachedBannerDataUrl(bannerUrl);
+          }
+        } catch (error) {
+          console.error('Prefetch README error:', error);
+        }
+
+        await fetchCommitHistory(repoFullName);
+        break;
+      } catch (error) {
+        console.error('Prefetch current project error:', error);
+      }
+    }
+  } catch (error) {
+    console.error('Prefetch myspace data error:', error);
+  }
+
+  try {
+    await cachedFetch('https://leetcode-stats.tashif.codes/ujjuboi');
+  } catch (error) {
+    console.error('Prefetch LeetCode stats error:', error);
+  }
+  try {
+    await cachedFetch('https://leetcode-stats.tashif.codes/ujjuboi/heatmap');
+  } catch (error) {
+    console.error('Prefetch LeetCode activity error:', error);
+  }
+  try {
+    await cachedFetch('https://leetpulse-api.vercel.app/api/leetcode/submission/ujjuboi?limit=5');
+  } catch (error) {
+    console.error('Prefetch LeetCode submissions error:', error);
+  }
+}
+
 initSiteFooter();
 initFontSwitcher();
+
+if (document.getElementById('home-container')) {
+  prefetchMyspaceData();
+}
