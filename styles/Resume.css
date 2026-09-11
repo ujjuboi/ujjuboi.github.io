@@ -38,25 +38,11 @@
   animation-fill-mode: both;
 }
 
-.resume-section:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.resume-section:nth-child(3) {
-  animation-delay: 0.2s;
-}
-
-.resume-section:nth-child(4) {
-  animation-delay: 0.3s;
-}
-
-.resume-section:nth-child(5) {
-  animation-delay: 0.4s;
-}
-
-.resume-section:nth-child(6) {
-  animation-delay: 0.5s;
-}
+.resume-section:nth-child(2) { animation-delay: 0.1s; }
+.resume-section:nth-child(3) { animation-delay: 0.2s; }
+.resume-section:nth-child(4) { animation-delay: 0.3s; }
+.resume-section:nth-child(5) { animation-delay: 0.4s; }
+.resume-section:nth-child(6) { animation-delay: 0.5s; }
 
 .section-content {
   animation: fadeIn ease 0.5s;
@@ -78,6 +64,16 @@
   box-shadow: none;
 }
 
+/* On desktop, resume sections are always open (expanded), so the headers
+   keep the active styling. On mobile, they follow the normal collapsible
+   header behavior defined in styles.css. */
+@media (min-width: 721px) {
+  .resume-section .section-heading {
+    color: var(--borderColor);
+    background-color: var(--contentColor);
+    box-shadow: none;
+  }
+}
 
 .timeline {
   position: relative;
@@ -284,19 +280,17 @@
     font-size: var(--text-sm);
   }
 
-  /* On desktop, resume sections are always open (expanded), so the headers
-   keep the active styling. On mobile, they follow the normal collapsible
-   header behavior defined in styles.css. */
   .resume-section .section-heading {
-    color: var(--backgroundColor);
-    background-color: var(--shadowColor);
-    box-shadow: 0.3rem 0.3rem var(--shadowColor);
+  color: var(--backgroundColor);
+  background-color: var(--shadowColor);
+  box-shadow: 0.3rem 0.3rem var(--shadowColor);
+    
   }
 
   .resume-section .section-heading.active {
-    color: var(--borderColor);
-    background-color: var(--contentColor);
-  }
+  color: var(--borderColor);
+  background-color: var(--contentColor);
+}
 
   .section-content {
     padding: 3% 5%;
