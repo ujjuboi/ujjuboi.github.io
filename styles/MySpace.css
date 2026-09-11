@@ -1347,3 +1347,122 @@
     font-size: var(--text-xl);
   }
 }
+
+/* Touch-tap replacements for :hover. Hover is neutralized below so taps leave
+   no sticky state; .tapped (toggled by shared.js) restores feedback while the
+   finger is down, or persists for underline effects. */
+@media (max-width: 720px) {
+  .stat-card:hover,
+  #commit-card:hover,
+  #lc-submissions-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .stat-card.tapped,
+  #commit-card.tapped,
+  #lc-submissions-card.tapped {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .commit-point:hover {
+    fill: var(--backgroundColor);
+  }
+
+  .commit-point.tapped {
+    fill: var(--linkColor);
+  }
+
+  .lc-bar:hover {
+    opacity: 0.85;
+  }
+
+  .lc-bar.tapped {
+    opacity: 1;
+  }
+
+  .lc-submission:hover {
+    background-color: transparent;
+  }
+
+  .lc-submission.tapped {
+    background-color: var(--contentColor);
+  }
+
+  .lc-submission-title:hover {
+    color: var(--linkColor);
+    border-bottom-color: transparent;
+  }
+
+  .lc-submission-title.tapped {
+    color: var(--linkHover);
+    border-bottom-color: var(--linkHover);
+  }
+
+  .book-card:hover .book-banner-wrap::after {
+    opacity: 1;
+  }
+
+  .book-card.tapped .book-banner-wrap::after {
+    opacity: 0;
+  }
+
+  .book-card:hover .book-status {
+    background-color: var(--backgroundColor);
+    color: var(--shadowColor);
+  }
+
+  .book-card.tapped .book-status {
+    background-color: var(--shadowColor);
+    color: var(--backgroundColor);
+  }
+
+  #book-back-btn:hover,
+  #study-plan-back-btn:hover {
+    transform: none;
+    box-shadow: 0.15rem 0.15rem var(--shadowColor);
+    background-color: var(--shadowColor);
+    color: var(--backgroundColor);
+  }
+
+  #book-back-btn.tapped,
+  #study-plan-back-btn.tapped {
+    transform: translateY(-0.1rem) translateX(0.1rem);
+    box-shadow: 0.3rem 0.3rem var(--shadowColor);
+    background-color: var(--backgroundColor);
+    color: var(--borderColor);
+  }
+
+  .wt-leaf:hover {
+    background-color: var(--shadowColor);
+    color: var(--backgroundColor);
+    border-color: var(--shadowColor);
+    border-top-color: var(--linkColor);
+    transform: none;
+  }
+
+  .wt-leaf.tapped {
+    background-color: var(--backgroundColor);
+    color: var(--shadowColor);
+    border-color: var(--borderColor);
+    border-top-color: var(--linkColor);
+    transform: translateY(-0.15rem);
+  }
+
+  .wt-leaf.is-complete:hover {
+    background-color: var(--contentColor);
+  }
+
+  .wt-leaf.is-complete.tapped {
+    background-color: var(--contentColor);
+  }
+
+  .drawer-item-sub:hover {
+    color: var(--linkColor);
+  }
+
+  .drawer-item-sub.tapped {
+    color: var(--borderColor);
+  }
+}

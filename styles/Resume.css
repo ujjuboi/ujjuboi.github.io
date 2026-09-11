@@ -330,4 +330,28 @@
     font-size: var(--text-sm);
     padding: 0.3rem 0.6rem;
   }
+
+  /* Touch-tap replacements for :hover: contact-link underline persists,
+     skill tiles flash only while the finger is down. */
+  .resume-contact a:hover {
+    color: var(--linkColor);
+    border-bottom-color: var(--linkColor);
+  }
+
+  .resume-contact a.tapped {
+    color: var(--linkHover);
+    border-bottom-color: var(--linkHover);
+  }
+
+  .skill-item:hover {
+    transform: none;
+    box-shadow: 0.2rem 0.2rem var(--shadowColor);
+    color: var(--borderColor);
+  }
+
+  .skill-item.tapped {
+    transform: translateY(-0.2rem) translateX(0.2rem);
+    box-shadow: 0.4rem 0.4rem var(--shadowColor);
+    color: var(--borderColor);
+  }
 }

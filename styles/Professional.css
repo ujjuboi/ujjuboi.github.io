@@ -1482,3 +1482,170 @@ body.pro-page footer #footer_nav {
     padding: 0;
   }
 }
+
+/* Touch-tap replacements for :hover. Hover is neutralized below so taps leave
+   no sticky state; .tapped (toggled by shared.js) restores feedback while the
+   finger is down, or persists for underline effects. */
+@media (max-width: 720px) {
+  .launch-btn:hover {
+    transform: none;
+    background-color: var(--accentPrimary);
+    color: var(--accentDark);
+  }
+
+  .launch-btn.tapped {
+    transform: translateY(-2px);
+    background-color: var(--accentPrimaryHover);
+    color: var(--borderColor);
+  }
+
+  .banner-links a:hover {
+    transform: none;
+  }
+
+  .banner-links a.tapped {
+    transform: translateY(-2px);
+  }
+
+  .launch-banner .banner-links a:hover .link-svg .link-path {
+    fill: var(--accentPrimary);
+    background-color: var(--editorBg);
+  }
+
+  .launch-banner .banner-links a.tapped .link-svg .link-path {
+    fill: var(--accentPrimaryHover);
+    background-color: var(--bulletGray);
+  }
+
+  .profiles-strip:hover {
+    animation-play-state: running;
+  }
+
+  .profiles-strip.tapped {
+    animation-play-state: paused;
+  }
+
+  .profiles-item:hover::after {
+    transform: scaleX(0);
+  }
+
+  .profiles-item.tapped::after {
+    transform: scaleX(1);
+  }
+
+  .editor-read-more:hover {
+    background: transparent;
+    color: var(--accentPrimary);
+  }
+
+  .editor-read-more.tapped {
+    background: var(--accentPrimary);
+    color: var(--editorBg);
+  }
+
+  .directory-toggle:hover {
+    color: var(--editorMuted);
+  }
+
+  .directory-toggle.tapped {
+    color: var(--accentPrimary);
+  }
+
+  .directory-back:hover {
+    background-color: transparent;
+    color: var(--editorMuted);
+  }
+
+  .directory-back.tapped {
+    background-color: var(--borderPanel);
+    color: var(--accentLight);
+  }
+
+  .directory-file:hover {
+    background-color: transparent;
+  }
+
+  .directory-file.tapped {
+    background-color: var(--borderPanel);
+  }
+
+  .directory-folder-header:hover {
+    background-color: transparent;
+  }
+
+  .directory-folder-header.tapped {
+    background-color: var(--borderPanel);
+  }
+
+  .editor-dot-back:hover {
+    transform: none;
+    filter: none;
+  }
+
+  .editor-dot-back.tapped {
+    transform: scale(1.25);
+    filter: brightness(1.15);
+  }
+
+  .mode-btn:hover {
+    color: var(--editorMuted);
+    background-color: transparent;
+  }
+
+  .mode-btn.tapped {
+    color: var(--editorText);
+    background-color: var(--borderPanel);
+  }
+
+  .editor-tab:hover .editor-tab-close {
+    color: var(--editorMuted);
+    background-color: transparent;
+  }
+
+  .editor-tab.tapped .editor-tab-close {
+    color: var(--accentLight);
+    background-color: var(--tabHoverBg);
+  }
+
+  .editor-tab:hover {
+    background-color: transparent;
+    color: var(--editorMuted);
+  }
+
+  .editor-tab.tapped {
+    background-color: var(--borderPanel);
+    color: var(--editorText);
+  }
+
+  .editor-link:hover,
+  .editor-preview a:hover {
+    color: var(--tokenKeyword);
+    border-bottom-color: transparent;
+  }
+
+  .editor-link.tapped,
+  .editor-preview a.tapped {
+    color: var(--accentPrimary);
+    border-bottom-color: var(--accentPrimary);
+  }
+
+  .editor-preview blockquote a:hover {
+    border-bottom-color: transparent;
+    text-decoration: none;
+  }
+
+  .editor-preview blockquote a.tapped {
+    border-bottom-color: transparent;
+    text-decoration: underline;
+  }
+
+  body.pro-page footer #footer_nav li:hover .link-svg .link-path,
+  body.pro-page footer #footer_nav li:hover svg path {
+    fill: var(--accentPrimary);
+  }
+
+  body.pro-page footer #footer_nav li a.tapped .link-svg .link-path,
+  body.pro-page footer #footer_nav li a.tapped svg path {
+    fill: var(--accentPrimaryHover);
+  }
+}
