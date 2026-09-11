@@ -190,4 +190,19 @@
     font-size: var(--text-sm);
     padding: 0.5rem 1rem;
   }
+
+  /* Touch-tap replacement for :hover on the back button. */
+  #back-btn:hover {
+    transform: none;
+    box-shadow: 0.15rem 0.15rem var(--shadowColor);
+    background-color: var(--shadowColor);
+    color: var(--backgroundColor);
+  }
+
+  #back-btn.tapped {
+    transform: translateY(-0.1rem) translateX(0.1rem);
+    box-shadow: 0.3rem 0.3rem var(--shadowColor);
+    background-color: var(--backgroundColor);
+    color: var(--borderColor);
+  }
 }

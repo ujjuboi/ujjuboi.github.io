@@ -4,6 +4,61 @@
 const MENU_ARROW_ICON = '<svg width="30" height="22" viewBox="0 0 30 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 11h24M13 3L4 11l9 8" style="stroke: var(--shadowColor)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 /**
+ * True when tap-based `.tapped` feedback should replace `:hover` styling:
+ * the device reports touch capability AND fits the mobile breakpoint, which
+ * matches the `@media (max-width: 720px)` touch rules in the stylesheets.
+ */
+const IS_TOUCH_TAP = (('ontouchstart' in window) || navigator.maxTouchPoints > 0) &&
+  window.matchMedia('(max-width: 720px)').matches;
+
+/**
+ * Elements whose underline (or tooltip popover) should persist while tapped,
+ * clearing only when another persistent element or empty space receives the
+ * next tap.
+ */
+const TAPPED_PERSISTENT_SELECTOR = [
+  '.profiles-item',
+  '.card-link',
+  '.lc-submission-title',
+  '.resume-contact a',
+  '.editor-link',
+  '.editor-preview a'
+].join(',');
+
+/**
+ * Elements whose hover reaction should flash only while the finger is down,
+ * never lingering on screen after the tap ends.
+ */
+const TAPPED_MOMENTARY_SELECTOR = [
+  '.card',
+  '.section-heading.collapsible',
+  '#back-btn',
+  '#book-back-btn',
+  '#study-plan-back-btn',
+  '.skill-item',
+  '.commit-point',
+  '.lc-bar',
+  '.lc-submission',
+  '.book-card',
+  '.wt-leaf',
+  '.drawer-item-sub',
+  '.launch-btn',
+  '.banner-links a',
+  '.directory-toggle',
+  '.directory-back',
+  '.directory-file',
+  '.directory-folder-header',
+  '.editor-dot-back',
+  '.mode-btn',
+  '.editor-tab',
+  '.editor-read-more',
+  '#font-switcher-menu button',
+  'footer #footer_nav a',
+  '.profiles-strip',
+  '#signature'
+].join(',');
+
+/**
  * Wires up the mobile menu drawer: toggles the header open from the right,
  * moves the shared footer into the drawer, and morphs the hamburger icon into
  * a back arrow. Requires the shared drawer styles from styles.css.
@@ -823,8 +878,10 @@ class Tooltip {
    * @param {string|Node} content Content to show near the anchor.
    */
   attach(anchor, content) {
-    anchor.addEventListener('mouseenter', () => this.show(content, anchor));
-    anchor.addEventListener('mouseleave', () => this.hide());
+    if (!IS_TOUCH_TAP) {
+      anchor.addEventListener('mouseenter', () => this.show(content, anchor));
+      anchor.addEventListener('mouseleave', () => this.hide());
+    }
     anchor.addEventListener('click', (event) => {
       event.stopPropagation();
       if (this.isVisible) {
@@ -930,6 +987,99 @@ function initSiteFooter() {
   } else {
     document.body.appendChild(footer);
   }
+}
+
+/**
+ * Applies the shared `.tapped` class in place of `:hover` on touch devices so
+ * users get one-tap feedback instead of sticky-hover double-tap friction.
+ * Underline-style effects persist until the next tap; everything else flashes
+ * only while the finger is down; the home signature replays its draw each tap.
+ */
+function initTouchInteraction() {
+  if (!IS_TOUCH_TAP) return;
+
+  let tappedPersistent = null;
+  let tappedMomentary = null;
+
+  /**
+   * Clears the currently persisted tapped element, if any.
+   */
+  function clearPersistent() {
+    if (tappedPersistent) {
+      tappedPersistent.classList.remove('tapped');
+      tappedPersistent = null;
+    }
+  }
+
+  /**
+   * Whether the touched element lives inside a transient overlay (mobile menu
+   * drawer or study drawer), where persisted tap styles would leak.
+   *
+   * @param {HTMLElement} element Element to test.
+   * @returns {boolean} True when inside an overlay drawer.
+   */
+  function isInsideOverlay(element) {
+    return !!(element.closest('.study-drawer') || element.closest('header.is-open'));
+  }
+
+  /**
+   * Restarts the signature draw animation by toggling the tapped class and
+   * removing it once the stroke finishes drawing.
+   *
+   * @param {HTMLElement} signatureElement The signature SVG element.
+   */
+  function replaySignature(signatureElement) {
+    signatureElement.classList.remove('tapped');
+    void signatureElement.offsetWidth;
+    signatureElement.classList.add('tapped');
+    signatureElement.addEventListener('animationend', () => {
+      signatureElement.classList.remove('tapped');
+    }, { once: true });
+  }
+
+  /**
+   * Applies tap feedback for the touched element, or clears persisted taps
+   * when neither a persistent nor momentary target matched.
+   *
+   * @param {Event} event The touchstart event.
+   */
+  function handleTapStart(event) {
+    const persistent = !isInsideOverlay(event.target)
+      ? event.target.closest(TAPPED_PERSISTENT_SELECTOR)
+      : null;
+    if (persistent) {
+      clearPersistent();
+      persistent.classList.add('tapped');
+      tappedPersistent = persistent;
+      return;
+    }
+
+    tappedMomentary = event.target.closest(TAPPED_MOMENTARY_SELECTOR);
+    clearPersistent();
+    if (tappedMomentary) {
+      if (tappedMomentary.id === 'signature') {
+        replaySignature(tappedMomentary);
+        tappedMomentary = null;
+      } else {
+        tappedMomentary.classList.add('tapped');
+      }
+    }
+  }
+
+  /**
+   * Removes the momentary tapped class once the finger lifts, leaving any
+   * persisted underline effect in place.
+   */
+  function handleTapEnd() {
+    if (tappedMomentary) {
+      tappedMomentary.classList.remove('tapped');
+      tappedMomentary = null;
+    }
+  }
+
+  document.addEventListener('touchstart', handleTapStart, { passive: true });
+  document.addEventListener('touchend', handleTapEnd, { passive: true });
+  document.addEventListener('touchcancel', handleTapEnd, { passive: true });
 }
 
 /**
@@ -1185,6 +1335,7 @@ async function prefetchMyspaceData() {
 
 initSiteFooter();
 initFontSwitcher();
+initTouchInteraction();
 
 if (document.getElementById('home-container')) {
   prefetchMyspaceData();

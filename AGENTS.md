@@ -92,11 +92,11 @@ new structure:
 - No linter, test suite, or build step exists.
 - Run `node --check` on any modified JS file to catch syntax errors.
 - Manually verify by opening the affected page(s) in a browser.
-- `.mjs` files expect for `.opencode/skills/quick-test/test.mjs` are used only for testing — never commit or push them. Delete after testing is done. DO NOT DELETE `.opencode/skills/quick-test/test.mjs`.
+- `.mjs` files expect for `.opencode/command/quick-test/test.mjs` are used only for testing — never commit or push them. Delete after testing is done. DO NOT DELETE `.opencode/command/quick-test/test.mjs`.
 
 ## Out of scope
 
 - **Git/branch/commit workflow**: handled by the user.
 - **README.md**: protected — never edit.
 - **Skills in `.opencode/`** (`quick-blog`, `quick-book`, `quick-study-plan`): all content publishing. Use the relevant skill; do not reinvent its workflow.
-- **quick-test** (`.opencode/skills/quick-test`): triggered **manually by the user only** — never invoked by the AI on its own.
+- **quick-test** (`.opencode/command/quick-test`): triggered **manually by the user only** — never invoked by the AI on its own.

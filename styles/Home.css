@@ -192,6 +192,25 @@ section #myImage {
     margin-top: auto;
     flex-shrink: 0;
   }
+
+  /* Touch-tap replacements for :hover: the signature draw animation
+     replays on each tap via shared.js. */
+  header nav ul li :hover {
+    border-bottom: none;
+  }
+
+  section #hero #signature:hover path {
+    stroke-dasharray: none;
+    stroke-dashoffset: none;
+    animation: none;
+  }
+
+  section #hero #signature.tapped path {
+    stroke-dasharray: 527;
+    stroke-dashoffset: 527;
+    animation: sign 2.5s ease;
+    animation-fill-mode: forwards;
+  }
 }
 
 @media (max-width: 720px) and (max-height: 620px) {

@@ -311,6 +311,96 @@ pre code {
     height: 2rem;
     flex-shrink: 0;
   }
+
+  /* Touch-tap replacements for :hover. Hover is neutralized below so taps
+     never leave sticky :hover states; .tapped (toggled by shared.js) restores
+     the feedback while the finger is down, or persists for underline effects. */
+  .card:hover {
+    transform: none;
+    box-shadow: 0.3rem 0.3rem var(--shadowColor);
+  }
+
+  .card.tapped {
+    transform: translateY(-0.2rem) translateX(0.2rem);
+    box-shadow: 0.45rem 0.45rem var(--shadowColor);
+  }
+
+  .section-heading.collapsible:hover {
+    transform: none;
+    box-shadow: 0.3rem 0.3rem var(--shadowColor);
+  }
+
+  .section-heading.collapsible.tapped {
+    transform: translateX(0.5%);
+    box-shadow: 0.5rem 0.5rem var(--shadowColor);
+  }
+
+  .card-link:hover {
+    color: var(--linkColor);
+    border-bottom-color: var(--linkColor);
+  }
+
+  .card-link.tapped {
+    color: var(--linkHover);
+    border-bottom-color: var(--linkHover);
+  }
+
+  footer #footer_nav li:hover .link-svg {
+    transform: none;
+  }
+
+  footer #footer_nav li a.tapped .link-svg {
+    transform: scale(1.15);
+  }
+
+  #font-switcher-toggle:hover {
+    transform: none;
+    box-shadow: 0.2rem 0.2rem var(--shadowColor);
+  }
+
+  #font-switcher-toggle.tapped {
+    transform: translateY(-0.1rem) translateX(0.1rem);
+    box-shadow: 0.3rem 0.3rem var(--shadowColor);
+  }
+
+  #font-switcher-toggle[data-tooltip]:hover::after,
+  #pro-button[data-tooltip]:hover::after {
+    opacity: 0;
+  }
+
+  #font-switcher-menu button:hover {
+    border-color: var(--backgroundColor);
+  }
+
+  #font-switcher-menu button.tapped {
+    border-color: var(--borderColor);
+  }
+
+  #pro-button:hover {
+    transform: none;
+    box-shadow: 0.2rem 0.2rem var(--shadowColor);
+  }
+
+  #pro-button.tapped {
+    transform: translateY(-0.1rem) translateX(0.1rem);
+    box-shadow: 0.3rem 0.3rem var(--shadowColor);
+  }
+
+  .profiles-strip:hover {
+    animation-play-state: running;
+  }
+
+  .profiles-strip.tapped {
+    animation-play-state: paused;
+  }
+
+  .profiles-item:hover::after {
+    transform: scaleX(0);
+  }
+
+  .profiles-item.tapped::after {
+    transform: scaleX(1);
+  }
 }
 
 /* Shared footer */

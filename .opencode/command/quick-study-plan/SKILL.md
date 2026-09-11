@@ -28,9 +28,9 @@ Then **interview the user** to fill in the plan details before writing the file.
 Reuse the extraction helpers from the `quick-book` skill's `scripts/` directory
 (this skill calls them by absolute path, so they work regardless of cwd):
 
-    python3 .opencode/skills/quick-book/scripts/extract_pdf.py  "<path>"            # PDF metadata + TOC
-    python3 .opencode/skills/quick-book/scripts/extract_epub.py "<path>"            # EPUB metadata + TOC
-    python3 .opencode/skills/quick-book/scripts/extract_mobi.py "<path>"            # MOBI/AZW3 metadata + TOC
+    python3 .opencode/command/quick-book/scripts/extract_pdf.py  "<path>"            # PDF metadata + TOC
+    python3 .opencode/command/quick-book/scripts/extract_epub.py "<path>"            # EPUB metadata + TOC
+    python3 .opencode/command/quick-book/scripts/extract_mobi.py "<path>"            # MOBI/AZW3 metadata + TOC
 
 - PDF/EPUB/MOBI scripts themselves auto-install any needed Python package on
   first run.
@@ -113,7 +113,5 @@ skip any question. Gather the answers conversationally, then write the plan.
 - Reuse the exact `## Weekly Schedule Suggestion` block from the template or
   replace it only with schedule values the user provides.
 
-Base directory for this skill:
-/Users/Admin/Documents/Study/portfolio/twice/.opencode/skills/quick-study-plan
 Relative paths in this skill (e.g. references to `../quick-book/scripts/`) are
 relative to this base directory.
