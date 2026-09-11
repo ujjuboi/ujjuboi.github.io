@@ -6,7 +6,7 @@ Create a reusable opencode skill that runs a headless Playwright browser via the
 
 - This is a **static HTML/CSS/vanilla-JS** site (no package.json at root, no build step, no test tooling). Pages are served as-is via GitHub Pages.
 - The site's only responsive breakpoint is `@media (max-width: 720px)` (used across all 6 stylesheets). Below/equal 720px: the desktop `header` is hidden and an off-canvas hamburger menu (`#menuIcon`) appears; `scripts/shared.js` (`initMenuToggle`) toggles `header` / `#menuIcon` / content / `footer`.
-- Skills live in `.opencode/skills/<name>/SKILL.md`, sharing a convention: YAML frontmatter (`name`, `description`) + a Markdown body with numbered Workflow + Rules sections (per `quick-blog`).
+- Skills live in `.opencode/command/<name>/SKILL.md`, sharing a convention: YAML frontmatter (`name`, `description`) + a Markdown body with numbered Workflow + Rules sections (per `quick-blog`).
 - `.opencode/.gitignore` already ignores `node_modules`, `package.json`, `package-lock.json`, `bun.lock`. There is a `.opencode/package.json` currently holding only `@opencode-ai/plugin`.
 
 ## Approach: CLI-only Playwright
@@ -41,9 +41,9 @@ npx playwright screenshot --viewport-size="<W>,<H>" --full-page --wait-for-timeo
 ## Files to add
 
 1. **`.opencode/package.json`** — add `playwright` to `dependencies` (keeps the testing tool self-contained in `.opencode/`).
-2. **`.opencode/skills/quick-test/SKILL.md`** — skill definition (frontmatter + workflow + rules).
-3. **`.opencode/skills/quick-test/test.sh`** — the shell script that runs the CLI-based test.
-4. **`.opencode/skills/quick-test/results/`** — output dir for `report.txt` + `screenshots/`.
+2. **`.opencode/command/quick-test/SKILL.md`** — skill definition (frontmatter + workflow + rules).
+3. **`.opencode/command/quick-test/test.sh`** — the shell script that runs the CLI-based test.
+4. **`.opencode/command/quick-test/results/`** — output dir for `report.txt` + `screenshots/`.
 
 ## Test script (`test.sh`) behavior
 
@@ -60,7 +60,7 @@ npx playwright screenshot --viewport-size="<W>,<H>" --full-page --wait-for-timeo
 - Frontmatter: `name: quick-test`; `description` mentioning running a headless Playwright CLI across common responsive resolutions and capturing full-page screenshots.
 - Workflow:
   1. `npm install` in `.opencode/` (installs `playwright`); if browsers missing, `npx playwright install chromium`.
-  2. Run `bash .opencode/skills/quick-test/test.sh`.
+  2. Run `bash .opencode/command/quick-test/test.sh`.
   3. Present PASS/FAIL table; exit code 0 = all pass, 1 = failures; point to least one screenshot per failing page/viewport.
 - Rules: read-only — never modify site source; fix issues separately and re-run; keep everything under `.opencode/` (git-ignored runtime artifacts).
 

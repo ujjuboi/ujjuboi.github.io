@@ -152,5 +152,5 @@ personal notes to the markdown file manually after it is created.
 - The strict questionnaire always applies; there are no optional questions.
 - If the PDF is encrypted or cannot be parsed after retrying, the EPUB is invalid, or the MOBI is DRM-protected/unparseable, inform the user and ask them to provide title/author/chapters manually.
 
-Base directory for this skill: /Users/Admin/Documents/Study/portfolio/twice/.opencode/skills/quick-book
+Base directory for this skill: /Users/Admin/Documents/Study/portfolio/twice/.opencode/command/quick-book
 Relative paths in this skill (e.g., scripts/, reference/) are relative to this base directory.

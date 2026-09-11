@@ -12,7 +12,7 @@ Run headless Playwright at 9 common responsive viewports against all 5 portfolio
 ## Workflow
 
 1. **Install dependencies** — run `npm install` in `.opencode/` to install `playwright`. If browsers are missing, run `npx playwright install chromium`.
-2. **Run the test script** — execute `node .opencode/skills/quick-test/test.mjs`. This first **clears `results/`** (deleting any prior `report.md` and screenshots), then serves the project and asserts layout rules.
+2. **Run the test script** — execute `node .opencode/command/quick-test/test.mjs`. This first **clears `results/`** (deleting any prior `report.md` and screenshots), then serves the project and asserts layout rules.
 3. **Review the output** — the script prints a per-page × per-viewport PASS/FAIL table with rule-violation details, writes `results/report.md`, and saves full-page PNG screenshots to `results/screenshots/`. Exit code `0` = all pass, `1` = failures.
 
 ## Pages Tested (5)

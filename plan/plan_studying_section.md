@@ -80,7 +80,7 @@ Only existing `:root` vars. New `.study-*` classes:
 - Open `pages/MySpace/MySpace.html` in a browser (works from `file://`).
 - Click through timeline nodes → drawer opens; verify × / overlay / `Escape` close; verify progress updates when a box is ticked in `src/study-plan.md`.
 - Check responsive at 720px and desktop (drawer full-width on mobile).
-- Optional: run the `quick-test` skill for a responsive PASS/FAIL report across the 9 resolutions; delete any verification `.mjs` after (keep `.opencode/skills/quick-test/test.mjs`).
+- Optional: run the `quick-test` skill for a responsive PASS/FAIL report across the 9 resolutions; delete any verification `.mjs` after (keep `.opencode/command/quick-test/test.mjs`).
 
 ## Out of scope
 

@@ -18,7 +18,7 @@ Making my own dynamic blogging website!
 
 ```
 ├── .opencode/
-│   ├── skills/
+│   ├── command/
 │   │   ├── quick-blog/
 │   │   │   └── SKILL.md
 │   │   ├── quick-book/
