@@ -777,10 +777,6 @@
 }
 
 @media (max-width: 720px) {
-  .section-heading {
-    font-size: var(--text-lg);
-    padding: 2% 3%;
-  }
 
   .stat-number {
     font-size: var(--text-3xl);
