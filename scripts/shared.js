@@ -4,10 +4,12 @@
 const MENU_ARROW_ICON = '<svg width="30" height="22" viewBox="0 0 30 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 11h24M13 3L4 11l9 8" style="stroke: var(--shadowColor)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 /**
- * True when the device reports touch capability. Hover interactions are
- * replaced with tap-based `.tapped` feedback on such devices.
+ * True when tap-based `.tapped` feedback should replace `:hover` styling:
+ * the device reports touch capability AND fits the mobile breakpoint, which
+ * matches the `@media (max-width: 720px)` touch rules in the stylesheets.
  */
-const IS_TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+const IS_TOUCH_TAP = (('ontouchstart' in window) || navigator.maxTouchPoints > 0) &&
+  window.matchMedia('(max-width: 720px)').matches;
 
 /**
  * Elements whose underline (or tooltip popover) should persist while tapped,
@@ -19,7 +21,6 @@ const TAPPED_PERSISTENT_SELECTOR = [
   '.card-link',
   '.lc-submission-title',
   '.resume-contact a',
-  'header nav ul li a',
   '.editor-link',
   '.editor-preview a'
 ].join(',');
@@ -877,7 +878,7 @@ class Tooltip {
    * @param {string|Node} content Content to show near the anchor.
    */
   attach(anchor, content) {
-    if (!IS_TOUCH) {
+    if (!IS_TOUCH_TAP) {
       anchor.addEventListener('mouseenter', () => this.show(content, anchor));
       anchor.addEventListener('mouseleave', () => this.hide());
     }
@@ -995,7 +996,7 @@ function initSiteFooter() {
  * only while the finger is down; the home signature replays its draw each tap.
  */
 function initTouchInteraction() {
-  if (!IS_TOUCH) return;
+  if (!IS_TOUCH_TAP) return;
 
   let tappedPersistent = null;
   let tappedMomentary = null;

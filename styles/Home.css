@@ -193,15 +193,10 @@ section #myImage {
     flex-shrink: 0;
   }
 
-  /* Touch-tap replacements for :hover: nav underline feedback and the
-     signature draw animation, which replays on each tap via shared.js. */
+  /* Touch-tap replacements for :hover: the signature draw animation
+     replays on each tap via shared.js. */
   header nav ul li :hover {
     border-bottom: none;
-  }
-
-  header nav ul li a.tapped {
-    border-bottom: 0.2rem solid var(--shadowColor);
-    transition: border ease-in-out .1s;
   }
 
   section #hero #signature:hover path {

@@ -113,7 +113,5 @@ skip any question. Gather the answers conversationally, then write the plan.
 - Reuse the exact `## Weekly Schedule Suggestion` block from the template or
   replace it only with schedule values the user provides.
 
-Base directory for this skill:
-/Users/Admin/Documents/Study/portfolio/twice/.opencode/command/quick-study-plan
 Relative paths in this skill (e.g. references to `../quick-book/scripts/`) are
 relative to this base directory.

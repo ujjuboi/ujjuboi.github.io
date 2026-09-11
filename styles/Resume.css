@@ -64,17 +64,6 @@
   box-shadow: none;
 }
 
-/* On desktop, resume sections are always open (expanded), so the headers
-   keep the active styling. On mobile, they follow the normal collapsible
-   header behavior defined in styles.css. */
-@media (min-width: 721px) {
-  .resume-section .section-heading {
-    color: var(--borderColor);
-    background-color: var(--contentColor);
-    box-shadow: none;
-  }
-}
-
 .timeline {
   position: relative;
 }
@@ -281,16 +270,15 @@
   }
 
   .resume-section .section-heading {
-  color: var(--backgroundColor);
-  background-color: var(--shadowColor);
-  box-shadow: 0.3rem 0.3rem var(--shadowColor);
-    
+    color: var(--backgroundColor);
+    background-color: var(--shadowColor);
+    box-shadow: 0.3rem 0.3rem var(--shadowColor);
   }
 
   .resume-section .section-heading.active {
-  color: var(--borderColor);
-  background-color: var(--contentColor);
-}
+    color: var(--borderColor);
+    background-color: var(--contentColor);
+  }
 
   .section-content {
     padding: 3% 5%;
