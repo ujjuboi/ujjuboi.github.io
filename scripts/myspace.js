@@ -80,6 +80,7 @@ function buildActivitySection() {
   </div>
   <div class="project-card-body">
     <h3 class="card-title" id="project-title"></h3>
+    <p class="card-date" id="project-date"></p>
     <p class="card-excerpt" id="project-excerpt"></p>
     <a id="project-link" class="card-link" href="#" target="_blank" rel="noopener">View on GitHub →</a>
   </div>
@@ -509,13 +510,18 @@ function renderProjectBanner(repo, repoFullName, readmeText, branch) {
 }
 
 /**
- * Renders the commit chart caption, polyline, points, and month labels.
+ * Renders the activity chart caption, polylines, points, and month labels.
+ * Plots commits as the theme-colored line, overlaying solid red for issues
+ * opened and dashed blue for issues closed when issue data is available.
  *
  * @param {Object[]} commits Raw commit objects from the GitHub API.
+ * @param {Object[]} [issues] Created/closed date records for issues.
  */
-function renderCommitChart(commits) {
+function renderCommitChart(commits, issues) {
   const container = document.getElementById('commit-activity');
   if (!container) return;
+
+  issues = Array.isArray(issues) ? issues : [];
 
   const monthTotals = new Map();
   let lastMonthKey = null;
@@ -547,7 +553,27 @@ function renderCommitChart(commits) {
     container.innerHTML = '<div class="lc-activity-state" role="status"><span class="lc-error-text">No commit activity in the recent months.</span></div>';
     return;
   }
-  const maxCount = Math.max(...chartMonths.map(month => month.count), 1);
+
+  const monthIndexByKey = new Map(chartMonths.map((month, index) => [month.key, index]));
+  const openCounts = chartMonths.map(() => 0);
+  const closedCounts = chartMonths.map(() => 0);
+  issues.forEach(issue => {
+    const openIndex = issue.createdAt ? monthIndexByKey.get(issue.createdAt.slice(0, 7)) : -1;
+    const closedIndex = issue.closedAt ? monthIndexByKey.get(issue.closedAt.slice(0, 7)) : -1;
+    if (openIndex !== undefined && openIndex !== -1) openCounts[openIndex]++;
+    if (closedIndex !== undefined && closedIndex !== -1) closedCounts[closedIndex]++;
+  });
+
+  const openTotal = openCounts.reduce((sum, count) => sum + count, 0);
+  const closedTotal = closedCounts.reduce((sum, count) => sum + count, 0);
+  const hasIssues = openTotal > 0 || closedTotal > 0;
+
+  const maxCount = Math.max(
+    ...chartMonths.map(month => month.count),
+    ...openCounts,
+    ...closedCounts,
+    1
+  );
 
   const viewBoxWidth = 500;
   const viewBoxHeight = 200;
@@ -567,22 +593,53 @@ function renderCommitChart(commits) {
     return `<circle class="${className}" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4"></circle>`;
   }).join('');
 
+  const openLinePoints = openCounts.map((count, index) => xAt(index).toFixed(1) + ',' + yAt(count).toFixed(1)).join(' ');
+  const closedLinePoints = closedCounts.map((count, index) => xAt(index).toFixed(1) + ',' + yAt(count).toFixed(1)).join(' ');
+
+  const issuePointMarkup = openCounts.map((count, index) => {
+    const className = 'issue-point issue-point--open' + (count === 0 ? ' issue-point--empty' : '');
+    return `<circle class="${className}" cx="${xAt(index).toFixed(1)}" cy="${yAt(count).toFixed(1)}" r="4"></circle>`;
+  }).join('') + closedCounts.map((count, index) => {
+    const className = 'issue-point issue-point--closed' + (count === 0 ? ' issue-point--empty' : '');
+    return `<circle class="${className}" cx="${xAt(index).toFixed(1)}" cy="${yAt(count).toFixed(1)}" r="4"></circle>`;
+  }).join('');
+
   const rangeStart = chartMonths[0].date;
   const rangeEnd = chartMonths[pointCount - 1].date;
   const rangeLabel = monthNames[rangeStart.getMonth()] + ' ' + rangeStart.getFullYear() + ' \u2013 ' + monthNames[rangeEnd.getMonth()] + ' ' + rangeEnd.getFullYear();
 
+  const totalLabel = hasIssues
+    ? `${total} commits \u00b7 ${openTotal} opened \u00b7 ${closedTotal} closed \u00b7 ${rangeLabel}`
+    : `${total} commits \u00b7 ${rangeLabel}`;
+
+  const legendMarkup = hasIssues ? `
+      <div class="chart-legend">
+        <span class="legend-item"><span class="legend-swatch legend-swatch--commits"></span>Commits</span>
+        <span class="legend-item"><span class="legend-swatch legend-swatch--open"></span>Issues opened</span>
+        <span class="legend-item"><span class="legend-swatch legend-swatch--closed"></span>Issues closed</span>
+      </div>
+    ` : '';
+
+  const issueLinesMarkup = hasIssues ? `
+            <polyline class="issue-line issue-line--open" points="${openLinePoints}"></polyline>
+            <polyline class="issue-line issue-line--closed" points="${closedLinePoints}"></polyline>
+            ${issuePointMarkup}
+          ` : '';
+
   container.innerHTML = `
     <div class="commit-activity-chart">
       <div class="lc-yaxis">
-        <span class="lc-axis-label lc-axis-label-y">Commits</span>
+        <span class="lc-axis-label lc-axis-label-y">Count</span>
       </div>
       <div class="commit-plot">
-        <div class="lc-total">${total} commits \u00b7 ${rangeLabel}</div>
+        <div class="lc-total">${totalLabel}</div>
         <div class="commit-chart-wrap">
-          <svg class="commit-chart-svg" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" role="img" aria-label="Commits per month">
+          ${legendMarkup}
+          <svg class="commit-chart-svg" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" role="img" aria-label="Commits, open issues, and closed issues per month">
             <line class="commit-baseline" x1="${xAt(0)}" y1="${baselineY}" x2="${xAt(pointCount - 1)}" y2="${baselineY}"></line>
             <polyline class="commit-line" points="${polylinePoints}"></polyline>
             ${pointMarkup}
+            ${issueLinesMarkup}
           </svg>
           <div class="commit-labels">${chartMonths.map(month => `<span class="commit-label">${monthNames[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}</span>`).join('')}</div>
         </div>
@@ -593,6 +650,12 @@ function renderCommitChart(commits) {
   const tooltip = new Tooltip();
   container.querySelectorAll('.commit-point').forEach((point, index) => {
     tooltip.attach(point, buildCommitTooltip(chartPoints[index].month, total));
+  });
+  container.querySelectorAll('.issue-point--open').forEach((point, index) => {
+    tooltip.attach(point, buildIssueTooltip(chartMonths[index], openCounts[index], 'opened'));
+  });
+  container.querySelectorAll('.issue-point--closed').forEach((point, index) => {
+    tooltip.attach(point, buildIssueTooltip(chartMonths[index], closedCounts[index], 'closed'));
   });
 }
 
@@ -614,15 +677,35 @@ function buildCommitTooltip(month, totalCount) {
 }
 
 /**
+ * Builds the tooltip markup for one month in an issue line.
+ *
+ * @param {Object} month Chart month with date.
+ * @param {number} count Issue count for that month.
+ * @param {string} label Whether the line tracks 'opened' or 'closed' issues.
+ * @returns {string} Inner HTML for the tooltip.
+ */
+function buildIssueTooltip(month, count, label) {
+  const monthLabel = monthNames[month.date.getMonth()] + ' ' + month.date.getFullYear();
+  const action = label === 'closed' ? 'closed' : 'opened';
+  return `
+    <span class="lc-tooltip-date">${monthLabel}</span>
+    <span class="lc-tooltip-count">${count} issue${count === 1 ? '' : 's'} ${action}</span>`;
+}
+
+/**
  * Loads and renders the commit line chart for a single repo into the commit card.
  *
  * @param {string} repoFullName Owner/repo identifier whose commits to chart.
  */
 async function renderCommitCard(repoFullName) {
   try {
-    const commits = await fetchCommitHistory(repoFullName);
-    renderCommitChart(commits);
+    const [commits, issues] = await Promise.all([
+      fetchCommitHistory(repoFullName),
+      fetchIssueHistory(repoFullName).catch(() => [])
+    ]);
+    renderCommitChart(commits, issues);
     document.getElementById('commit-subtitle').textContent = repoFullName;
+
     document.getElementById('commit-card').style.display = '';
     document.getElementById('commit-fallback').style.display = 'none';
   } catch (error) {
@@ -667,6 +750,13 @@ async function fetchCurrentProject() {
       document.getElementById('project-loading').style.display = 'none';
       document.getElementById('project-card').style.display = '';
       document.getElementById('project-title').textContent = parseProjectTitle(readmeText, repo.name);
+      const projectDate = document.getElementById('project-date');
+      if (projectDate && repo.created_at) {
+        const createdDate = new Date(repo.created_at);
+        if (!isNaN(createdDate.getTime())) {
+          projectDate.textContent = 'Created ' + monthNames[createdDate.getMonth()] + ' ' + createdDate.getDate() + ', ' + createdDate.getFullYear();
+        }
+      }
       document.getElementById('project-excerpt').textContent = parseProjectExcerpt(readmeText) || (repo.description || '');
       document.getElementById('project-link').href = repo.html_url;
       renderProjectBanner(repo, repoFullName, readmeText, branch);

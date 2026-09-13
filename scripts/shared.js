@@ -1091,7 +1091,7 @@ const CACHE_TTL = 6 * 60 * 60 * 1000;
  * Candidate repos for the "Currently Working On" section.
  * The first repo that loads successfully is displayed.
  */
-const currentProjectRepos = ['ujjuboi/jobhunt'];
+const currentProjectRepos = ['ujjuboi/EMBER'];
 
 /**
  * How many trailing months of commit activity the chart shows.
@@ -1241,6 +1241,42 @@ async function fetchCommitHistory(repoFullName) {
 }
 
 /**
+ * Fetches a single repository's issue history via the GitHub issues API,
+ * walking result pages until exhausted or the page cap is reached. Pull
+ * requests are filtered out so only true issues are counted.
+ *
+ * @param {string} repoFullName Owner/repo identifier whose issues to read.
+ * @returns {Promise<Object[]>} Flat list of created/closed date records.
+ */
+async function fetchIssueHistory(repoFullName) {
+  const issues = [];
+  const seenNumbers = new Set();
+
+  for (let page = 1; page <= 5; page++) {
+    let data = null;
+    try {
+      data = await cachedFetch('https://api.github.com/repos/' + repoFullName + '/issues?state=all&per_page=100&page=' + page);
+    } catch (error) {
+      if (issues.length === 0) throw error;
+      console.error('Issue history page error:', error);
+      break;
+    }
+    if (!Array.isArray(data) || data.length === 0) break;
+    data.forEach(item => {
+      if (item && item.pull_request) return;
+      if (!item || seenNumbers.has(item.number)) return;
+      seenNumbers.add(item.number);
+      issues.push({
+        createdAt: item.created_at || null,
+        closedAt: item.closed_at || null
+      });
+    });
+    if (data.length < 100) break;
+  }
+  return issues;
+}
+
+/**
  * Fetches a banner image and returns it as a base64 data URL, reusing a
  * localStorage cache so repeat visits render instantly. Falls back to a
  * direct fetch when the image is CORS-blocked or the download fails.
@@ -1307,6 +1343,7 @@ async function prefetchMyspaceData() {
         }
 
         await fetchCommitHistory(repoFullName);
+        await fetchIssueHistory(repoFullName);
         break;
       } catch (error) {
         console.error('Prefetch current project error:', error);
