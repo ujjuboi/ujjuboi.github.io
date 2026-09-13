@@ -1,9 +1,4 @@
 /**
- * Resume sections, shown as collapsible blocks in order.
- */
-const categories = ['Professional Summary', 'Work Experience', 'Projects', 'Education', 'Skills'];
-
-/**
  * Parsed resume content loaded from the manifest, keyed by category.
  */
 const sections = [];
@@ -50,7 +45,7 @@ function renderResume() {
 
   const isMobile = window.matchMedia('(max-width: 720px)').matches;
 
-  categories.forEach((category, index) => {
+  RESUME_CATEGORIES.forEach((category, index) => {
     const match = sections.find(section => section.category === category);
     if (!match) return;
     new Section({

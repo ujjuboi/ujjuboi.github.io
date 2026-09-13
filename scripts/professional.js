@@ -326,27 +326,6 @@ function setupEditorWindow() {
 }
 
 /**
- * Maps long section/role labels to short folder names.
- */
-const SHORT_NAMES = {
-  'Software Engineer 2 - DI App Factory': 'swe-2',
-  'Software Engineer 1 - DI App Factory': 'swe-1',
-  'Associate Software Developer - DI App Factory': 'asoc-dev-sc',
-  'Associate Software Developer - DDPX': 'asoc-dev-ddpx',
-  'Risk & Financial Advisory Analyst - DDPX': 'iam-risk-analyst',
-  'Frontend/Backend': 'frontend',
-  'Languages/Tools': 'languages',
-  'Databases': 'databases',
-  'Cloud/AI': 'cloud',
-  'Infrastructure': 'infra'
-};
-
-/**
- * Icon shown for directory tree files.
- */
-const ICON_SRC = '../../Images/information-svgrepo-com.svg';
-
-/**
  * Shortens an arbitrary label into a filename-safe slug.
  *
  * @param {string} label Label to shorten.

@@ -1,15 +1,4 @@
 /**
- * Month names used for chart axis and tooltip labels.
- */
-const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-/**
- * MySpace sections, shown as collapsible blocks in order.
- * The first section starts expanded; the rest start collapsed.
- */
-const categories = ['Currently Studying', 'Currently Working On', 'LeetCode Progress', 'My Library'];
-
-/**
  * Staged section content for each category, populated by stageSections().
  */
 const sections = [];
@@ -141,7 +130,7 @@ function buildLeetCodeSection() {
     <p id="lc-total-active-days">Total active days: -- days ago</p>
     <p id="lc-ranking">Ranking: --</p>
     <p id="lc-link">
-      <a id="lc-profile-link" class="card-link" href="https://leetcode.com/ujjuboi/" target="_blank" style="display: none;">View LeetCode Profile →</a>
+      <a id="lc-profile-link" class="card-link" href="${LEETCODE_PROFILE_URL}" target="_blank" style="display: none;">View LeetCode Profile →</a>
     </p>
   </div>
 </div>
@@ -192,7 +181,7 @@ function renderMyspaceSections() {
   if (!container) return;
   container.innerHTML = '';
 
-  categories.forEach((category, index) => {
+  MYSPACE_CATEGORIES.forEach((category, index) => {
     const match = sections.find(section => section.category === category);
     if (!match) return;
     sectionInstances[category] = new Section({
@@ -263,8 +252,8 @@ function renderLeetCodeActivity(submissionCalendar) {
   const chartData = months.map(month => {
     const height = max > 0 ? Math.max(8, (month.count / max) * 100) : 8;
     const filledPct = total > 0 ? Math.round((month.count / total) * 100) : 0;
-    const label = `${monthNames[month.date.getMonth()]} ${month.date.getFullYear()}`;
-    const shortLabel = `${monthNames[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}`;
+    const label = `${MONTH_NAMES[month.date.getMonth()]} ${month.date.getFullYear()}`;
+    const shortLabel = `${MONTH_NAMES[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}`;
 
     return {
       height,
@@ -337,7 +326,7 @@ async function fetchLeetCodeActivity() {
 
   showLoading();
   try {
-    const data = await cachedFetch('https://leetcode-stats.tashif.codes/ujjuboi/heatmap');
+    const data = await cachedFetch(LEETCODE_HEATMAP_URL);
     const calendar = {};
     const days = data && (data.dailyContributions || data.data?.dailyContributions);
     if (!Array.isArray(days) || days.length === 0) {
@@ -384,7 +373,7 @@ function renderRecentSubmissions(submissions) {
     const time = minutes < 60 ? `${minutes}m ago` : hours < 24 ? `${hours}h ago` : `${days}d ago`;
 
     return `<li class="lc-submission">
-      <a class="lc-submission-title" href="https://leetcode.com/problems/${slug}/" target="_blank">${title}</a>
+      <a class="lc-submission-title" href="${LEETCODE_PROBLEM_BASE}${slug}/" target="_blank">${title}</a>
       <span class="lc-submission-status is-${(status || '').toLowerCase().replace(/[^a-z0-9]/g, '')}">${status}</span>
       <span class="lc-submission-lang">${lang}</span>
       <span class="lc-submission-time">${time}</span>
@@ -401,7 +390,7 @@ async function fetchRecentSubmissions() {
   const list = document.getElementById('lc-submissions');
   if (!list) return;
   try {
-    const data = await cachedFetch('https://leetpulse-api.vercel.app/api/leetcode/submission/ujjuboi?limit=5');
+    const data = await cachedFetch(LEETCODE_SUBMISSIONS_URL);
     const submissions = data && (data.recentSubmissions || data.submission || data.submissions);
     if (Array.isArray(submissions) && submissions.length > 0) {
       renderRecentSubmissions(submissions);
@@ -542,7 +531,7 @@ function renderCommitChart(commits, issues) {
   const endMonthIndex = Number(lastMonthKey.slice(5, 7)) - 1;
 
   const chartMonths = [];
-  for (let offset = commitChartMonths - 1; offset >= 0; offset--) {
+  for (let offset = COMMIT_CHART_MONTHS - 1; offset >= 0; offset--) {
     const date = new Date(endYear, endMonthIndex - offset, 1);
     const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
     chartMonths.push({ key, count: monthTotals.get(key) || 0, date });
@@ -606,7 +595,7 @@ function renderCommitChart(commits, issues) {
 
   const rangeStart = chartMonths[0].date;
   const rangeEnd = chartMonths[pointCount - 1].date;
-  const rangeLabel = monthNames[rangeStart.getMonth()] + ' ' + rangeStart.getFullYear() + ' \u2013 ' + monthNames[rangeEnd.getMonth()] + ' ' + rangeEnd.getFullYear();
+  const rangeLabel = MONTH_NAMES[rangeStart.getMonth()] + ' ' + rangeStart.getFullYear() + ' \u2013 ' + MONTH_NAMES[rangeEnd.getMonth()] + ' ' + rangeEnd.getFullYear();
 
   const totalLabel = hasIssues
     ? `${total} commits \u00b7 ${openTotal} opened \u00b7 ${closedTotal} closed \u00b7 ${rangeLabel}`
@@ -641,7 +630,7 @@ function renderCommitChart(commits, issues) {
             ${pointMarkup}
             ${issueLinesMarkup}
           </svg>
-          <div class="commit-labels">${chartMonths.map(month => `<span class="commit-label">${monthNames[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}</span>`).join('')}</div>
+          <div class="commit-labels">${chartMonths.map(month => `<span class="commit-label">${MONTH_NAMES[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}</span>`).join('')}</div>
         </div>
       </div>
     </div>
@@ -667,7 +656,7 @@ function renderCommitChart(commits, issues) {
  * @returns {string} Inner HTML for the tooltip.
  */
 function buildCommitTooltip(month, totalCount) {
-  const label = monthNames[month.date.getMonth()] + ' ' + month.date.getFullYear();
+  const label = MONTH_NAMES[month.date.getMonth()] + ' ' + month.date.getFullYear();
   const filledPct = totalCount > 0 ? Math.round((month.count / totalCount) * 100) : 0;
   return `
     <span class="lc-tooltip-date">${label}</span>
@@ -685,7 +674,7 @@ function buildCommitTooltip(month, totalCount) {
  * @returns {string} Inner HTML for the tooltip.
  */
 function buildIssueTooltip(month, count, label) {
-  const monthLabel = monthNames[month.date.getMonth()] + ' ' + month.date.getFullYear();
+  const monthLabel = MONTH_NAMES[month.date.getMonth()] + ' ' + month.date.getFullYear();
   const action = label === 'closed' ? 'closed' : 'opened';
   return `
     <span class="lc-tooltip-date">${monthLabel}</span>
@@ -730,15 +719,15 @@ function showCurrentProjectFallback() {
  * Tries each candidate repo until one loads successfully.
  */
 async function fetchCurrentProject() {
-  for (const repoFullName of currentProjectRepos) {
+  for (const repoFullName of CURRENT_PROJECT_REPOS) {
     try {
-      const repo = await cachedFetch(`https://api.github.com/repos/${repoFullName}`);
+      const repo = await cachedFetch(GITHUB_API_BASE + '/repos/' + repoFullName);
       if (!repo || !repo.name) throw new Error('Repo not found');
       const branch = repo.default_branch || 'main';
 
       let readmeText = '';
       try {
-        const readmeData = await cachedFetch(`https://api.github.com/repos/${repoFullName}/readme`);
+        const readmeData = await cachedFetch(GITHUB_API_BASE + '/repos/' + repoFullName + '/readme');
         if (readmeData && readmeData.content) {
           const readmeBytes = Uint8Array.from(atob(readmeData.content), character => character.charCodeAt(0));
           readmeText = new TextDecoder('utf-8').decode(readmeBytes).replace(/\r\n/g, '\n');
@@ -754,7 +743,7 @@ async function fetchCurrentProject() {
       if (projectDate && repo.created_at) {
         const createdDate = new Date(repo.created_at);
         if (!isNaN(createdDate.getTime())) {
-          projectDate.textContent = 'Created ' + monthNames[createdDate.getMonth()] + ' ' + createdDate.getDate() + ', ' + createdDate.getFullYear();
+          projectDate.textContent = 'Created ' + MONTH_NAMES[createdDate.getMonth()] + ' ' + createdDate.getDate() + ', ' + createdDate.getFullYear();
         }
       }
       document.getElementById('project-excerpt').textContent = parseProjectExcerpt(readmeText) || (repo.description || '');
@@ -776,7 +765,7 @@ async function fetchCurrentProject() {
  */
 async function fetchLeetCodeStats() {
   try {
-    const data = await cachedFetch('https://leetcode-stats.tashif.codes/ujjuboi');
+    const data = await cachedFetch(LEETCODE_STATS_BASE);
 
     if (data.status === 'success') {
       document.getElementById('leetcode-loading').style.display = 'none';
