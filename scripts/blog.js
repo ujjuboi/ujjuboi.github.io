@@ -1,9 +1,4 @@
 /**
- * Blog post categories, shown as collapsible sections in order.
- */
-const categories = ['Deloitte', 'Personal Projects', 'Research'];
-
-/**
  * Parsed posts loaded from the manifest.
  */
 const posts = [];
@@ -74,7 +69,7 @@ function renderBlogList() {
   }
   renderLatestPost(container);
   let delayIndex = 0;
-  categories.forEach(category => {
+  BLOG_CATEGORIES.forEach(category => {
     const grouped = posts
       .map((post, index) => ({ post, index }))
       .filter(item => item.post.category === category);

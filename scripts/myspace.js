@@ -1,15 +1,4 @@
 /**
- * Month names used for chart axis and tooltip labels.
- */
-const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-/**
- * MySpace sections, shown as collapsible blocks in order.
- * The first section starts expanded; the rest start collapsed.
- */
-const categories = ['Currently Studying', 'Currently Working On', 'LeetCode Progress', 'My Library'];
-
-/**
  * Staged section content for each category, populated by stageSections().
  */
 const sections = [];
@@ -80,6 +69,7 @@ function buildActivitySection() {
   </div>
   <div class="project-card-body">
     <h3 class="card-title" id="project-title"></h3>
+    <p class="card-date" id="project-date"></p>
     <p class="card-excerpt" id="project-excerpt"></p>
     <a id="project-link" class="card-link" href="#" target="_blank" rel="noopener">View on GitHub →</a>
   </div>
@@ -140,7 +130,7 @@ function buildLeetCodeSection() {
     <p id="lc-total-active-days">Total active days: -- days ago</p>
     <p id="lc-ranking">Ranking: --</p>
     <p id="lc-link">
-      <a id="lc-profile-link" class="card-link" href="https://leetcode.com/ujjuboi/" target="_blank" style="display: none;">View LeetCode Profile →</a>
+      <a id="lc-profile-link" class="card-link" href="${LEETCODE_PROFILE_URL}" target="_blank" style="display: none;">View LeetCode Profile →</a>
     </p>
   </div>
 </div>
@@ -191,7 +181,7 @@ function renderMyspaceSections() {
   if (!container) return;
   container.innerHTML = '';
 
-  categories.forEach((category, index) => {
+  MYSPACE_CATEGORIES.forEach((category, index) => {
     const match = sections.find(section => section.category === category);
     if (!match) return;
     sectionInstances[category] = new Section({
@@ -262,8 +252,8 @@ function renderLeetCodeActivity(submissionCalendar) {
   const chartData = months.map(month => {
     const height = max > 0 ? Math.max(8, (month.count / max) * 100) : 8;
     const filledPct = total > 0 ? Math.round((month.count / total) * 100) : 0;
-    const label = `${monthNames[month.date.getMonth()]} ${month.date.getFullYear()}`;
-    const shortLabel = `${monthNames[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}`;
+    const label = `${MONTH_NAMES[month.date.getMonth()]} ${month.date.getFullYear()}`;
+    const shortLabel = `${MONTH_NAMES[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}`;
 
     return {
       height,
@@ -336,7 +326,7 @@ async function fetchLeetCodeActivity() {
 
   showLoading();
   try {
-    const data = await cachedFetch('https://leetcode-stats.tashif.codes/ujjuboi/heatmap');
+    const data = await cachedFetch(LEETCODE_HEATMAP_URL);
     const calendar = {};
     const days = data && (data.dailyContributions || data.data?.dailyContributions);
     if (!Array.isArray(days) || days.length === 0) {
@@ -383,7 +373,7 @@ function renderRecentSubmissions(submissions) {
     const time = minutes < 60 ? `${minutes}m ago` : hours < 24 ? `${hours}h ago` : `${days}d ago`;
 
     return `<li class="lc-submission">
-      <a class="lc-submission-title" href="https://leetcode.com/problems/${slug}/" target="_blank">${title}</a>
+      <a class="lc-submission-title" href="${LEETCODE_PROBLEM_BASE}${slug}/" target="_blank">${title}</a>
       <span class="lc-submission-status is-${(status || '').toLowerCase().replace(/[^a-z0-9]/g, '')}">${status}</span>
       <span class="lc-submission-lang">${lang}</span>
       <span class="lc-submission-time">${time}</span>
@@ -400,7 +390,7 @@ async function fetchRecentSubmissions() {
   const list = document.getElementById('lc-submissions');
   if (!list) return;
   try {
-    const data = await cachedFetch('https://leetpulse-api.vercel.app/api/leetcode/submission/ujjuboi?limit=5');
+    const data = await cachedFetch(LEETCODE_SUBMISSIONS_URL);
     const submissions = data && (data.recentSubmissions || data.submission || data.submissions);
     if (Array.isArray(submissions) && submissions.length > 0) {
       renderRecentSubmissions(submissions);
@@ -509,13 +499,18 @@ function renderProjectBanner(repo, repoFullName, readmeText, branch) {
 }
 
 /**
- * Renders the commit chart caption, polyline, points, and month labels.
+ * Renders the activity chart caption, polylines, points, and month labels.
+ * Plots commits as the theme-colored line, overlaying solid red for issues
+ * opened and dashed blue for issues closed when issue data is available.
  *
  * @param {Object[]} commits Raw commit objects from the GitHub API.
+ * @param {Object[]} [issues] Created/closed date records for issues.
  */
-function renderCommitChart(commits) {
+function renderCommitChart(commits, issues) {
   const container = document.getElementById('commit-activity');
   if (!container) return;
+
+  issues = Array.isArray(issues) ? issues : [];
 
   const monthTotals = new Map();
   let lastMonthKey = null;
@@ -536,7 +531,7 @@ function renderCommitChart(commits) {
   const endMonthIndex = Number(lastMonthKey.slice(5, 7)) - 1;
 
   const chartMonths = [];
-  for (let offset = commitChartMonths - 1; offset >= 0; offset--) {
+  for (let offset = COMMIT_CHART_MONTHS - 1; offset >= 0; offset--) {
     const date = new Date(endYear, endMonthIndex - offset, 1);
     const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
     chartMonths.push({ key, count: monthTotals.get(key) || 0, date });
@@ -547,7 +542,27 @@ function renderCommitChart(commits) {
     container.innerHTML = '<div class="lc-activity-state" role="status"><span class="lc-error-text">No commit activity in the recent months.</span></div>';
     return;
   }
-  const maxCount = Math.max(...chartMonths.map(month => month.count), 1);
+
+  const monthIndexByKey = new Map(chartMonths.map((month, index) => [month.key, index]));
+  const openCounts = chartMonths.map(() => 0);
+  const closedCounts = chartMonths.map(() => 0);
+  issues.forEach(issue => {
+    const openIndex = issue.createdAt ? monthIndexByKey.get(issue.createdAt.slice(0, 7)) : -1;
+    const closedIndex = issue.closedAt ? monthIndexByKey.get(issue.closedAt.slice(0, 7)) : -1;
+    if (openIndex !== undefined && openIndex !== -1) openCounts[openIndex]++;
+    if (closedIndex !== undefined && closedIndex !== -1) closedCounts[closedIndex]++;
+  });
+
+  const openTotal = openCounts.reduce((sum, count) => sum + count, 0);
+  const closedTotal = closedCounts.reduce((sum, count) => sum + count, 0);
+  const hasIssues = openTotal > 0 || closedTotal > 0;
+
+  const maxCount = Math.max(
+    ...chartMonths.map(month => month.count),
+    ...openCounts,
+    ...closedCounts,
+    1
+  );
 
   const viewBoxWidth = 500;
   const viewBoxHeight = 200;
@@ -567,24 +582,55 @@ function renderCommitChart(commits) {
     return `<circle class="${className}" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4"></circle>`;
   }).join('');
 
+  const openLinePoints = openCounts.map((count, index) => xAt(index).toFixed(1) + ',' + yAt(count).toFixed(1)).join(' ');
+  const closedLinePoints = closedCounts.map((count, index) => xAt(index).toFixed(1) + ',' + yAt(count).toFixed(1)).join(' ');
+
+  const issuePointMarkup = openCounts.map((count, index) => {
+    const className = 'issue-point issue-point--open' + (count === 0 ? ' issue-point--empty' : '');
+    return `<circle class="${className}" cx="${xAt(index).toFixed(1)}" cy="${yAt(count).toFixed(1)}" r="4"></circle>`;
+  }).join('') + closedCounts.map((count, index) => {
+    const className = 'issue-point issue-point--closed' + (count === 0 ? ' issue-point--empty' : '');
+    return `<circle class="${className}" cx="${xAt(index).toFixed(1)}" cy="${yAt(count).toFixed(1)}" r="4"></circle>`;
+  }).join('');
+
   const rangeStart = chartMonths[0].date;
   const rangeEnd = chartMonths[pointCount - 1].date;
-  const rangeLabel = monthNames[rangeStart.getMonth()] + ' ' + rangeStart.getFullYear() + ' \u2013 ' + monthNames[rangeEnd.getMonth()] + ' ' + rangeEnd.getFullYear();
+  const rangeLabel = MONTH_NAMES[rangeStart.getMonth()] + ' ' + rangeStart.getFullYear() + ' \u2013 ' + MONTH_NAMES[rangeEnd.getMonth()] + ' ' + rangeEnd.getFullYear();
+
+  const totalLabel = hasIssues
+    ? `${total} commits \u00b7 ${openTotal} opened \u00b7 ${closedTotal} closed \u00b7 ${rangeLabel}`
+    : `${total} commits \u00b7 ${rangeLabel}`;
+
+  const legendMarkup = hasIssues ? `
+      <div class="chart-legend">
+        <span class="legend-item"><span class="legend-swatch legend-swatch--commits"></span>Commits</span>
+        <span class="legend-item"><span class="legend-swatch legend-swatch--open"></span>Issues opened</span>
+        <span class="legend-item"><span class="legend-swatch legend-swatch--closed"></span>Issues closed</span>
+      </div>
+    ` : '';
+
+  const issueLinesMarkup = hasIssues ? `
+            <polyline class="issue-line issue-line--open" points="${openLinePoints}"></polyline>
+            <polyline class="issue-line issue-line--closed" points="${closedLinePoints}"></polyline>
+            ${issuePointMarkup}
+          ` : '';
 
   container.innerHTML = `
     <div class="commit-activity-chart">
       <div class="lc-yaxis">
-        <span class="lc-axis-label lc-axis-label-y">Commits</span>
+        <span class="lc-axis-label lc-axis-label-y">Count</span>
       </div>
       <div class="commit-plot">
-        <div class="lc-total">${total} commits \u00b7 ${rangeLabel}</div>
+        <div class="lc-total">${totalLabel}</div>
         <div class="commit-chart-wrap">
-          <svg class="commit-chart-svg" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" role="img" aria-label="Commits per month">
+          ${legendMarkup}
+          <svg class="commit-chart-svg" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" role="img" aria-label="Commits, open issues, and closed issues per month">
             <line class="commit-baseline" x1="${xAt(0)}" y1="${baselineY}" x2="${xAt(pointCount - 1)}" y2="${baselineY}"></line>
             <polyline class="commit-line" points="${polylinePoints}"></polyline>
             ${pointMarkup}
+            ${issueLinesMarkup}
           </svg>
-          <div class="commit-labels">${chartMonths.map(month => `<span class="commit-label">${monthNames[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}</span>`).join('')}</div>
+          <div class="commit-labels">${chartMonths.map(month => `<span class="commit-label">${MONTH_NAMES[month.date.getMonth()]} ${String(month.date.getFullYear()).slice(2)}</span>`).join('')}</div>
         </div>
       </div>
     </div>
@@ -593,6 +639,12 @@ function renderCommitChart(commits) {
   const tooltip = new Tooltip();
   container.querySelectorAll('.commit-point').forEach((point, index) => {
     tooltip.attach(point, buildCommitTooltip(chartPoints[index].month, total));
+  });
+  container.querySelectorAll('.issue-point--open').forEach((point, index) => {
+    tooltip.attach(point, buildIssueTooltip(chartMonths[index], openCounts[index], 'opened'));
+  });
+  container.querySelectorAll('.issue-point--closed').forEach((point, index) => {
+    tooltip.attach(point, buildIssueTooltip(chartMonths[index], closedCounts[index], 'closed'));
   });
 }
 
@@ -604,7 +656,7 @@ function renderCommitChart(commits) {
  * @returns {string} Inner HTML for the tooltip.
  */
 function buildCommitTooltip(month, totalCount) {
-  const label = monthNames[month.date.getMonth()] + ' ' + month.date.getFullYear();
+  const label = MONTH_NAMES[month.date.getMonth()] + ' ' + month.date.getFullYear();
   const filledPct = totalCount > 0 ? Math.round((month.count / totalCount) * 100) : 0;
   return `
     <span class="lc-tooltip-date">${label}</span>
@@ -614,15 +666,35 @@ function buildCommitTooltip(month, totalCount) {
 }
 
 /**
+ * Builds the tooltip markup for one month in an issue line.
+ *
+ * @param {Object} month Chart month with date.
+ * @param {number} count Issue count for that month.
+ * @param {string} label Whether the line tracks 'opened' or 'closed' issues.
+ * @returns {string} Inner HTML for the tooltip.
+ */
+function buildIssueTooltip(month, count, label) {
+  const monthLabel = MONTH_NAMES[month.date.getMonth()] + ' ' + month.date.getFullYear();
+  const action = label === 'closed' ? 'closed' : 'opened';
+  return `
+    <span class="lc-tooltip-date">${monthLabel}</span>
+    <span class="lc-tooltip-count">${count} issue${count === 1 ? '' : 's'} ${action}</span>`;
+}
+
+/**
  * Loads and renders the commit line chart for a single repo into the commit card.
  *
  * @param {string} repoFullName Owner/repo identifier whose commits to chart.
  */
 async function renderCommitCard(repoFullName) {
   try {
-    const commits = await fetchCommitHistory(repoFullName);
-    renderCommitChart(commits);
+    const [commits, issues] = await Promise.all([
+      fetchCommitHistory(repoFullName),
+      fetchIssueHistory(repoFullName).catch(() => [])
+    ]);
+    renderCommitChart(commits, issues);
     document.getElementById('commit-subtitle').textContent = repoFullName;
+
     document.getElementById('commit-card').style.display = '';
     document.getElementById('commit-fallback').style.display = 'none';
   } catch (error) {
@@ -647,15 +719,15 @@ function showCurrentProjectFallback() {
  * Tries each candidate repo until one loads successfully.
  */
 async function fetchCurrentProject() {
-  for (const repoFullName of currentProjectRepos) {
+  for (const repoFullName of CURRENT_PROJECT_REPOS) {
     try {
-      const repo = await cachedFetch(`https://api.github.com/repos/${repoFullName}`);
+      const repo = await cachedFetch(GITHUB_API_BASE + '/repos/' + repoFullName);
       if (!repo || !repo.name) throw new Error('Repo not found');
       const branch = repo.default_branch || 'main';
 
       let readmeText = '';
       try {
-        const readmeData = await cachedFetch(`https://api.github.com/repos/${repoFullName}/readme`);
+        const readmeData = await cachedFetch(GITHUB_API_BASE + '/repos/' + repoFullName + '/readme');
         if (readmeData && readmeData.content) {
           const readmeBytes = Uint8Array.from(atob(readmeData.content), character => character.charCodeAt(0));
           readmeText = new TextDecoder('utf-8').decode(readmeBytes).replace(/\r\n/g, '\n');
@@ -667,6 +739,13 @@ async function fetchCurrentProject() {
       document.getElementById('project-loading').style.display = 'none';
       document.getElementById('project-card').style.display = '';
       document.getElementById('project-title').textContent = parseProjectTitle(readmeText, repo.name);
+      const projectDate = document.getElementById('project-date');
+      if (projectDate && repo.created_at) {
+        const createdDate = new Date(repo.created_at);
+        if (!isNaN(createdDate.getTime())) {
+          projectDate.textContent = 'Created ' + MONTH_NAMES[createdDate.getMonth()] + ' ' + createdDate.getDate() + ', ' + createdDate.getFullYear();
+        }
+      }
       document.getElementById('project-excerpt').textContent = parseProjectExcerpt(readmeText) || (repo.description || '');
       document.getElementById('project-link').href = repo.html_url;
       renderProjectBanner(repo, repoFullName, readmeText, branch);
@@ -686,7 +765,7 @@ async function fetchCurrentProject() {
  */
 async function fetchLeetCodeStats() {
   try {
-    const data = await cachedFetch('https://leetcode-stats.tashif.codes/ujjuboi');
+    const data = await cachedFetch(LEETCODE_STATS_BASE);
 
     if (data.status === 'success') {
       document.getElementById('leetcode-loading').style.display = 'none';

@@ -12,6 +12,7 @@
   --linkHover: #000000;
   --errorColor: #b3261e;
   --errorTextColor: #ffffff;
+  --infoColor: #1A4F8B;
   --bannerDim: rgba(0, 0, 0, 0.35);
 
   --headings: 'Raleway', sans-serif;
@@ -188,6 +189,15 @@ pre code {
   color: var(--borderColor);
   line-height: var(--leading-relaxed);
   margin: 0;
+}
+
+.card-date {
+  color: var(--shadowColor);
+  font-family: var(--theme-content-font);
+  font-size: var(--text-sm);
+  margin: 0 0 0.8rem 0;
+  font-weight: normal;
+  opacity: 0.85;
 }
 
 .card-link {

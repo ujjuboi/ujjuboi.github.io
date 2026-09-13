@@ -206,6 +206,92 @@
   fill: var(--linkColor);
 }
 
+.issue-line {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.issue-line--open {
+  stroke: var(--errorColor);
+}
+
+.issue-line--closed {
+  stroke: var(--infoColor);
+  stroke-dasharray: 6 4;
+}
+
+.issue-point {
+  cursor: pointer;
+  stroke-width: 2;
+  transition: fill 0.2s ease;
+}
+
+.issue-point--open {
+  fill: var(--backgroundColor);
+  stroke: var(--errorColor);
+}
+
+.issue-point--open:hover {
+  fill: var(--errorColor);
+}
+
+.issue-point--closed {
+  fill: var(--backgroundColor);
+  stroke: var(--infoColor);
+}
+
+.issue-point--closed:hover {
+  fill: var(--infoColor);
+}
+
+.issue-point--empty {
+  opacity: 0.4;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  justify-content: center;
+  margin-bottom: 0.6rem;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--text-xs);
+  color: var(--borderColor);
+  opacity: 0.85;
+  line-height: 1;
+}
+
+.legend-swatch {
+  width: 1.1rem;
+  height: 0.25rem;
+  border-radius: 0.15rem;
+}
+
+.legend-swatch--commits {
+  background-color: var(--linkColor);
+}
+
+.legend-swatch--open {
+  background-color: var(--errorColor);
+}
+
+.legend-swatch--closed {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--infoColor) 0,
+    var(--infoColor) 0.4rem,
+    transparent 0.4rem,
+    transparent 0.8rem
+  );
+}
+
 .commit-labels {
   display: flex;
   margin-top: 0.4rem;
@@ -1372,6 +1458,19 @@
 
   .commit-point.tapped {
     fill: var(--linkColor);
+  }
+
+  .issue-point--open:hover,
+  .issue-point--closed:hover {
+    fill: var(--backgroundColor);
+  }
+
+  .issue-point--open.tapped {
+    fill: var(--errorColor);
+  }
+
+  .issue-point--closed.tapped {
+    fill: var(--infoColor);
   }
 
   .lc-bar:hover {
