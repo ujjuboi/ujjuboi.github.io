@@ -9,6 +9,7 @@ Static portfolio site. Plain HTML + external vanilla JS/CSS. **No build system, 
 | Page | `pages/<Name>/<Name>.html` (PascalCase, matching folder) | `pages/Blog/Blog.html` |
 | Page CSS | `styles/<Name>.css` (PascalCase, matching page) | `styles/Blog.css` |
 | Page JS | `scripts/<name>.js` (lowercase, matching page) | `scripts/blog.js` |
+| Config constants | `scripts/constants.js` | — |
 | Shared JS | `scripts/shared.js` | — |
 | Shared theme/components | `styles/styles.css` (custom properties + shared classes) | — |
 | Blog post | `src/Blogs/NN-slug-title.md` (zero-padded number + kebab slug) | `08-legacy-stacks.md` |
@@ -19,7 +20,7 @@ Static portfolio site. Plain HTML + external vanilla JS/CSS. **No build system, 
 
 - Use **semantic** HTML (header, nav, section, footer, etc.).
 - Use **relative paths only** (`./`, `../`, `../../`) — never absolute paths.
-- Load order on sub-pages: shared `styles/styles.css` first, then page CSS; `scripts/shared.js` before the page script.
+- Load order on sub-pages: shared `styles/styles.css` first, then page CSS; `scripts/constants.js`, then `scripts/shared.js`, then the page script.
 - The `<header>` (brand + nav) and footer social-SVG blocks are **duplicated verbatim across every page** — apply any nav/footer change to all pages. `.active` marks the current page's nav link. Sub-pages use `<body class="sub-page">`; `index.html` does not.
 - Attribute values use double quotes.
 
@@ -36,6 +37,7 @@ Static portfolio site. Plain HTML + external vanilla JS/CSS. **No build system, 
 - Use single quotes for strings.
 - In all JS files under `scripts/`, never use abbreviated names for variables, functions, or other identifiers — always use descriptive, full names (e.g. `postCount` not `pc`, `renderBlogList` not `rbl`).
 - Cross-page logic goes in `scripts/shared.js`; page-specific logic in the page's own script (e.g. `scripts/blog.js`). Never duplicate shared helpers per page.
+- Page-agnostic constants (GitHub username, API base URLs, LeetCode credentials, footer data, categories, font themes, tap selectors) live in `scripts/constants.js` — treat it as the single source of truth and never redeclare them in page scripts.
 - Use `fetch()` with relative paths; the site must work when opened from `file://` and GitHub Pages.
 
 ### Standardized page-script form
