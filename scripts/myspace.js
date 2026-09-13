@@ -538,10 +538,6 @@ function renderCommitChart(commits, issues) {
   }
 
   const total = chartMonths.reduce((sum, month) => sum + month.count, 0);
-  if (total === 0) {
-    container.innerHTML = '<div class="lc-activity-state" role="status"><span class="lc-error-text">No commit activity in the recent months.</span></div>';
-    return;
-  }
 
   const monthIndexByKey = new Map(chartMonths.map((month, index) => [month.key, index]));
   const openCounts = chartMonths.map(() => 0);
@@ -556,6 +552,11 @@ function renderCommitChart(commits, issues) {
   const openTotal = openCounts.reduce((sum, count) => sum + count, 0);
   const closedTotal = closedCounts.reduce((sum, count) => sum + count, 0);
   const hasIssues = openTotal > 0 || closedTotal > 0;
+
+  if (total === 0 && !hasIssues) {
+    container.innerHTML = '<div class="lc-activity-state" role="status"><span class="lc-error-text">No commit activity in the recent months.</span></div>';
+    return;
+  }
 
   const maxCount = Math.max(
     ...chartMonths.map(month => month.count),

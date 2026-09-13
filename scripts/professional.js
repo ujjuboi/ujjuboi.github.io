@@ -1345,6 +1345,24 @@ error => {
     profilesElement.appendChild(buildProfilesStrip());
   }
 
+  const bannerLinksElement = document.getElementById('banner-links');
+  if (bannerLinksElement) {
+    /**
+     * Appends one social link to the launch banner from the shared config.
+     *
+     * @param {Object} link Link config with label, href, and svg markup.
+     */
+    FOOTER_LINKS.forEach(function (link) {
+      const anchor = document.createElement('a');
+      anchor.href = link.href;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener';
+      anchor.setAttribute('data-tooltip', link.label);
+      anchor.innerHTML = link.svg;
+      bannerLinksElement.appendChild(anchor);
+    });
+  }
+
   const bannerTooltip = new Tooltip();
   /**
    * Attaches a tooltip to each banner link that declares one.
