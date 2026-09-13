@@ -81,6 +81,7 @@ Making my own dynamic blogging website!
 │   ├── lib/
 │   │   └── marked.min.js
 │   ├── blog.js
+│   ├── constants.js
 │   ├── home.js
 │   ├── myspace.js
 │   ├── professional.js
@@ -136,16 +137,16 @@ Making my own dynamic blogging website!
 
 | Page | CSS files | JS files | Behavior |
 |---|---|---|---|
-| `index.html` | `styles.css` + `Home.css` | `shared.js`, `home.js` | Time-based greeting into `#salutation`; `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
-| `pages/Blog/Blog.html` | `styles.css` + `Home.css` + `Blog.css` | `marked.min.js`, `shared.js`, `blog.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
-| `pages/MySpace/MySpace.html` | `styles.css` + `Home.css` + `MySpace.css` | `marked.min.js`, `shared.js`, `myspace.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
-| `pages/Professional/Professional.html` | `styles.css` + `Home.css` + `Professional.css` | `shared.js`, `professional.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
-| `pages/Resume/Resume.html` | `styles.css` + `Home.css` + `Resume.css` | `marked.min.js`, `shared.js`, `resume.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
+| `index.html` | `styles.css` + `Home.css` | `constants.js`, `shared.js`, `home.js` | Time-based greeting into `#salutation`; `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
+| `pages/Blog/Blog.html` | `styles.css` + `Home.css` + `Blog.css` | `marked.min.js`, `constants.js`, `shared.js`, `blog.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
+| `pages/MySpace/MySpace.html` | `styles.css` + `Home.css` + `MySpace.css` | `marked.min.js`, `constants.js`, `shared.js`, `myspace.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
+| `pages/Professional/Professional.html` | `styles.css` + `Home.css` + `Professional.css` | `constants.js`, `shared.js`, `professional.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
+| `pages/Resume/Resume.html` | `styles.css` + `Home.css` + `Resume.css` | `marked.min.js`, `constants.js`, `shared.js`, `resume.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
 
 ## Key details / conventions
 
 - **Shared header/footer**: The `<header>` (brand + nav dropdown) and footer social-SVG block are **duplicated verbatim across pages** — any nav or footer change must be applied to every page. `.active` class marks the current page's nav link. Sub-pages use `<body class="sub-page">`; `index.html` does not.
-- **Shared JS/CSS**: Files loaded by every page: CSS `styles.css`, `Home.css`; JS `shared.js`. `scripts/shared.js` provides the footer `menuIcon` toggle (`initMenuToggle()`); `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,myspace,resume}.js` and page CSS in `styles/{Blog,MySpace,Resume}.css`. Load order: `style.css` (+ `common.css` on sub-pages) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.
+- **Shared JS/CSS**: Files loaded by every page: CSS `styles.css`, `Home.css`; JS `constants.js`, `shared.js`. `scripts/shared.js` provides the footer `menuIcon` toggle (`initMenuToggle()`); `styles/style.css` holds the custom-property theme. Page-specific logic lives in `scripts/{home,blog,myspace,resume}.js` and page CSS in `styles/{Blog,MySpace,Resume}.css`. Load order: `style.css` (+ `common.css` on sub-pages) first, then page CSS, then `shared.js` before the page script. Put cross-page JS in `shared.js`, cross-page CSS in `common.css`.
 - **Theming**: All colors and fonts come from CSS custom properties in `:root` of `style.css` (`--borderColor`, `--backgroundColor`, `--shadowColor`, `--contentColor`, `--headings`, `--poppins`, etc.). Never hardcode colors — use the variables. Fonts are imported at the top of `style.css`.
 - **Layout**: `index.html` is a full-height grid hero; sub-pages use `body.sub-page` and scroll normally (they do **not** use `overflow:hidden`). Sections are often collapsible (`toggleSection()` / `toggleBlogSection()` with +/- icons). Uses `720px` breakpoint for responsive work.
 - **Visual language**: Beige background, black borders, offset solid box-shadows (`--shadowColor`), rounded corners. Reuse existing patterns (`.card`, `.skill-item`, `.stat-card` styling) rather than inventing new ones.
