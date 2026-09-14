@@ -1158,6 +1158,41 @@ async function fetchIssueHistory(repoFullName) {
 }
 
 /**
+ * Fetches the currently open issues for a single repository via the GitHub
+ * issues API, walking result pages until exhausted or the page cap is reached.
+ * Pull requests are filtered out so only true issues are counted.
+ *
+ * @param {string} repoFullName Owner/repo identifier whose open issues to read.
+ * @returns {Promise<Object[]>} Flat list of creation-date records for open issues.
+ */
+async function fetchOpenIssues(repoFullName) {
+  const issues = [];
+  const seenNumbers = new Set();
+
+  for (let page = 1; page <= MAX_GITHUB_PAGES; page++) {
+    let data = null;
+    try {
+      data = await cachedFetch(GITHUB_API_BASE + '/repos/' + repoFullName + '/issues?state=open&per_page=100&page=' + page);
+    } catch (error) {
+      if (issues.length === 0) throw error;
+      console.error('Open issues page error:', error);
+      break;
+    }
+    if (!Array.isArray(data) || data.length === 0) break;
+    data.forEach(item => {
+      if (item && item.pull_request) return;
+      if (!item || seenNumbers.has(item.number)) return;
+      seenNumbers.add(item.number);
+      issues.push({
+        createdAt: item.created_at || null
+      });
+    });
+    if (data.length < 100) break;
+  }
+  return issues;
+}
+
+/**
  * Fetches a banner image and returns it as a base64 data URL, reusing a
  * localStorage cache so repeat visits render instantly. Falls back to a
  * direct fetch when the image is CORS-blocked or the download fails.
@@ -1224,6 +1259,7 @@ async function prefetchMyspaceData() {
         }
 
         await fetchCommitHistory(repoFullName);
+        await fetchOpenIssues(repoFullName);
         await fetchIssueHistory(repoFullName);
         break;
       } catch (error) {

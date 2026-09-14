@@ -501,16 +501,18 @@ function renderProjectBanner(repo, repoFullName, readmeText, branch) {
 /**
  * Renders the activity chart caption, polylines, points, and month labels.
  * Plots commits as the theme-colored line, overlaying solid red for issues
- * opened and dashed blue for issues closed when issue data is available.
+ * currently open and dashed blue for issues closed when issue data is available.
  *
  * @param {Object[]} commits Raw commit objects from the GitHub API.
- * @param {Object[]} [issues] Created/closed date records for issues.
+ * @param {Object[]} [openIssues] Creation-date records for currently open issues.
+ * @param {Object[]} [closedIssues] Created/closed date records for issues.
  */
-function renderCommitChart(commits, issues) {
+function renderCommitChart(commits, openIssues, closedIssues) {
   const container = document.getElementById('commit-activity');
   if (!container) return;
 
-  issues = Array.isArray(issues) ? issues : [];
+  openIssues = Array.isArray(openIssues) ? openIssues : [];
+  closedIssues = Array.isArray(closedIssues) ? closedIssues : [];
 
   const monthTotals = new Map();
   let lastMonthKey = null;
@@ -542,10 +544,12 @@ function renderCommitChart(commits, issues) {
   const monthIndexByKey = new Map(chartMonths.map((month, index) => [month.key, index]));
   const openCounts = chartMonths.map(() => 0);
   const closedCounts = chartMonths.map(() => 0);
-  issues.forEach(issue => {
+  openIssues.forEach(issue => {
     const openIndex = issue.createdAt ? monthIndexByKey.get(issue.createdAt.slice(0, 7)) : -1;
-    const closedIndex = issue.closedAt ? monthIndexByKey.get(issue.closedAt.slice(0, 7)) : -1;
     if (openIndex !== undefined && openIndex !== -1) openCounts[openIndex]++;
+  });
+  closedIssues.forEach(issue => {
+    const closedIndex = issue.closedAt ? monthIndexByKey.get(issue.closedAt.slice(0, 7)) : -1;
     if (closedIndex !== undefined && closedIndex !== -1) closedCounts[closedIndex]++;
   });
 
@@ -599,13 +603,13 @@ function renderCommitChart(commits, issues) {
   const rangeLabel = MONTH_NAMES[rangeStart.getMonth()] + ' ' + rangeStart.getFullYear() + ' \u2013 ' + MONTH_NAMES[rangeEnd.getMonth()] + ' ' + rangeEnd.getFullYear();
 
   const totalLabel = hasIssues
-    ? `${total} commits \u00b7 ${openTotal} opened \u00b7 ${closedTotal} closed \u00b7 ${rangeLabel}`
+    ? `${total} commits \u00b7 ${openTotal} open \u00b7 ${closedTotal} closed \u00b7 ${rangeLabel}`
     : `${total} commits \u00b7 ${rangeLabel}`;
 
   const legendMarkup = hasIssues ? `
       <div class="chart-legend">
         <span class="legend-item"><span class="legend-swatch legend-swatch--commits"></span>Commits</span>
-        <span class="legend-item"><span class="legend-swatch legend-swatch--open"></span>Issues opened</span>
+        <span class="legend-item"><span class="legend-swatch legend-swatch--open"></span>Currently open</span>
         <span class="legend-item"><span class="legend-swatch legend-swatch--closed"></span>Issues closed</span>
       </div>
     ` : '';
@@ -642,7 +646,7 @@ function renderCommitChart(commits, issues) {
     tooltip.attach(point, buildCommitTooltip(chartPoints[index].month, total));
   });
   container.querySelectorAll('.issue-point--open').forEach((point, index) => {
-    tooltip.attach(point, buildIssueTooltip(chartMonths[index], openCounts[index], 'opened'));
+    tooltip.attach(point, buildIssueTooltip(chartMonths[index], openCounts[index], 'open'));
   });
   container.querySelectorAll('.issue-point--closed').forEach((point, index) => {
     tooltip.attach(point, buildIssueTooltip(chartMonths[index], closedCounts[index], 'closed'));
@@ -671,12 +675,12 @@ function buildCommitTooltip(month, totalCount) {
  *
  * @param {Object} month Chart month with date.
  * @param {number} count Issue count for that month.
- * @param {string} label Whether the line tracks 'opened' or 'closed' issues.
+ * @param {string} label Whether the line tracks 'open' or 'closed' issues.
  * @returns {string} Inner HTML for the tooltip.
  */
 function buildIssueTooltip(month, count, label) {
   const monthLabel = MONTH_NAMES[month.date.getMonth()] + ' ' + month.date.getFullYear();
-  const action = label === 'closed' ? 'closed' : 'opened';
+  const action = label === 'closed' ? 'closed' : 'currently open';
   return `
     <span class="lc-tooltip-date">${monthLabel}</span>
     <span class="lc-tooltip-count">${count} issue${count === 1 ? '' : 's'} ${action}</span>`;
@@ -689,11 +693,12 @@ function buildIssueTooltip(month, count, label) {
  */
 async function renderCommitCard(repoFullName) {
   try {
-    const [commits, issues] = await Promise.all([
+    const [commits, openIssues, closedIssues] = await Promise.all([
       fetchCommitHistory(repoFullName),
+      fetchOpenIssues(repoFullName).catch(() => []),
       fetchIssueHistory(repoFullName).catch(() => [])
     ]);
-    renderCommitChart(commits, issues);
+    renderCommitChart(commits, openIssues, closedIssues);
     document.getElementById('commit-subtitle').textContent = repoFullName;
 
     document.getElementById('commit-card').style.display = '';
