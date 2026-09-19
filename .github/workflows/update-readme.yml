@@ -74,6 +74,13 @@ jobs:
               return lines;
             }
 
+            function getDocFiles() {
+              var output = execSync('git ls-files docs/*.md', { encoding: 'utf8' });
+              return output.split('\n').filter(function(l) {
+                return l && l.startsWith('docs/') && l.endsWith('.md');
+              }).sort();
+            }
+
             function getLatestPost() {
               var manifestPath = 'src/Blogs/posts.json';
               if (!fs.existsSync(manifestPath)) return null;
@@ -234,6 +241,7 @@ jobs:
             var leetcodeApi = getLeetcodeApi();
             var githubUser = getGitHubUser();
             var latestPost = getLatestPost();
+            var docFiles = getDocFiles();
 
             var lines = [];
             lines.push('# BlowGrrr');
@@ -263,6 +271,14 @@ jobs:
             lines.push('| Page | CSS files | JS files | Behavior |');
             lines.push('|---|---|---|---|');
             lines.push(pageRows);
+            if (docFiles.length > 0) {
+              lines.push('## Feature docs');
+              lines.push('');
+              for (var di = 0; di < docFiles.length; di++) {
+                lines.push('- [' + docFiles[di].replace('docs/', '') + '](' + docFiles[di] + ')');
+              }
+              lines.push('');
+            }
             lines.push('## Key details / conventions');
             lines.push('');
             lines.push('- **Shared header/footer**: The `<header>` (brand + nav dropdown) and footer social-SVG block are **duplicated verbatim across pages** \u2014 any nav or footer change must be applied to every page. `.active` class marks the current page\'s nav link. Sub-pages use `<body class="sub-page">`; `index.html` does not.');
