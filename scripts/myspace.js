@@ -1507,9 +1507,9 @@ function parseStudyPlan(text) {
 }
 
 /**
- * Dated-plan week boundaries for the daily schedule, keyed by plan filename.
+ * Dated-plan week boundaries for the daily schedules, keyed by plan filename.
  * Each week holds 3 study days + its rest day(s); `lastDay` is the highest
- * study-day number in that week. Only the dated algorithms plan uses this.
+ * study-day number in that week. Only dated plans are keyed here.
  */
 const datedPlanWeekGroups = {
   'algorithms-and-leetcode.md': [
@@ -1519,6 +1519,41 @@ const datedPlanWeekGroups = {
     { week: 4, topic: 'Graphs & BFS', lastDay: 15 },
     { week: 5, topic: 'Shortest Path & Greedy', lastDay: 19 },
     { week: 6, topic: 'Dynamic Programming & KNN', lastDay: 25 }
+  ],
+  'code-architecture-system-design.md': [
+    { week: 1, topic: 'Domain Modeling & Capacity Estimation', lastDay: 3 },
+    { week: 2, topic: 'Persistent Storage', lastDay: 6 },
+    { week: 3, topic: 'Coupling, Abstractions & Consistent Hashing', lastDay: 9 },
+    { week: 4, topic: 'Service Layers & API Design', lastDay: 12 },
+    { week: 5, topic: 'TDD & System Design Framework', lastDay: 15 },
+    { week: 6, topic: 'Microservices & Distributed Messaging Foundations', lastDay: 18 },
+    { week: 7, topic: 'Event-Driven Architecture', lastDay: 21 },
+    { week: 8, topic: 'CQRS & Read/Write Separation at Scale', lastDay: 24 },
+    { week: 9, topic: 'End-to-End System Design', lastDay: 28 },
+    { week: 10, topic: 'Domain-Driven Blogging Platform', lastDay: 31 },
+    { week: 11, topic: 'Distributed Key-Value Store', lastDay: 34 },
+    { week: 12, topic: 'Event-Driven Notification Service', lastDay: 37 },
+    { week: 13, topic: 'Image Service & Video Pipeline with CQRS', lastDay: 40 }
+  ],
+  'claude-certified-developer-foundations.md': [
+    { week: 1, topic: 'Agent Architecture', lastDay: 2 },
+    { week: 2, topic: 'Agent Construction, Patterns & Frameworks', lastDay: 5 },
+    { week: 3, topic: 'Requirements & Claude API Mechanics', lastDay: 7 },
+    { week: 4, topic: 'Foundations, Application Design & Configuration', lastDay: 10 },
+    { week: 5, topic: 'Core Components & Session Management', lastDay: 12 },
+    { week: 6, topic: 'Claude Code Workflows', lastDay: 14 },
+    { week: 7, topic: 'Error Identification & Recovery', lastDay: 15 },
+    { week: 8, topic: 'Trace Analysis & Debugging', lastDay: 16 },
+    { week: 9, topic: 'LLM & Technical Fundamentals', lastDay: 18 },
+    { week: 10, topic: 'Model Selection, Cost & Token Management', lastDay: 20 },
+    { week: 11, topic: 'Context & Prompt Engineering', lastDay: 23 },
+    { week: 12, topic: 'Output Handling', lastDay: 25 },
+    { week: 13, topic: 'AI Application Security', lastDay: 27 },
+    { week: 14, topic: 'Guardrails & Safe Deployment', lastDay: 29 },
+    { week: 15, topic: 'Tool Implementation & MCP Server Development', lastDay: 31 },
+    { week: 16, topic: 'Agentic Customization', lastDay: 32 },
+    { week: 17, topic: 'Build a Claude API Application', lastDay: 34 },
+    { week: 18, topic: 'Set Up a Claude Code Workspace', lastDay: 36 }
   ]
 };
 
