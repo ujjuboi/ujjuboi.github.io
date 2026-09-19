@@ -1140,6 +1140,8 @@ function showBook(index) {
   if (!book) return;
 
   document.getElementById('books-grid').style.display = 'none';
+  const filter = document.querySelector('.books-filter');
+  if (filter) filter.style.display = 'none';
   const bookView = document.getElementById('book-view');
   bookView.style.display = 'block';
 
@@ -1162,6 +1164,8 @@ function showBook(index) {
 function showBooksList() {
   document.getElementById('book-view').style.display = 'none';
   document.getElementById('books-grid').style.removeProperty('display');
+  const filter = document.querySelector('.books-filter');
+  if (filter) filter.style.removeProperty('display');
   history.replaceState(null, '', window.location.pathname);
   document.getElementById('books-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
