@@ -10,8 +10,6 @@
 
 **Category:** System Design
 
-**Status:** Interested
-
 ## Chapters:
 
 - [x] Chapter 1: SCALE FROM ZERO TO MILLIONS OF USERS

@@ -195,7 +195,7 @@ const TAPPED_MOMENTARY_SELECTOR = [
   '.lc-bar',
   '.lc-submission',
   '.book-card',
-  '.wt-leaf',
+  '.is-clickable',
   '.drawer-item-sub',
   '.launch-btn',
   '.banner-links a',

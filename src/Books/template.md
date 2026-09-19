@@ -10,8 +10,6 @@
 
 **Category:** Software Engineering/System Design/Novels/Self Help/Devotion
 
-**Status:** Currently Reading/Read/Interested
-
 ## Chapters:
 
 - [ ] Chapter Name

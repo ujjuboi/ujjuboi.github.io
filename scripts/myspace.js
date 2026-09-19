@@ -149,6 +149,12 @@ function buildBooksSection() {
 <div id="books-loading" class="loading-placeholder">
   Loading books<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
 </div>
+<div class="books-filter">
+  <ul id="books-filter-menu" class="books-filter-menu" hidden>
+    <li><button type="button" class="active" data-book-category="">All Categories</button></li>
+  </ul>
+  <button type="button" id="books-filter-toggle" class="books-filter-toggle" aria-expanded="false">Filter</button>
+</div>
 <div id="books-grid"></div>
 <div id="books-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
   No books to show
@@ -858,10 +864,10 @@ function parseBook(text, filename) {
   const doneChapters = chapters.filter(chapter => chapter.done).length;
   const progress = totalChapters > 0 ? Math.round((doneChapters / totalChapters) * 100) : 0;
 
-  let status = meta.status || 'Interested';
+  let status = 'Interested';
   let progressText = 'Not started';
 
-  if (status === 'Read' || progress >= 100) {
+  if (progress >= 100) {
     status = 'Read';
     progressText = 'Finished';
   } else if (progress > 0) {
@@ -917,15 +923,155 @@ async function loadBooks() {
 }
 
 /**
- * Sorts the books by status: Currently Reading, then Interested, then Read.
- * Items within the same status keep their current (manifest) order.
+ * Parsed book categories, sourced from the Category line of the template.
  */
-function sortBooksByStatus() {
-  const order = { 'Currently Reading': 0, 'Interested': 1, 'Read': 2 };
+const bookCategories = [];
+
+/**
+ * Parses the category list from the book template markdown.
+ *
+ * @param {string} text Raw template markdown source.
+ * @returns {string[]} Categories split on the `/` separator.
+ */
+function parseBookCategories(text) {
+  const categoryLine = text.split('\n').find(line => line.startsWith('**Category:**'));
+  if (!categoryLine) return [];
+  return categoryLine.replace('**Category:**', '').split('/').map(category => category.trim()).filter(Boolean);
+}
+
+/**
+ * Loads the book categories from src/Books/template.md and renders the filter.
+ */
+async function loadBookCategories() {
+  try {
+    const response = await fetch('../../src/Books/template.md');
+    if (!response.ok) throw new Error('Failed to fetch template.md');
+    const text = await response.text();
+    bookCategories.push(...parseBookCategories(text));
+    renderBookCategoryFilter();
+  } catch (error) {
+    console.error('Error loading book categories:', error);
+  }
+}
+
+/**
+ * Renders the category filter menu and opens it as a floating popover anchored
+ * to the Filter toggle, so the books grid never shifts when the menu appears.
+ */
+function renderBookCategoryFilter() {
+  const menu = document.getElementById('books-filter-menu');
+  const toggle = document.getElementById('books-filter-toggle');
+  if (!menu || !toggle) return;
+
+  bookCategories.forEach(category => {
+    const listItem = document.createElement('li');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.bookCategory = category;
+    button.textContent = category;
+    listItem.appendChild(button);
+    menu.appendChild(listItem);
+  });
+
+  let menuOpen = false;
+
+  /**
+   * Positions the menu near the toggle, clamped inside the viewport.
+   */
+  function positionMenu() {
+    const toggleRect = toggle.getBoundingClientRect();
+    const menuWidth = menu.offsetWidth;
+    let left = toggleRect.left + toggleRect.width / 2 - menuWidth / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - menuWidth - 8));
+    let top = toggleRect.bottom + 10;
+    if (top + menu.offsetHeight > window.innerHeight - 8) {
+      top = toggleRect.top - menu.offsetHeight - 10;
+    }
+    menu.style.position = 'fixed';
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+    menu.style.zIndex = '3000';
+  }
+
+  /**
+   * Opens the category menu as a floating popover near the toggle.
+   */
+  function openMenu() {
+    menu.hidden = false;
+    positionMenu();
+    menuOpen = true;
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  /**
+   * Closes the category menu.
+   */
+  function closeMenu() {
+    menu.hidden = true;
+    menuOpen = false;
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', () => {
+    if (menuOpen) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  menu.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-book-category]');
+    if (!button) return;
+    selectBookCategory(button.dataset.bookCategory);
+    closeMenu();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (menuOpen && !menu.contains(event.target) && !toggle.contains(event.target)) {
+      closeMenu();
+    }
+  });
+}
+
+/**
+ * Applies the selected category filter and highlights its menu button.
+ *
+ * @param {string} categoryValue Selected category; empty string shows all books.
+ */
+function selectBookCategory(categoryValue) {
+  filterBooksByCategory(categoryValue);
+  document.querySelectorAll('#books-filter-menu button[data-book-category]').forEach(button => {
+    button.classList.toggle('active', button.dataset.bookCategory === categoryValue);
+  });
+}
+
+/**
+ * Shows only the book cards matching the selected category.
+ *
+ * @param {string} categoryValue Selected option value; empty shows all books.
+ */
+function filterBooksByCategory(categoryValue) {
+  document.querySelectorAll('#books-grid .book-card').forEach(card => {
+    card.style.display = categoryValue === '' || card.dataset.category === categoryValue ? '' : 'none';
+  });
+}
+
+/**
+ * Sorts the books by reading category, keeping currently-reading books first
+ * within each category. Unknown categories sort last; items with the same
+ * category and status keep their current (manifest) order.
+ */
+function sortBooksByCategory() {
+  const categoryOrder = { 'Software Engineering': 0, 'System Design': 1, 'Novels': 2, 'Self Help': 3, 'Devotion': 4 };
+  const statusOrder = { 'Currently Reading': 0, 'Interested': 1, 'Read': 2 };
   books.sort((firstBook, secondBook) => {
-    const firstBookOrder = order[firstBook.status] !== undefined ? order[firstBook.status] : 2;
-    const secondBookOrder = order[secondBook.status] !== undefined ? order[secondBook.status] : 2;
-    return firstBookOrder - secondBookOrder;
+    const firstBookCategoryOrder = categoryOrder[firstBook.category] !== undefined ? categoryOrder[firstBook.category] : Object.keys(categoryOrder).length;
+    const secondBookCategoryOrder = categoryOrder[secondBook.category] !== undefined ? categoryOrder[secondBook.category] : Object.keys(categoryOrder).length;
+    if (firstBookCategoryOrder !== secondBookCategoryOrder) return firstBookCategoryOrder - secondBookCategoryOrder;
+    const firstBookStatusOrder = statusOrder[firstBook.status] !== undefined ? statusOrder[firstBook.status] : 2;
+    const secondBookStatusOrder = statusOrder[secondBook.status] !== undefined ? statusOrder[secondBook.status] : 2;
+    return firstBookStatusOrder - secondBookStatusOrder;
   });
 }
 
@@ -933,7 +1079,7 @@ function sortBooksByStatus() {
  * Renders the list of book cards into the books grid.
  */
 function renderBooks() {
-  sortBooksByStatus();
+  sortBooksByCategory();
   const container = document.getElementById('books-grid');
   container.innerHTML = '';
 
@@ -957,18 +1103,17 @@ function renderBooks() {
   books.forEach((book, index) => {
     const card = document.createElement('div');
     card.className = 'book-card card';
+    card.dataset.category = book.category;
     card.onclick = () => showBook(index);
 
-    const statusBadge = book.status === 'Read'
-      ? '<span class="book-status">✓ ' + escapeHtml(book.status) + '</span>'
-      : book.progress > 0
-        ? '<span class="book-status">Currently Reading</span>'
-        : '<span class="book-status">Interested</span>';
+    const categoryBadge = book.category
+      ? '<span class="book-category">' + escapeHtml(book.category) + '</span>'
+      : '';
 
     card.innerHTML = `
       <div class="book-banner-wrap">
         <img class="book-banner" src="${escapeHtml(book.banner)}" alt="${escapeHtml(book.title)} banner">
-        ${statusBadge}
+        ${categoryBadge}
         <div class="book-progress">
           <div class="book-progress-bar">
             <div class="book-progress-fill" style="width: ${book.progress}%"></div>
@@ -995,6 +1140,8 @@ function showBook(index) {
   if (!book) return;
 
   document.getElementById('books-grid').style.display = 'none';
+  const filter = document.querySelector('.books-filter');
+  if (filter) filter.style.display = 'none';
   const bookView = document.getElementById('book-view');
   bookView.style.display = 'block';
 
@@ -1017,6 +1164,8 @@ function showBook(index) {
 function showBooksList() {
   document.getElementById('book-view').style.display = 'none';
   document.getElementById('books-grid').style.removeProperty('display');
+  const filter = document.querySelector('.books-filter');
+  if (filter) filter.style.removeProperty('display');
   history.replaceState(null, '', window.location.pathname);
   document.getElementById('books-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1117,27 +1266,40 @@ function openStudyDrawer(node, triggerBtn) {
 }
 
 /**
- * Renders a single study leaf (week or project) as a word-tree subnode.
- * The leaf is clickable and opens the drawer; phase roots never render here.
+ * Renders a single study leaf (dated week, day, or rest) as a word-tree subnode.
+ * Phase roots never render here. Grouped week leaves (with children)
+ * drill into an in-place week detail; day leaves open the drawer.
  *
  * @param {Object} phase Phase object containing this node.
- * @param {Object} node Node object (week or project).
+ * @param {Object} node Node object (week, day, or rest).
  * @param {boolean} isActive Whether this is the current focus node.
+ * @param {Object} [plan] Parsed plan, required for week drill-down leaves.
+ * @param {HTMLElement} [treeEl] Study tree container for week drill-down.
  * @returns {HTMLElement} The completed leaf button.
  */
-function renderStudyNode(phase, node, isActive) {
+function renderStudyNode(phase, node, isActive, plan, treeEl) {
   const done = node.items ? node.items.filter(item => item.done).length : 0;
   const total = node.items ? node.items.length : 0;
   const isComplete = total > 0 && done === total;
+  const isDatedWeek = node.kind === 'week' && Array.isArray(node.children);
 
   const leafEl = document.createElement('button');
   leafEl.type = 'button';
-  leafEl.className = 'wt-leaf' + (isActive ? ' is-active' : '') + (isComplete ? ' is-complete' : '');
+  leafEl.className = 'wt-leaf'
+    + (isDatedWeek ? ' is-week is-expandable' : '')
+    + (isActive ? ' is-active' : '')
+    + (isComplete ? ' is-complete' : '')
+    + (node.kind === 'rest' ? ' is-rest is-static' : ' is-clickable');
 
   const kicker = document.createElement('span');
   kicker.className = 'wt-leaf-kicker';
-  const wordLabel = (node.kind === 'project' ? 'Project ' : 'Week ') + node.number;
-  kicker.textContent = wordLabel + (total > 0 ? ' · ' + done + '/' + total : '');
+  if (node.kind === 'day') {
+    kicker.textContent = 'Day ' + node.number + ' · ' + node.date + (total > 0 ? ' · ' + done + '/' + total : '');
+  } else if (node.kind === 'rest') {
+    kicker.textContent = 'Rest Day · ' + node.date;
+  } else {
+    kicker.textContent = 'Week ' + node.number + (total > 0 ? ' · ' + done + '/' + total : '');
+  }
 
   const text = document.createElement('span');
   text.className = 'wt-leaf-text';
@@ -1146,144 +1308,27 @@ function renderStudyNode(phase, node, isActive) {
   leafEl.appendChild(kicker);
   leafEl.appendChild(text);
 
-  leafEl.addEventListener('click', () => {
-    const phaseNum = phase.name ? phase.name.replace(/^Phase\s+/, '') : '';
-    const phaseBreadcrumb = 'Phase ' + phaseNum + ' — ' + node.label;
+  if (node.kind !== 'rest') {
+    if (isDatedWeek) {
+      leafEl.setAttribute('aria-expanded', 'false');
+      leafEl.addEventListener('click', () => {
+        openWeekDetail(plan, phase, node, treeEl);
+      });
+    } else {
+      leafEl.addEventListener('click', () => {
+        const phaseNum = phase.name ? phase.name.replace(/^Phase\s+/, '') : '';
+        const phaseBreadcrumb = 'Phase ' + phaseNum + ' — ' + node.label;
 
-    openStudyDrawer({
-      title: node.label,
-      phaseBreadCrumb: phaseBreadcrumb,
-      items: node.items || []
-    }, leafEl);
-  });
+        openStudyDrawer({
+          title: node.label,
+          phaseBreadCrumb: phaseBreadcrumb,
+          items: node.items || []
+        }, leafEl);
+      });
+    }
+  }
 
   return leafEl;
-}
-
-/**
- * Parses the raw study plan markdown into structured data.
- *
- * @param {string} text Raw markdown source.
- * @returns {Object} Parsed study plan with phases, progress, and focus.
- */
-function parseStudyPlan(text) {
-  const lines = text.split('\n');
-  const result = {
-    title: '',
-    phases: [],
-    done: 0,
-    total: 0,
-    pct: 0,
-    focus: null
-  };
-
-  let currentPhase = null;
-  let currentGroup = null;
-  let currentItem = null;
-  let phaseNum = 0;
-  let titleParsed = false;
-
-  for (let index = 0; index < lines.length; index++) {
-    const line = lines[index];
-
-    if (!titleParsed && line.startsWith('# ')) {
-      result.title = line.slice(2).trim();
-      titleParsed = true;
-      continue;
-    }
-
-    const phaseMatch = line.match(/^## Phase (\d+):\s*(.+)/);
-    if (phaseMatch) {
-      phaseNum = parseInt(phaseMatch[1], 10);
-      currentPhase = {
-        name: 'Phase ' + phaseNum,
-        label: phaseMatch[2].trim(),
-        weeks: []
-      };
-      result.phases.push(currentPhase);
-      currentGroup = null;
-      currentItem = null;
-      continue;
-    }
-
-    if (!currentPhase) continue;
-
-    const weekMatch = line.match(/^### (Week|Project)\s+(\d+):\s*(.+)/);
-    if (weekMatch) {
-      const kind = weekMatch[1].toLowerCase();
-      const num = weekMatch[2];
-      const label = weekMatch[3].trim();
-      currentGroup = {
-        label: label.charAt(0).toUpperCase() + label.slice(1) + ' ' + (kind === 'week' ? '· Week ' + num : '· Project ' + num),
-        topic: label.charAt(0).toUpperCase() + label.slice(1),
-        kind: kind,
-        number: num,
-        items: []
-      };
-      currentPhase.weeks.push(currentGroup);
-      currentItem = null;
-      continue;
-    }
-
-    if (!currentGroup) continue;
-
-    const subLink = line.match(/^\s+-\s+(.+?):\s*\[([^\]]+)\]\(([^)]+)\)\s*$/);
-    if (subLink) {
-      if (currentItem) {
-        currentItem.subs.push({
-          label: subLink[1].trim(),
-          text: subLink[2].trim(),
-          url: subLink[3].trim()
-        });
-      }
-      continue;
-    }
-
-    const subText = line.match(/^\s+-\s+(.+)$/);
-    if (subText && !line.trim().startsWith('- [')) {
-      if (currentItem) {
-        currentItem.subs.push({ label: '', text: subText[1].trim(), url: null });
-      }
-      continue;
-    }
-
-    if (line.match(/^- \[x\]/)) {
-      const itemText = line.replace(/^- \[x\]\s*/, '').trim();
-      currentItem = { text: itemText, done: true, subs: [] };
-      currentGroup.items.push(currentItem);
-      result.done++;
-      result.total++;
-    } else if (line.match(/^- \[ \]/)) {
-      const itemText = line.replace(/^- \[ \]\s*/, '').trim();
-      currentItem = { text: itemText, done: false, subs: [] };
-      currentGroup.items.push(currentItem);
-      result.total++;
-
-      if (!result.focus) {
-        result.focus = {
-          phase: currentPhase.name,
-          label: currentGroup.label,
-          topic: itemText
-        };
-      }
-    }
-  }
-
-  result.pct = result.total > 0 ? Math.round((result.done / result.total) * 100) : 0;
-
-  if (!result.focus && result.total > 0 && result.done === result.total) {
-    const lastGroup = result.phases[result.phases.length - 1];
-    if (lastGroup && lastGroup.weeks.length > 0) {
-      const lastWeek = lastGroup.weeks[lastGroup.weeks.length - 1];
-      result.focus = {
-        phase: lastGroup.name,
-        label: lastWeek.label,
-        topic: lastWeek.items[lastWeek.items.length - 1]?.text || ''
-      };
-    }
-  }
-
-  return result;
 }
 
 /**
@@ -1293,12 +1338,15 @@ const studyPlans = [];
 
 /**
  * Builds the word-tree DOM for a study plan's phases, weeks, and projects.
- * Leaves are clickable and open the detail drawer.
+ * Dated-plan week leaves are active when the focus day falls inside them;
+ * other leaves keep the prior focus-matching behavior.
  *
  * @param {Object} plan Parsed study plan object.
+ * @param {HTMLElement} [treeEl] Study tree container, needed so dated week
+ *   leaves can swap the overview for an in-place week detail.
  * @returns {HTMLElement} The completed word-tree element.
  */
-function buildWordTree(plan) {
+function buildWordTree(plan, treeEl) {
   const wordTree = document.createElement('div');
   wordTree.style.marginTop = '0.5rem';
 
@@ -1307,7 +1355,7 @@ function buildWordTree(plan) {
     branch.className = 'wt-branch';
 
     const root = document.createElement('div');
-    root.className = 'wt-root';
+    root.className = 'wt-root is-static';
 
     const rootNum = document.createElement('span');
     rootNum.className = 'wt-root-num';
@@ -1320,6 +1368,7 @@ function buildWordTree(plan) {
     let phaseDone = 0;
     let phaseTotal = 0;
     for (const week of phase.weeks) {
+      if (week.kind === 'rest') continue;
       if (!week.items) continue;
       phaseDone += week.items.filter(item => item.done).length;
       phaseTotal += week.items.length;
@@ -1333,19 +1382,22 @@ function buildWordTree(plan) {
     root.appendChild(rootName);
     root.appendChild(rootMeta);
 
-    const branchLine = document.createElement('span');
-    branchLine.className = 'wt-branch-line';
-
     const leaves = document.createElement('div');
     leaves.className = 'wt-leaves';
 
     for (const week of phase.weeks) {
-      const isActive = plan.focus && plan.focus.label === week.label;
-      leaves.appendChild(renderStudyNode(phase, week, isActive));
+      let isActive = false;
+      if (plan.focus) {
+        if (week.children) {
+          isActive = plan.focus.label === week.label || week.children.some(child => child.label === plan.focus.label);
+        } else {
+          isActive = plan.focus.label === week.label;
+        }
+      }
+      leaves.appendChild(renderStudyNode(phase, week, isActive, plan, treeEl));
     }
 
     branch.appendChild(root);
-    branch.appendChild(branchLine);
     branch.appendChild(leaves);
 
     wordTree.appendChild(branch);
@@ -1355,13 +1407,115 @@ function buildWordTree(plan) {
 }
 
 /**
- * Returns a plan's title with the 'Study Plan:' prefix stripped.
+ * Drills into a dated study week, replacing the phase overview with a detail
+ * branch whose root is the week and whose leaves are its day/rest nodes.
+ * Day leaves keep the drawer; the week root collapses back to the overview.
  *
- * @param {object} plan Parsed study plan object.
- * @returns {string} Display title.
+ * @param {Object} plan Parsed study plan object.
+ * @param {Object} phase Phase object containing the week.
+ * @param {Object} week The week node being expanded.
+ * @param {HTMLElement} treeEl Study tree container to swap content in.
  */
-function studyPlanDisplayTitle(plan) {
-  return plan.title.replace(/^Study Plan:\s*/i, '');
+function openWeekDetail(plan, phase, week, treeEl) {
+  treeEl.innerHTML = '';
+
+  const detailBranch = document.createElement('div');
+  detailBranch.className = 'wt-branch is-week-detail';
+
+  const detailRoot = document.createElement('div');
+  detailRoot.className = 'wt-root is-expandable is-clickable';
+  detailRoot.setAttribute('role', 'button');
+  detailRoot.setAttribute('tabindex', '0');
+  detailRoot.setAttribute('aria-expanded', 'true');
+
+  const back = document.createElement('span');
+  back.className = 'wt-back';
+  back.setAttribute('aria-hidden', 'true');
+  back.textContent = 'Back to plan';
+
+  const doneCount = week.items ? week.items.filter(item => item.done).length : 0;
+  const totalCount = week.items ? week.items.length : 0;
+
+  const rootNum = document.createElement('span');
+  rootNum.className = 'wt-root-num';
+  rootNum.textContent = 'Week ' + week.number;
+
+  const rootName = document.createElement('span');
+  rootName.className = 'wt-root-name';
+  rootName.textContent = week.topic;
+
+  const rootMeta = document.createElement('span');
+  rootMeta.className = 'wt-root-meta';
+  rootMeta.textContent = totalCount > 0 ? doneCount + '/' + totalCount + ' items' : '';
+
+  detailRoot.appendChild(back);
+  detailRoot.appendChild(rootNum);
+  detailRoot.appendChild(rootName);
+  detailRoot.appendChild(rootMeta);
+
+  detailRoot.addEventListener('click', () => {
+    closeWeekDetail(plan, treeEl, week);
+  });
+  detailRoot.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      closeWeekDetail(plan, treeEl, week);
+    }
+  });
+
+  const leaves = document.createElement('div');
+  leaves.className = 'wt-leaves';
+  (week.children || []).forEach((child, childIndex) => {
+    const isActive = !!plan.focus && plan.focus.label === child.label;
+    const leafEl = renderStudyNode(phase, child, isActive);
+    leafEl.style.setProperty('--leaf-index', childIndex);
+    leaves.appendChild(leafEl);
+  });
+
+  detailBranch.appendChild(detailRoot);
+  detailBranch.appendChild(leaves);
+  treeEl.appendChild(detailBranch);
+
+  detailRoot.focus();
+
+  const activeLeaf = leaves.querySelector('.wt-leaf.is-active');
+  if (activeLeaf) {
+    activeLeaf.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+/**
+ * Collapses an open week detail back to the phase overview. Fades the detail
+ * out quickly, then re-renders the full word tree in place and refocuses the
+ * collapsed week's overview leaf.
+ *
+ * @param {Object} plan Parsed study plan object.
+ * @param {HTMLElement} treeEl Study tree container to swap content in.
+ * @param {Object} [week] Week node being collapsed, used to refocus its leaf.
+ */
+function closeWeekDetail(plan, treeEl, week) {
+  const detailBranch = treeEl.querySelector('.wt-branch.is-week-detail');
+  if (!detailBranch) return;
+
+  detailBranch.classList.add('is-collapsing');
+  window.setTimeout(() => {
+    treeEl.innerHTML = '';
+    const reenteredTree = buildWordTree(plan, treeEl);
+    reenteredTree.classList.add('wt-tree-reenter');
+    treeEl.appendChild(reenteredTree);
+
+    if (week) {
+      const weekNumber = week.number;
+      const weekLeaf = Array.from(treeEl.querySelectorAll('.wt-leaf.is-week')).find(leaf => {
+        const kicker = leaf.querySelector('.wt-leaf-kicker');
+        return kicker && new RegExp('^Week ' + weekNumber + '( \\u00b7|$)').test(kicker.textContent);
+      });
+      if (weekLeaf) {
+        weekLeaf.setAttribute('aria-expanded', 'false');
+        weekLeaf.focus();
+      }
+    }
+  }, 150);
 }
 
 /**
@@ -1379,6 +1533,7 @@ async function loadStudyPlans() {
         if (!markdownResponse.ok) throw new Error('Failed to fetch ' + file);
         const text = await markdownResponse.text();
         const plan = parseStudyPlan(text);
+        applyDatedWeekGroups(plan, file);
         if (plan.phases.length > 0) {
           studyPlans.push(plan);
         }
@@ -1473,7 +1628,7 @@ function showStudyPlan(index) {
 
   const treeEl = document.getElementById('study-tree');
   treeEl.innerHTML = '';
-  treeEl.appendChild(buildWordTree(plan));
+  treeEl.appendChild(buildWordTree(plan, treeEl));
 
   const activeText = treeEl.querySelector('.wt-leaf.is-active .wt-leaf-text');
   if (activeText) {
@@ -1527,7 +1682,7 @@ renderMyspaceSections();
 fetchCurrentProject();
 fetchLeetCodeStats();
 
-Promise.all([loadBooks(), loadStudyPlans()]).then(() => {
+Promise.all([loadBooks(), loadStudyPlans(), loadBookCategories()]).then(() => {
   renderBooks();
   renderStudyPlans();
 

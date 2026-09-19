@@ -10,8 +10,6 @@
 
 **Category:** Devotion
 
-**Status:** Reading
-
 ## Chapters:
 
 - [x] CHAPTER I. THE DEJECTION OF ARJUNA

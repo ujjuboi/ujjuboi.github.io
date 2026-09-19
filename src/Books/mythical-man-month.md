@@ -10,8 +10,6 @@
 
 **Category:** Software Engineering
 
-**Status:** Reading
-
 ## Chapters:
 
 - [x] Chapter 1. The Tar Pit

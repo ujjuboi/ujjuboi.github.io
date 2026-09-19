@@ -641,6 +641,75 @@
   grid-column: 1 / -1;
 }
 
+.books-filter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.books-filter-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem;
+  background-color: var(--backgroundColor);
+  border: 0.15rem solid var(--borderColor);
+  border-radius: 0.4rem;
+  box-shadow: 0.2rem 0.2rem var(--shadowColor);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.books-filter-menu[hidden] {
+  display: none;
+}
+
+.books-filter-menu button {
+  background: none;
+  border: 0.1rem solid var(--backgroundColor);
+  padding: 0.5rem 0.75rem;
+  font-size: var(--text-sm);
+  font-family: var(--poppins);
+  color: var(--shadowColor);
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  border-radius: 0.25rem;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  width: 100%;
+}
+
+.books-filter-menu button:hover {
+  border-color: var(--borderColor);
+}
+
+.books-filter-menu button.active {
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+}
+
+.books-filter-toggle {
+  box-sizing: border-box;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 0.2rem solid var(--borderColor);
+  background-color: var(--contentColor);
+  color: var(--borderColor);
+  font-family: var(--headings);
+  font-size: var(--text-sm);
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0.2rem 0.2rem var(--shadowColor);
+  transition: all 0.2s ease;
+}
+
+.books-filter-toggle:hover {
+  transform: translateY(-0.1rem) translateX(0.1rem);
+  box-shadow: 0.3rem 0.3rem var(--shadowColor);
+}
+
 .books-grid {
   columns: 260px;
   column-gap: 1.25rem;
@@ -690,7 +759,7 @@
   display: block;
 }
 
-.book-status {
+.book-category {
   position: absolute;
   top: 0.6rem;
   right: 0.6rem;
@@ -704,7 +773,7 @@
   border: 0.1rem solid var(--borderColor);
 }
 
-.book-card:hover .book-status {
+.book-card:hover .book-category {
   background-color: var(--shadowColor);
   color: var(--backgroundColor);
 }
@@ -1033,7 +1102,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 3.5rem;
+  gap: 5rem;
   padding: 0.5rem 0;
 }
 
@@ -1059,6 +1128,23 @@
   padding: 1rem;
 }
 
+.is-clickable {
+  cursor: pointer;
+  box-shadow: 0.2rem 0.2rem var(--shadowColor);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.is-clickable:hover {
+  transform: translateY(-0.15rem);
+  box-shadow: 0.3rem 0.3rem var(--shadowColor);
+}
+
+.is-static {
+  cursor: default;
+  box-shadow: none;
+  transition: none;
+}
+
 .wt-root {
   position: relative;
   z-index: 1;
@@ -1074,7 +1160,6 @@
   border-radius: 0.35rem;
   padding: 0.55rem 0.9rem;
   font-family: var(--theme-heading-font);
-  cursor: default;
   justify-self: center;
   flex: 0 0 auto;
   max-width: 100%;
@@ -1103,8 +1188,54 @@
   white-space: nowrap;
 }
 
-.wt-branch-line {
-  display: none;
+.wt-root.is-expandable {
+  padding: 2rem 0.9rem 0.55rem;
+  background-color: var(--contentColor);
+  color: var(--shadowColor);
+}
+
+/* Distinct back control: a full-width inverted header strip pinned inside the
+   top of the drill-down week node, so the click target and its behaviour
+   (returning to the phase overview) are unmistakable. */
+.wt-root.is-expandable .wt-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+  font-family: var(--theme-content-font);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  pointer-events: none;
+}
+
+.wt-root.is-expandable .wt-back::before {
+  content: '\2190';
+  font-size: var(--text-sm);
+  line-height: 1;
+}
+
+.wt-root.is-expandable .wt-root-meta {
+  color: var(--shadowColor);
+}
+
+.wt-root.is-expandable:hover {
+  border-color: var(--borderColor);
+}
+
+.wt-root.is-expandable:hover .wt-back {
+  background-color: var(--borderColor);
 }
 
 .wt-leaves {
@@ -1123,8 +1254,8 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.1rem;
-  background-color: var(--shadowColor);
-  color: var(--backgroundColor);
+  background-color: var(--contentColor);
+  color: var(--shadowColor);
   border: 0.15rem solid var(--shadowColor);
   border-top: 0.25rem solid var(--linkColor);
   border-radius: 0.35rem;
@@ -1132,20 +1263,17 @@
   font-family: var(--theme-heading-font);
   font-size: var(--text-sm);
   font-weight: 500;
-  cursor: pointer;
   text-align: left;
   justify-self: start;
   max-width: 100%;
   box-sizing: border-box;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .wt-leaf:hover {
-  background-color: var(--backgroundColor);
+  background-color: var(--contentColor);
   color: var(--shadowColor);
   border-color: var(--borderColor);
   border-top-color: var(--linkColor);
-  transform: translateY(-0.15rem);
 }
 
 .wt-leaf.is-complete {
@@ -1164,6 +1292,90 @@
   text-decoration: line-through;
   text-decoration-color: var(--shadowColor);
   text-decoration-thickness: 0.2rem;
+}
+
+.wt-leaf.is-rest {
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+  border-color: var(--shadowColor);
+  border-top-color: var(--shadowColor);
+  opacity: 0.85;
+}
+
+.wt-leaf.is-rest:hover {
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+  border-color: var(--shadowColor);
+  border-top-color: var(--shadowColor);
+}
+
+.wt-leaf.is-week {
+  padding-right: 1.7rem;
+}
+
+.wt-leaf.is-week::after {
+  content: '\203A';
+  position: absolute;
+  top: 50%;
+  right: 0.65rem;
+  transform: translateY(-50%);
+  font-size: var(--text-xl);
+  line-height: 1;
+  color: inherit;
+  opacity: 0.55;
+  transition: transform 0.2s ease;
+  pointer-events: none;
+}
+
+.wt-leaf.is-week:hover::after {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+@keyframes wt-root-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wt-leaf-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wt-branch-out {
+  to {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+}
+
+.wt-branch.is-week-detail .wt-root.is-expandable {
+  animation: wt-root-in 0.25s ease backwards;
+}
+
+.wt-branch.is-week-detail .wt-leaf {
+  animation: wt-leaf-in 0.35s ease backwards;
+  animation-delay: calc(var(--leaf-index) * 45ms);
+}
+
+.wt-branch.is-week-detail.is-collapsing {
+  animation: wt-branch-out 0.15s ease forwards;
+  pointer-events: none;
+}
+
+.wt-tree-reenter {
+  animation: fadeIn 0.35s ease both;
 }
 
 .wt-leaf-kicker {
@@ -1507,12 +1719,12 @@
     opacity: 0;
   }
 
-  .book-card:hover .book-status {
+  .book-card:hover .book-category {
     background-color: var(--backgroundColor);
     color: var(--shadowColor);
   }
 
-  .book-card.tapped .book-status {
+  .book-card.tapped .book-category {
     background-color: var(--shadowColor);
     color: var(--backgroundColor);
   }
@@ -1533,20 +1745,28 @@
     color: var(--borderColor);
   }
 
+  .is-clickable:hover {
+    transform: none;
+    box-shadow: 0.2rem 0.2rem var(--shadowColor);
+  }
+
+  .is-clickable.tapped {
+    transform: translateY(-0.15rem);
+    box-shadow: 0.3rem 0.3rem var(--shadowColor);
+  }
+
   .wt-leaf:hover {
-    background-color: var(--shadowColor);
-    color: var(--backgroundColor);
+    background-color: var(--contentColor);
+    color: var(--shadowColor);
     border-color: var(--shadowColor);
     border-top-color: var(--linkColor);
-    transform: none;
   }
 
   .wt-leaf.tapped {
-    background-color: var(--backgroundColor);
+    background-color: var(--contentColor);
     color: var(--shadowColor);
     border-color: var(--borderColor);
     border-top-color: var(--linkColor);
-    transform: translateY(-0.15rem);
   }
 
   .wt-leaf.is-complete:hover {
@@ -1555,6 +1775,30 @@
 
   .wt-leaf.is-complete.tapped {
     background-color: var(--contentColor);
+  }
+
+  .wt-root.is-expandable:hover {
+    border-color: var(--shadowColor);
+  }
+
+  .wt-root.is-expandable:hover .wt-back {
+    background-color: var(--shadowColor);
+  }
+
+  .wt-root.is-expandable.tapped {
+    border-color: var(--borderColor);
+  }
+
+  .wt-root.is-expandable.tapped .wt-back {
+    background-color: var(--borderColor);
+  }
+
+  .wt-leaf.is-week:hover::after {
+    transform: translateY(-50%);
+  }
+
+  .wt-leaf.is-week.tapped::after {
+    transform: translateY(-50%) rotate(90deg);
   }
 
   .drawer-item-sub:hover {

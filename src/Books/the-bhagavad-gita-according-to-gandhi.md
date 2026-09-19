@@ -10,8 +10,6 @@
 
 **Category:** Devotion
 
-**Status:** Interested
-
 ## Chapters:
 
 - [ ] Chapter One

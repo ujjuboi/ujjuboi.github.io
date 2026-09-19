@@ -10,8 +10,6 @@
 
 **Category:** Self Help
 
-**Status:** Read
-
 ## Chapters:
 
 - [x] The More Important Your Cheese Is To You The More You Want To Hold On To It

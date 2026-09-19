@@ -10,8 +10,6 @@
 
 **Category:** System Design
 
-**Status:** Read
-
 ## Chapters:
 
 - [x] Preface
