@@ -1263,21 +1263,29 @@ function openStudyDrawer(node, triggerBtn) {
 
 /**
  * Renders a single study leaf (week or project) as a word-tree subnode.
- * The leaf is clickable and opens the drawer; phase roots never render here.
+ * Phase roots never render here. Dated-plan week leaves (with children)
+ * drill into an in-place week detail; all other leaves open the drawer.
  *
  * @param {Object} phase Phase object containing this node.
  * @param {Object} node Node object (week or project).
  * @param {boolean} isActive Whether this is the current focus node.
+ * @param {Object} [plan] Parsed plan, required for week drill-down leaves.
+ * @param {HTMLElement} [treeEl] Study tree container for week drill-down.
  * @returns {HTMLElement} The completed leaf button.
  */
-function renderStudyNode(phase, node, isActive) {
+function renderStudyNode(phase, node, isActive, plan, treeEl) {
   const done = node.items ? node.items.filter(item => item.done).length : 0;
   const total = node.items ? node.items.length : 0;
   const isComplete = total > 0 && done === total;
+  const isDatedWeek = node.kind === 'week' && Array.isArray(node.children);
 
   const leafEl = document.createElement('button');
   leafEl.type = 'button';
-  leafEl.className = 'wt-leaf' + (isActive ? ' is-active' : '') + (isComplete ? ' is-complete' : '') + (node.kind === 'rest' ? ' is-rest' : '');
+  leafEl.className = 'wt-leaf'
+    + (isDatedWeek ? ' is-week is-expandable' : '')
+    + (isActive ? ' is-active' : '')
+    + (isComplete ? ' is-complete' : '')
+    + (node.kind === 'rest' ? ' is-rest' : '');
 
   const kicker = document.createElement('span');
   kicker.className = 'wt-leaf-kicker';
@@ -1297,16 +1305,23 @@ function renderStudyNode(phase, node, isActive) {
   leafEl.appendChild(text);
 
   if (node.kind !== 'rest') {
-    leafEl.addEventListener('click', () => {
-      const phaseNum = phase.name ? phase.name.replace(/^Phase\s+/, '') : '';
-      const phaseBreadcrumb = 'Phase ' + phaseNum + ' — ' + node.label;
+    if (isDatedWeek) {
+      leafEl.setAttribute('aria-expanded', 'false');
+      leafEl.addEventListener('click', () => {
+        openWeekDetail(plan, phase, node, treeEl);
+      });
+    } else {
+      leafEl.addEventListener('click', () => {
+        const phaseNum = phase.name ? phase.name.replace(/^Phase\s+/, '') : '';
+        const phaseBreadcrumb = 'Phase ' + phaseNum + ' — ' + node.label;
 
-      openStudyDrawer({
-        title: node.label,
-        phaseBreadCrumb: phaseBreadcrumb,
-        items: node.items || []
-      }, leafEl);
-    });
+        openStudyDrawer({
+          title: node.label,
+          phaseBreadCrumb: phaseBreadcrumb,
+          items: node.items || []
+        }, leafEl);
+      });
+    }
   }
 
   return leafEl;
@@ -1492,18 +1507,86 @@ function parseStudyPlan(text) {
 }
 
 /**
+ * Dated-plan week boundaries for the daily schedule, keyed by plan filename.
+ * Each week holds 3 study days + its rest day(s); `lastDay` is the highest
+ * study-day number in that week. Only the dated algorithms plan uses this.
+ */
+const datedPlanWeekGroups = {
+  'algorithms-and-leetcode.md': [
+    { week: 1, topic: 'Algorithm Basics & Sorting', lastDay: 3 },
+    { week: 2, topic: 'Recursion & Data Structures', lastDay: 7 },
+    { week: 3, topic: 'Quicksort & Hash Tables', lastDay: 11 },
+    { week: 4, topic: 'Graphs & BFS', lastDay: 15 },
+    { week: 5, topic: 'Shortest Path & Greedy', lastDay: 19 },
+    { week: 6, topic: 'Dynamic Programming & KNN', lastDay: 25 }
+  ]
+};
+
+/**
+ * Rebuilds a dated plan's day/rest leaves into week nodes so the overview
+ * shows one leaf per week instead of every dated day. Rest days ride along in
+ * the week they fall in. Only applies when the plan matches a week group
+ * entry and the phase carries day/rest leaves; other plans and phases are
+ * left untouched.
+ *
+ * @param {Object} plan Parsed study plan object.
+ * @param {string} fileName Plan filename used to look up the week groups.
+ */
+function applyDatedWeekGroups(plan, fileName) {
+  const weekGroups = datedPlanWeekGroups[fileName];
+  if (!weekGroups) return;
+
+  let weekIndex = 0;
+  for (const phase of plan.phases) {
+    const hasDatedLeaves = phase.weeks.some(node => node.kind === 'day' || node.kind === 'rest');
+    if (!hasDatedLeaves) continue;
+
+    const rebuiltWeeks = [];
+    let currentWeek = null;
+
+    for (const node of phase.weeks) {
+      if (node.kind === 'day' && weekIndex < weekGroups.length && Number(node.number) > weekGroups[weekIndex].lastDay) {
+        weekIndex++;
+        currentWeek = null;
+      }
+      if (!currentWeek) {
+        const group = weekGroups[Math.min(weekIndex, weekGroups.length - 1)];
+        currentWeek = {
+          kind: 'week',
+          number: group.week,
+          topic: group.topic,
+          label: 'Week ' + group.week + ' · ' + group.topic,
+          children: [],
+          items: []
+        };
+        rebuiltWeeks.push(currentWeek);
+      }
+      currentWeek.children.push(node);
+      if (node.items && node.items.length > 0) {
+        currentWeek.items.push(...node.items);
+      }
+    }
+
+    phase.weeks = rebuiltWeeks;
+  }
+}
+
+/**
  * Parsed study plans loaded from the manifest.
  */
 const studyPlans = [];
 
 /**
  * Builds the word-tree DOM for a study plan's phases, weeks, and projects.
- * Leaves are clickable and open the detail drawer.
+ * Dated-plan week leaves are active when the focus day falls inside them;
+ * other leaves keep the prior focus-matching behavior.
  *
  * @param {Object} plan Parsed study plan object.
+ * @param {HTMLElement} [treeEl] Study tree container, needed so dated week
+ *   leaves can swap the overview for an in-place week detail.
  * @returns {HTMLElement} The completed word-tree element.
  */
-function buildWordTree(plan) {
+function buildWordTree(plan, treeEl) {
   const wordTree = document.createElement('div');
   wordTree.style.marginTop = '0.5rem';
 
@@ -1539,26 +1622,140 @@ function buildWordTree(plan) {
     root.appendChild(rootName);
     root.appendChild(rootMeta);
 
-    const branchLine = document.createElement('span');
-    branchLine.className = 'wt-branch-line';
-    branchLine.textContent = phase.name.replace(/^Phase\s+/, '');
-
     const leaves = document.createElement('div');
     leaves.className = 'wt-leaves';
 
     for (const week of phase.weeks) {
-      const isActive = plan.focus && plan.focus.label === week.label;
-      leaves.appendChild(renderStudyNode(phase, week, isActive));
+      let isActive = false;
+      if (plan.focus) {
+        if (week.children) {
+          isActive = plan.focus.label === week.label || week.children.some(child => child.label === plan.focus.label);
+        } else {
+          isActive = plan.focus.label === week.label;
+        }
+      }
+      leaves.appendChild(renderStudyNode(phase, week, isActive, plan, treeEl));
     }
 
     branch.appendChild(root);
-    branch.appendChild(branchLine);
     branch.appendChild(leaves);
 
     wordTree.appendChild(branch);
   }
 
   return wordTree;
+}
+
+/**
+ * Drills into a dated study week, replacing the phase overview with a detail
+ * branch whose root is the week and whose leaves are its day/rest nodes.
+ * Day leaves keep the drawer; the week root collapses back to the overview.
+ *
+ * @param {Object} plan Parsed study plan object.
+ * @param {Object} phase Phase object containing the week.
+ * @param {Object} week The week node being expanded.
+ * @param {HTMLElement} treeEl Study tree container to swap content in.
+ */
+function openWeekDetail(plan, phase, week, treeEl) {
+  treeEl.innerHTML = '';
+
+  const detailBranch = document.createElement('div');
+  detailBranch.className = 'wt-branch is-week-detail';
+
+  const detailRoot = document.createElement('div');
+  detailRoot.className = 'wt-root is-expandable';
+  detailRoot.setAttribute('role', 'button');
+  detailRoot.setAttribute('tabindex', '0');
+  detailRoot.setAttribute('aria-expanded', 'true');
+
+  const back = document.createElement('span');
+  back.className = 'wt-back';
+  back.setAttribute('aria-hidden', 'true');
+  back.textContent = 'Back to plan';
+
+  const doneCount = week.items ? week.items.filter(item => item.done).length : 0;
+  const totalCount = week.items ? week.items.length : 0;
+
+  const rootNum = document.createElement('span');
+  rootNum.className = 'wt-root-num';
+  rootNum.textContent = 'Week ' + week.number;
+
+  const rootName = document.createElement('span');
+  rootName.className = 'wt-root-name';
+  rootName.textContent = week.topic;
+
+  const rootMeta = document.createElement('span');
+  rootMeta.className = 'wt-root-meta';
+  rootMeta.textContent = totalCount > 0 ? doneCount + '/' + totalCount + ' items' : '';
+
+  detailRoot.appendChild(back);
+  detailRoot.appendChild(rootNum);
+  detailRoot.appendChild(rootName);
+  detailRoot.appendChild(rootMeta);
+
+  detailRoot.addEventListener('click', () => {
+    closeWeekDetail(plan, treeEl, week);
+  });
+  detailRoot.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      closeWeekDetail(plan, treeEl, week);
+    }
+  });
+
+  const leaves = document.createElement('div');
+  leaves.className = 'wt-leaves';
+  (week.children || []).forEach((child, childIndex) => {
+    const isActive = !!plan.focus && plan.focus.label === child.label;
+    const leafEl = renderStudyNode(phase, child, isActive);
+    leafEl.style.setProperty('--leaf-index', childIndex);
+    leaves.appendChild(leafEl);
+  });
+
+  detailBranch.appendChild(detailRoot);
+  detailBranch.appendChild(leaves);
+  treeEl.appendChild(detailBranch);
+
+  detailRoot.focus();
+
+  const activeLeaf = leaves.querySelector('.wt-leaf.is-active');
+  if (activeLeaf) {
+    activeLeaf.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+/**
+ * Collapses an open week detail back to the phase overview. Fades the detail
+ * out quickly, then re-renders the full word tree in place and refocuses the
+ * collapsed week's overview leaf.
+ *
+ * @param {Object} plan Parsed study plan object.
+ * @param {HTMLElement} treeEl Study tree container to swap content in.
+ * @param {Object} [week] Week node being collapsed, used to refocus its leaf.
+ */
+function closeWeekDetail(plan, treeEl, week) {
+  const detailBranch = treeEl.querySelector('.wt-branch.is-week-detail');
+  if (!detailBranch) return;
+
+  detailBranch.classList.add('is-collapsing');
+  window.setTimeout(() => {
+    treeEl.innerHTML = '';
+    const reenteredTree = buildWordTree(plan, treeEl);
+    reenteredTree.classList.add('wt-tree-reenter');
+    treeEl.appendChild(reenteredTree);
+
+    if (week) {
+      const weekNumber = week.number;
+      const weekLeaf = Array.from(treeEl.querySelectorAll('.wt-leaf.is-week')).find(leaf => {
+        const kicker = leaf.querySelector('.wt-leaf-kicker');
+        return kicker && new RegExp('^Week ' + weekNumber + '( \\u00b7|$)').test(kicker.textContent);
+      });
+      if (weekLeaf) {
+        weekLeaf.setAttribute('aria-expanded', 'false');
+        weekLeaf.focus();
+      }
+    }
+  }, 150);
 }
 
 /**
@@ -1586,6 +1783,7 @@ async function loadStudyPlans() {
         if (!markdownResponse.ok) throw new Error('Failed to fetch ' + file);
         const text = await markdownResponse.text();
         const plan = parseStudyPlan(text);
+        applyDatedWeekGroups(plan, file);
         if (plan.phases.length > 0) {
           studyPlans.push(plan);
         }
@@ -1680,7 +1878,7 @@ function showStudyPlan(index) {
 
   const treeEl = document.getElementById('study-tree');
   treeEl.innerHTML = '';
-  treeEl.appendChild(buildWordTree(plan));
+  treeEl.appendChild(buildWordTree(plan, treeEl));
 
   const activeText = treeEl.querySelector('.wt-leaf.is-active .wt-leaf-text');
   if (activeText) {
