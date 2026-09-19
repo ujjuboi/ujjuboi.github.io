@@ -10,8 +10,6 @@
 
 **Category:** Self Help
 
-**Status:** Currently Reading
-
 ## Chapters:
 
 - [x] History's BIGGEST Open Secret

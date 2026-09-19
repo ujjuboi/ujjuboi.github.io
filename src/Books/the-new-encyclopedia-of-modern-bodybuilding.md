@@ -10,8 +10,6 @@
 
 **Category:** Self Help
 
-**Status:** Reading
-
 ## Chapters:
 
 - [x] Book One: Introduction to Bodybuilding

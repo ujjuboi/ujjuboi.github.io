@@ -10,8 +10,6 @@
 
 **Category:** Self Help
 
-**Status:** Read
-
 ## Chapters:
 
 - [x] 1. Mr Talwar’s Uncertain Future

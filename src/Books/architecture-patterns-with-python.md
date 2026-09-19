@@ -10,8 +10,6 @@
 
 **Category:** Software Engineering
 
-**Status:** Interested
-
 ## Chapters:
 
 - [ ] Domain Modeling

@@ -690,7 +690,7 @@
   display: block;
 }
 
-.book-status {
+.book-category {
   position: absolute;
   top: 0.6rem;
   right: 0.6rem;
@@ -704,7 +704,7 @@
   border: 0.1rem solid var(--borderColor);
 }
 
-.book-card:hover .book-status {
+.book-card:hover .book-category {
   background-color: var(--shadowColor);
   color: var(--backgroundColor);
 }
@@ -1507,12 +1507,12 @@
     opacity: 0;
   }
 
-  .book-card:hover .book-status {
+  .book-card:hover .book-category {
     background-color: var(--backgroundColor);
     color: var(--shadowColor);
   }
 
-  .book-card.tapped .book-status {
+  .book-card.tapped .book-category {
     background-color: var(--shadowColor);
     color: var(--backgroundColor);
   }

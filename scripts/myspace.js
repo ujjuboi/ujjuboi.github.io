@@ -858,10 +858,10 @@ function parseBook(text, filename) {
   const doneChapters = chapters.filter(chapter => chapter.done).length;
   const progress = totalChapters > 0 ? Math.round((doneChapters / totalChapters) * 100) : 0;
 
-  let status = meta.status || 'Interested';
+  let status = 'Interested';
   let progressText = 'Not started';
 
-  if (status === 'Read' || progress >= 100) {
+  if (progress >= 100) {
     status = 'Read';
     progressText = 'Finished';
   } else if (progress > 0) {
@@ -959,16 +959,14 @@ function renderBooks() {
     card.className = 'book-card card';
     card.onclick = () => showBook(index);
 
-    const statusBadge = book.status === 'Read'
-      ? '<span class="book-status">✓ ' + escapeHtml(book.status) + '</span>'
-      : book.progress > 0
-        ? '<span class="book-status">Currently Reading</span>'
-        : '<span class="book-status">Interested</span>';
+    const categoryBadge = book.category
+      ? '<span class="book-category">' + escapeHtml(book.category) + '</span>'
+      : '';
 
     card.innerHTML = `
       <div class="book-banner-wrap">
         <img class="book-banner" src="${escapeHtml(book.banner)}" alt="${escapeHtml(book.title)} banner">
-        ${statusBadge}
+        ${categoryBadge}
         <div class="book-progress">
           <div class="book-progress-bar">
             <div class="book-progress-fill" style="width: ${book.progress}%"></div>

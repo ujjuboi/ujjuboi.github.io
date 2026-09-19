@@ -10,8 +10,6 @@
 
 **Category:** Novels
 
-**Status:** Reading
-
 ## Chapters:
 
 - [x] Chapter 01

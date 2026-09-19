@@ -80,7 +80,7 @@ proceed until the user has answered every one.
 2. **Title** — Show the user the title extracted from the file; they must confirm or correct it.
 3. **Author** — Show the user the author extracted from the file; they must confirm or correct it.
 4. **Category** — One of exactly: `Software Engineering`, `System Design`, `Novels`, `Self Help`, `Devotion`.
-5. **Already read?** — Strictly Yes or No. Yes → `Status: Read` and every chapter `[x]`. No → `Status: Interested` and every chapter `[ ]`.
+5. **Already read?** — Strictly Yes or No. Yes → every chapter `[x]`. No → every chapter `[ ]`. Reading status is derived automatically from the chapter checkboxes in the UI (all `[x]` → Read, some checked → Currently Reading, none → Interested) — do not write a `Status` field.
 
 Notes are intentionally **not** part of the questionnaire; the user adds
 personal notes to the markdown file manually after it is created.
@@ -107,7 +107,8 @@ personal notes to the markdown file manually after it is created.
       to the file manually after creation (rendered as a paragraph in the UI).
    - Chapters: the extracted outline, each as `- [x] Chapter Name` / `- [ ] Chapter Name` (no
      trailing colon); the checkbox state follows the Read? answer (all `[x]` or all `[ ]`).
-     Chapter names only drive the progress bar — do not add notes under chapters.
+     Chapter names only drive the progress bar — do not add notes under chapters. The reading
+     status is derived from these checkboxes in the UI, so the file never contains a `Status`.
 6. **Update `src/Books/books.json`** by prepending the new filename.
 7. **Confirm** by showing the user the created file path, banner path, and chapter count.
 
@@ -125,8 +126,6 @@ personal notes to the markdown file manually after it is created.
 **Banner:** ../../Images/Books/<slug>.png
 
 **Category:** <Software Engineering|System Design|Novels|Self Help|Devotion>
-
-**Status:** <Read|Currently Reading|Interested>
 
 ## Chapters:
 
