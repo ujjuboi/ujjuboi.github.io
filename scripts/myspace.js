@@ -149,6 +149,12 @@ function buildBooksSection() {
 <div id="books-loading" class="loading-placeholder">
   Loading books<span class="dot dot1">.</span><span class="dot dot2">.</span><span class="dot dot3">.</span>
 </div>
+<div class="books-filter">
+  <ul id="books-filter-menu" class="books-filter-menu" hidden>
+    <li><button type="button" class="active" data-book-category="">All Categories</button></li>
+  </ul>
+  <button type="button" id="books-filter-toggle" class="books-filter-toggle" aria-expanded="false">Filter</button>
+</div>
 <div id="books-grid"></div>
 <div id="books-fallback" style="display: none; text-align: center; color: var(--shadowColor); font-style: italic;">
   No books to show
@@ -917,15 +923,155 @@ async function loadBooks() {
 }
 
 /**
- * Sorts the books by status: Currently Reading, then Interested, then Read.
- * Items within the same status keep their current (manifest) order.
+ * Parsed book categories, sourced from the Category line of the template.
  */
-function sortBooksByStatus() {
-  const order = { 'Currently Reading': 0, 'Interested': 1, 'Read': 2 };
+const bookCategories = [];
+
+/**
+ * Parses the category list from the book template markdown.
+ *
+ * @param {string} text Raw template markdown source.
+ * @returns {string[]} Categories split on the `/` separator.
+ */
+function parseBookCategories(text) {
+  const categoryLine = text.split('\n').find(line => line.startsWith('**Category:**'));
+  if (!categoryLine) return [];
+  return categoryLine.replace('**Category:**', '').split('/').map(category => category.trim()).filter(Boolean);
+}
+
+/**
+ * Loads the book categories from src/Books/template.md and renders the filter.
+ */
+async function loadBookCategories() {
+  try {
+    const response = await fetch('../../src/Books/template.md');
+    if (!response.ok) throw new Error('Failed to fetch template.md');
+    const text = await response.text();
+    bookCategories.push(...parseBookCategories(text));
+    renderBookCategoryFilter();
+  } catch (error) {
+    console.error('Error loading book categories:', error);
+  }
+}
+
+/**
+ * Renders the category filter menu and opens it as a floating popover anchored
+ * to the Filter toggle, so the books grid never shifts when the menu appears.
+ */
+function renderBookCategoryFilter() {
+  const menu = document.getElementById('books-filter-menu');
+  const toggle = document.getElementById('books-filter-toggle');
+  if (!menu || !toggle) return;
+
+  bookCategories.forEach(category => {
+    const listItem = document.createElement('li');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.bookCategory = category;
+    button.textContent = category;
+    listItem.appendChild(button);
+    menu.appendChild(listItem);
+  });
+
+  let menuOpen = false;
+
+  /**
+   * Positions the menu near the toggle, clamped inside the viewport.
+   */
+  function positionMenu() {
+    const toggleRect = toggle.getBoundingClientRect();
+    const menuWidth = menu.offsetWidth;
+    let left = toggleRect.left + toggleRect.width / 2 - menuWidth / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - menuWidth - 8));
+    let top = toggleRect.bottom + 10;
+    if (top + menu.offsetHeight > window.innerHeight - 8) {
+      top = toggleRect.top - menu.offsetHeight - 10;
+    }
+    menu.style.position = 'fixed';
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+    menu.style.zIndex = '3000';
+  }
+
+  /**
+   * Opens the category menu as a floating popover near the toggle.
+   */
+  function openMenu() {
+    menu.hidden = false;
+    positionMenu();
+    menuOpen = true;
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  /**
+   * Closes the category menu.
+   */
+  function closeMenu() {
+    menu.hidden = true;
+    menuOpen = false;
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', () => {
+    if (menuOpen) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  menu.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-book-category]');
+    if (!button) return;
+    selectBookCategory(button.dataset.bookCategory);
+    closeMenu();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (menuOpen && !menu.contains(event.target) && !toggle.contains(event.target)) {
+      closeMenu();
+    }
+  });
+}
+
+/**
+ * Applies the selected category filter and highlights its menu button.
+ *
+ * @param {string} categoryValue Selected category; empty string shows all books.
+ */
+function selectBookCategory(categoryValue) {
+  filterBooksByCategory(categoryValue);
+  document.querySelectorAll('#books-filter-menu button[data-book-category]').forEach(button => {
+    button.classList.toggle('active', button.dataset.bookCategory === categoryValue);
+  });
+}
+
+/**
+ * Shows only the book cards matching the selected category.
+ *
+ * @param {string} categoryValue Selected option value; empty shows all books.
+ */
+function filterBooksByCategory(categoryValue) {
+  document.querySelectorAll('#books-grid .book-card').forEach(card => {
+    card.style.display = categoryValue === '' || card.dataset.category === categoryValue ? '' : 'none';
+  });
+}
+
+/**
+ * Sorts the books by reading category, keeping currently-reading books first
+ * within each category. Unknown categories sort last; items with the same
+ * category and status keep their current (manifest) order.
+ */
+function sortBooksByCategory() {
+  const categoryOrder = { 'Software Engineering': 0, 'System Design': 1, 'Novels': 2, 'Self Help': 3, 'Devotion': 4 };
+  const statusOrder = { 'Currently Reading': 0, 'Interested': 1, 'Read': 2 };
   books.sort((firstBook, secondBook) => {
-    const firstBookOrder = order[firstBook.status] !== undefined ? order[firstBook.status] : 2;
-    const secondBookOrder = order[secondBook.status] !== undefined ? order[secondBook.status] : 2;
-    return firstBookOrder - secondBookOrder;
+    const firstBookCategoryOrder = categoryOrder[firstBook.category] !== undefined ? categoryOrder[firstBook.category] : Object.keys(categoryOrder).length;
+    const secondBookCategoryOrder = categoryOrder[secondBook.category] !== undefined ? categoryOrder[secondBook.category] : Object.keys(categoryOrder).length;
+    if (firstBookCategoryOrder !== secondBookCategoryOrder) return firstBookCategoryOrder - secondBookCategoryOrder;
+    const firstBookStatusOrder = statusOrder[firstBook.status] !== undefined ? statusOrder[firstBook.status] : 2;
+    const secondBookStatusOrder = statusOrder[secondBook.status] !== undefined ? statusOrder[secondBook.status] : 2;
+    return firstBookStatusOrder - secondBookStatusOrder;
   });
 }
 
@@ -933,7 +1079,7 @@ function sortBooksByStatus() {
  * Renders the list of book cards into the books grid.
  */
 function renderBooks() {
-  sortBooksByStatus();
+  sortBooksByCategory();
   const container = document.getElementById('books-grid');
   container.innerHTML = '';
 
@@ -957,6 +1103,7 @@ function renderBooks() {
   books.forEach((book, index) => {
     const card = document.createElement('div');
     card.className = 'book-card card';
+    card.dataset.category = book.category;
     card.onclick = () => showBook(index);
 
     const categoryBadge = book.category
@@ -1525,7 +1672,7 @@ renderMyspaceSections();
 fetchCurrentProject();
 fetchLeetCodeStats();
 
-Promise.all([loadBooks(), loadStudyPlans()]).then(() => {
+Promise.all([loadBooks(), loadStudyPlans(), loadBookCategories()]).then(() => {
   renderBooks();
   renderStudyPlans();
 

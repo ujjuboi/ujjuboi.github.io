@@ -22,7 +22,7 @@ Keep that pipeline.
 
 ## 1. `src/StudyPlans/algorithms-and-leetcode.md` — restructure
 
-Same title, 3 phases, all 49 checklist items + their `- Book:` / `- Site:`
+Same title, 3 phases, all 50 checklist items + their `- Book:` / `- Site:`
 sub-links moved **verbatim**, and the trailing `## Weekly Schedule Suggestion`
 block kept. Only headings change.
 
