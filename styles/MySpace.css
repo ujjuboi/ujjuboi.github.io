@@ -1128,6 +1128,23 @@
   padding: 1rem;
 }
 
+.is-clickable {
+  cursor: pointer;
+  box-shadow: 0.2rem 0.2rem var(--shadowColor);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.is-clickable:hover {
+  transform: translateY(-0.15rem);
+  box-shadow: 0.3rem 0.3rem var(--shadowColor);
+}
+
+.is-static {
+  cursor: default;
+  box-shadow: none;
+  transition: none;
+}
+
 .wt-root {
   position: relative;
   z-index: 1;
@@ -1143,7 +1160,6 @@
   border-radius: 0.35rem;
   padding: 0.55rem 0.9rem;
   font-family: var(--theme-heading-font);
-  cursor: default;
   justify-self: center;
   flex: 0 0 auto;
   max-width: 100%;
@@ -1173,12 +1189,9 @@
 }
 
 .wt-root.is-expandable {
-  cursor: pointer;
   padding: 2rem 0.9rem 0.55rem;
   background-color: var(--contentColor);
   color: var(--shadowColor);
-  box-shadow: 0.2rem 0.2rem var(--shadowColor);
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Distinct back control: a full-width inverted header strip pinned inside the
@@ -1218,8 +1231,6 @@
 }
 
 .wt-root.is-expandable:hover {
-  transform: translateY(-0.15rem);
-  box-shadow: 0.3rem 0.3rem var(--shadowColor);
   border-color: var(--borderColor);
 }
 
@@ -1252,13 +1263,10 @@
   font-family: var(--theme-heading-font);
   font-size: var(--text-sm);
   font-weight: 500;
-  cursor: pointer;
   text-align: left;
   justify-self: start;
   max-width: 100%;
   box-sizing: border-box;
-  box-shadow: 0.2rem 0.2rem var(--shadowColor);
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .wt-leaf:hover {
@@ -1266,8 +1274,6 @@
   color: var(--shadowColor);
   border-color: var(--borderColor);
   border-top-color: var(--linkColor);
-  box-shadow: 0.3rem 0.3rem var(--shadowColor);
-  transform: translateY(-0.15rem);
 }
 
 .wt-leaf.is-complete {
@@ -1293,10 +1299,7 @@
   color: var(--backgroundColor);
   border-color: var(--shadowColor);
   border-top-color: var(--shadowColor);
-  cursor: default;
   opacity: 0.85;
-  box-shadow: none;
-  transition: none;
 }
 
 .wt-leaf.is-rest:hover {
@@ -1304,8 +1307,6 @@
   color: var(--backgroundColor);
   border-color: var(--shadowColor);
   border-top-color: var(--shadowColor);
-  box-shadow: none;
-  transform: none;
 }
 
 .wt-leaf.is-week {
@@ -1744,13 +1745,21 @@
     color: var(--borderColor);
   }
 
+  .is-clickable:hover {
+    transform: none;
+    box-shadow: 0.2rem 0.2rem var(--shadowColor);
+  }
+
+  .is-clickable.tapped {
+    transform: translateY(-0.15rem);
+    box-shadow: 0.3rem 0.3rem var(--shadowColor);
+  }
+
   .wt-leaf:hover {
     background-color: var(--contentColor);
     color: var(--shadowColor);
     border-color: var(--shadowColor);
     border-top-color: var(--linkColor);
-    box-shadow: 0.2rem 0.2rem var(--shadowColor);
-    transform: none;
   }
 
   .wt-leaf.tapped {
@@ -1758,8 +1767,6 @@
     color: var(--shadowColor);
     border-color: var(--borderColor);
     border-top-color: var(--linkColor);
-    box-shadow: 0.3rem 0.3rem var(--shadowColor);
-    transform: translateY(-0.15rem);
   }
 
   .wt-leaf.is-complete:hover {
@@ -1771,8 +1778,6 @@
   }
 
   .wt-root.is-expandable:hover {
-    transform: none;
-    box-shadow: 0.2rem 0.2rem var(--shadowColor);
     border-color: var(--shadowColor);
   }
 
@@ -1781,8 +1786,6 @@
   }
 
   .wt-root.is-expandable.tapped {
-    transform: translateY(-0.15rem);
-    box-shadow: 0.3rem 0.3rem var(--shadowColor);
     border-color: var(--borderColor);
   }
 

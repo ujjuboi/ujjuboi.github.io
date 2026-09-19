@@ -1262,12 +1262,12 @@ function openStudyDrawer(node, triggerBtn) {
 }
 
 /**
- * Renders a single study leaf (week or project) as a word-tree subnode.
- * Phase roots never render here. Dated-plan week leaves (with children)
- * drill into an in-place week detail; all other leaves open the drawer.
+ * Renders a single study leaf (dated week, day, or rest) as a word-tree subnode.
+ * Phase roots never render here. Grouped week leaves (with children)
+ * drill into an in-place week detail; day leaves open the drawer.
  *
  * @param {Object} phase Phase object containing this node.
- * @param {Object} node Node object (week or project).
+ * @param {Object} node Node object (week, day, or rest).
  * @param {boolean} isActive Whether this is the current focus node.
  * @param {Object} [plan] Parsed plan, required for week drill-down leaves.
  * @param {HTMLElement} [treeEl] Study tree container for week drill-down.
@@ -1285,7 +1285,7 @@ function renderStudyNode(phase, node, isActive, plan, treeEl) {
     + (isDatedWeek ? ' is-week is-expandable' : '')
     + (isActive ? ' is-active' : '')
     + (isComplete ? ' is-complete' : '')
-    + (node.kind === 'rest' ? ' is-rest' : '');
+    + (node.kind === 'rest' ? ' is-rest is-static' : ' is-clickable');
 
   const kicker = document.createElement('span');
   kicker.className = 'wt-leaf-kicker';
@@ -1294,7 +1294,7 @@ function renderStudyNode(phase, node, isActive, plan, treeEl) {
   } else if (node.kind === 'rest') {
     kicker.textContent = 'Rest Day · ' + node.date;
   } else {
-    kicker.textContent = (node.kind === 'project' ? 'Project ' : 'Week ') + node.number + (total > 0 ? ' · ' + done + '/' + total : '');
+    kicker.textContent = 'Week ' + node.number + (total > 0 ? ' · ' + done + '/' + total : '');
   }
 
   const text = document.createElement('span');
@@ -1328,285 +1328,6 @@ function renderStudyNode(phase, node, isActive, plan, treeEl) {
 }
 
 /**
- * Parses the raw study plan markdown into structured data.
- *
- * @param {string} text Raw markdown source.
- * @returns {Object} Parsed study plan with phases, progress, and focus.
- */
-function parseStudyPlan(text) {
-  const lines = text.split('\n');
-  const result = {
-    title: '',
-    phases: [],
-    done: 0,
-    total: 0,
-    pct: 0,
-    focus: null
-  };
-
-  let currentPhase = null;
-  let currentGroup = null;
-  let currentItem = null;
-  let phaseNum = 0;
-  let titleParsed = false;
-
-  for (let index = 0; index < lines.length; index++) {
-    const line = lines[index];
-
-    if (!titleParsed && line.startsWith('# ')) {
-      result.title = line.slice(2).trim();
-      titleParsed = true;
-      continue;
-    }
-
-    const phaseMatch = line.match(/^## Phase (\d+):\s*(.+)/);
-    if (phaseMatch) {
-      phaseNum = parseInt(phaseMatch[1], 10);
-      currentPhase = {
-        name: 'Phase ' + phaseNum,
-        label: phaseMatch[2].trim(),
-        weeks: []
-      };
-      result.phases.push(currentPhase);
-      currentGroup = null;
-      currentItem = null;
-      continue;
-    }
-
-    if (!currentPhase) continue;
-
-    const dayMatch = line.match(/^### Day\s+(\d+):\s*(.+?)\s*—\s*(.+)/);
-    if (dayMatch) {
-      const num = dayMatch[1];
-      const date = dayMatch[2].trim();
-      const topic = dayMatch[3].trim();
-      const label = 'Day ' + num + ' · ' + date;
-      currentGroup = {
-        label: label,
-        topic: topic,
-        kind: 'day',
-        number: num,
-        date: date,
-        items: []
-      };
-      currentPhase.weeks.push(currentGroup);
-      currentItem = null;
-      continue;
-    }
-
-    const restDayMatch = line.match(/^### Rest Day:\s*(.+)/);
-    if (restDayMatch) {
-      const dateAndTopic = restDayMatch[1].trim();
-      const separatorIndex = dateAndTopic.indexOf('—');
-      let date, topic;
-      if (separatorIndex !== -1) {
-        date = dateAndTopic.slice(0, separatorIndex).trim();
-        topic = dateAndTopic.slice(separatorIndex + 1).trim();
-      } else {
-        date = dateAndTopic;
-        topic = 'Review & Recovery';
-      }
-      currentGroup = {
-        label: 'Rest Day',
-        topic: topic,
-        kind: 'rest',
-        date: date,
-        items: []
-      };
-      currentPhase.weeks.push(currentGroup);
-      currentItem = null;
-      continue;
-    }
-
-    const weekMatch = line.match(/^### (Week|Project)\s+(\d+):\s*(.+)/);
-    if (weekMatch) {
-      const kind = weekMatch[1].toLowerCase();
-      const num = weekMatch[2];
-      const label = weekMatch[3].trim();
-      currentGroup = {
-        label: label.charAt(0).toUpperCase() + label.slice(1) + ' ' + (kind === 'week' ? '· Week ' + num : '· Project ' + num),
-        topic: label.charAt(0).toUpperCase() + label.slice(1),
-        kind: kind,
-        number: num,
-        items: []
-      };
-      currentPhase.weeks.push(currentGroup);
-      currentItem = null;
-      continue;
-    }
-
-    if (!currentGroup) continue;
-
-    const subLink = line.match(/^\s+-\s+(.+?):\s*\[([^\]]+)\]\(([^)]+)\)\s*$/);
-    if (subLink) {
-      if (currentItem) {
-        currentItem.subs.push({
-          label: subLink[1].trim(),
-          text: subLink[2].trim(),
-          url: subLink[3].trim()
-        });
-      }
-      continue;
-    }
-
-    const subText = line.match(/^\s+-\s+(.+)$/);
-    if (subText && !line.trim().startsWith('- [')) {
-      if (currentItem) {
-        currentItem.subs.push({ label: '', text: subText[1].trim(), url: null });
-      }
-      continue;
-    }
-
-    if (line.match(/^- \[x\]/)) {
-      const itemText = line.replace(/^- \[x\]\s*/, '').trim();
-      currentItem = { text: itemText, done: true, subs: [] };
-      currentGroup.items.push(currentItem);
-      result.done++;
-      result.total++;
-    } else if (line.match(/^- \[ \]/)) {
-      const itemText = line.replace(/^- \[ \]\s*/, '').trim();
-      currentItem = { text: itemText, done: false, subs: [] };
-      currentGroup.items.push(currentItem);
-      result.total++;
-
-      if (!result.focus) {
-        result.focus = {
-          phase: currentPhase.name,
-          label: currentGroup.label,
-          topic: itemText
-        };
-      }
-    }
-  }
-
-  result.pct = result.total > 0 ? Math.round((result.done / result.total) * 100) : 0;
-
-  if (!result.focus && result.total > 0 && result.done === result.total) {
-    let lastNonRestGroup = null;
-    let lastNonRestPhase = null;
-    for (let p = result.phases.length - 1; p >= 0; p--) {
-      const phase = result.phases[p];
-      if (!phase) continue;
-      const nonRestWeeks = phase.weeks.filter(week => week.kind !== 'rest');
-      if (nonRestWeeks.length > 0) {
-        lastNonRestGroup = nonRestWeeks[nonRestWeeks.length - 1];
-        lastNonRestPhase = phase;
-        break;
-      }
-    }
-    if (lastNonRestGroup && lastNonRestPhase) {
-      result.focus = {
-        phase: lastNonRestPhase.name,
-        label: lastNonRestGroup.label,
-        topic: lastNonRestGroup.items[lastNonRestGroup.items.length - 1]?.text || ''
-      };
-    }
-  }
-
-  return result;
-}
-
-/**
- * Dated-plan week boundaries for the daily schedules, keyed by plan filename.
- * Each week holds 3 study days + its rest day(s); `lastDay` is the highest
- * study-day number in that week. Only dated plans are keyed here.
- */
-const datedPlanWeekGroups = {
-  'algorithms-and-leetcode.md': [
-    { week: 1, topic: 'Algorithm Basics & Sorting', lastDay: 3 },
-    { week: 2, topic: 'Recursion & Data Structures', lastDay: 7 },
-    { week: 3, topic: 'Quicksort & Hash Tables', lastDay: 11 },
-    { week: 4, topic: 'Graphs & BFS', lastDay: 15 },
-    { week: 5, topic: 'Shortest Path & Greedy', lastDay: 19 },
-    { week: 6, topic: 'Dynamic Programming & KNN', lastDay: 25 }
-  ],
-  'code-architecture-system-design.md': [
-    { week: 1, topic: 'Domain Modeling & Capacity Estimation', lastDay: 3 },
-    { week: 2, topic: 'Persistent Storage', lastDay: 6 },
-    { week: 3, topic: 'Coupling, Abstractions & Consistent Hashing', lastDay: 9 },
-    { week: 4, topic: 'Service Layers & API Design', lastDay: 12 },
-    { week: 5, topic: 'TDD & System Design Framework', lastDay: 15 },
-    { week: 6, topic: 'Microservices & Distributed Messaging Foundations', lastDay: 18 },
-    { week: 7, topic: 'Event-Driven Architecture', lastDay: 21 },
-    { week: 8, topic: 'CQRS & Read/Write Separation at Scale', lastDay: 24 },
-    { week: 9, topic: 'End-to-End System Design', lastDay: 28 },
-    { week: 10, topic: 'Domain-Driven Blogging Platform', lastDay: 31 },
-    { week: 11, topic: 'Distributed Key-Value Store', lastDay: 34 },
-    { week: 12, topic: 'Event-Driven Notification Service', lastDay: 37 },
-    { week: 13, topic: 'Image Service & Video Pipeline with CQRS', lastDay: 40 }
-  ],
-  'claude-certified-developer-foundations.md': [
-    { week: 1, topic: 'Agent Architecture', lastDay: 2 },
-    { week: 2, topic: 'Agent Construction, Patterns & Frameworks', lastDay: 5 },
-    { week: 3, topic: 'Requirements & Claude API Mechanics', lastDay: 7 },
-    { week: 4, topic: 'Foundations, Application Design & Configuration', lastDay: 10 },
-    { week: 5, topic: 'Core Components & Session Management', lastDay: 12 },
-    { week: 6, topic: 'Claude Code Workflows', lastDay: 14 },
-    { week: 7, topic: 'Error Identification & Recovery', lastDay: 15 },
-    { week: 8, topic: 'Trace Analysis & Debugging', lastDay: 16 },
-    { week: 9, topic: 'LLM & Technical Fundamentals', lastDay: 18 },
-    { week: 10, topic: 'Model Selection, Cost & Token Management', lastDay: 20 },
-    { week: 11, topic: 'Context & Prompt Engineering', lastDay: 23 },
-    { week: 12, topic: 'Output Handling', lastDay: 25 },
-    { week: 13, topic: 'AI Application Security', lastDay: 27 },
-    { week: 14, topic: 'Guardrails & Safe Deployment', lastDay: 29 },
-    { week: 15, topic: 'Tool Implementation & MCP Server Development', lastDay: 31 },
-    { week: 16, topic: 'Agentic Customization', lastDay: 32 },
-    { week: 17, topic: 'Build a Claude API Application', lastDay: 34 },
-    { week: 18, topic: 'Set Up a Claude Code Workspace', lastDay: 36 }
-  ]
-};
-
-/**
- * Rebuilds a dated plan's day/rest leaves into week nodes so the overview
- * shows one leaf per week instead of every dated day. Rest days ride along in
- * the week they fall in. Only applies when the plan matches a week group
- * entry and the phase carries day/rest leaves; other plans and phases are
- * left untouched.
- *
- * @param {Object} plan Parsed study plan object.
- * @param {string} fileName Plan filename used to look up the week groups.
- */
-function applyDatedWeekGroups(plan, fileName) {
-  const weekGroups = datedPlanWeekGroups[fileName];
-  if (!weekGroups) return;
-
-  let weekIndex = 0;
-  for (const phase of plan.phases) {
-    const hasDatedLeaves = phase.weeks.some(node => node.kind === 'day' || node.kind === 'rest');
-    if (!hasDatedLeaves) continue;
-
-    const rebuiltWeeks = [];
-    let currentWeek = null;
-
-    for (const node of phase.weeks) {
-      if (node.kind === 'day' && weekIndex < weekGroups.length && Number(node.number) > weekGroups[weekIndex].lastDay) {
-        weekIndex++;
-        currentWeek = null;
-      }
-      if (!currentWeek) {
-        const group = weekGroups[Math.min(weekIndex, weekGroups.length - 1)];
-        currentWeek = {
-          kind: 'week',
-          number: group.week,
-          topic: group.topic,
-          label: 'Week ' + group.week + ' · ' + group.topic,
-          children: [],
-          items: []
-        };
-        rebuiltWeeks.push(currentWeek);
-      }
-      currentWeek.children.push(node);
-      if (node.items && node.items.length > 0) {
-        currentWeek.items.push(...node.items);
-      }
-    }
-
-    phase.weeks = rebuiltWeeks;
-  }
-}
-
-/**
  * Parsed study plans loaded from the manifest.
  */
 const studyPlans = [];
@@ -1630,7 +1351,7 @@ function buildWordTree(plan, treeEl) {
     branch.className = 'wt-branch';
 
     const root = document.createElement('div');
-    root.className = 'wt-root';
+    root.className = 'wt-root is-static';
 
     const rootNum = document.createElement('span');
     rootNum.className = 'wt-root-num';
@@ -1698,7 +1419,7 @@ function openWeekDetail(plan, phase, week, treeEl) {
   detailBranch.className = 'wt-branch is-week-detail';
 
   const detailRoot = document.createElement('div');
-  detailRoot.className = 'wt-root is-expandable';
+  detailRoot.className = 'wt-root is-expandable is-clickable';
   detailRoot.setAttribute('role', 'button');
   detailRoot.setAttribute('tabindex', '0');
   detailRoot.setAttribute('aria-expanded', 'true');
@@ -1791,16 +1512,6 @@ function closeWeekDetail(plan, treeEl, week) {
       }
     }
   }, 150);
-}
-
-/**
- * Returns a plan's title with the 'Study Plan:' prefix stripped.
- *
- * @param {object} plan Parsed study plan object.
- * @returns {string} Display title.
- */
-function studyPlanDisplayTitle(plan) {
-  return plan.title.replace(/^Study Plan:\s*/i, '');
 }
 
 /**
