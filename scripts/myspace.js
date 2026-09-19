@@ -1277,12 +1277,17 @@ function renderStudyNode(phase, node, isActive) {
 
   const leafEl = document.createElement('button');
   leafEl.type = 'button';
-  leafEl.className = 'wt-leaf' + (isActive ? ' is-active' : '') + (isComplete ? ' is-complete' : '');
+  leafEl.className = 'wt-leaf' + (isActive ? ' is-active' : '') + (isComplete ? ' is-complete' : '') + (node.kind === 'rest' ? ' is-rest' : '');
 
   const kicker = document.createElement('span');
   kicker.className = 'wt-leaf-kicker';
-  const wordLabel = (node.kind === 'project' ? 'Project ' : 'Week ') + node.number;
-  kicker.textContent = wordLabel + (total > 0 ? ' · ' + done + '/' + total : '');
+  if (node.kind === 'day') {
+    kicker.textContent = 'Day ' + node.number + ' · ' + node.date + (total > 0 ? ' · ' + done + '/' + total : '');
+  } else if (node.kind === 'rest') {
+    kicker.textContent = 'Rest Day · ' + node.date;
+  } else {
+    kicker.textContent = (node.kind === 'project' ? 'Project ' : 'Week ') + node.number + (total > 0 ? ' · ' + done + '/' + total : '');
+  }
 
   const text = document.createElement('span');
   text.className = 'wt-leaf-text';
@@ -1291,16 +1296,18 @@ function renderStudyNode(phase, node, isActive) {
   leafEl.appendChild(kicker);
   leafEl.appendChild(text);
 
-  leafEl.addEventListener('click', () => {
-    const phaseNum = phase.name ? phase.name.replace(/^Phase\s+/, '') : '';
-    const phaseBreadcrumb = 'Phase ' + phaseNum + ' — ' + node.label;
+  if (node.kind !== 'rest') {
+    leafEl.addEventListener('click', () => {
+      const phaseNum = phase.name ? phase.name.replace(/^Phase\s+/, '') : '';
+      const phaseBreadcrumb = 'Phase ' + phaseNum + ' — ' + node.label;
 
-    openStudyDrawer({
-      title: node.label,
-      phaseBreadCrumb: phaseBreadcrumb,
-      items: node.items || []
-    }, leafEl);
-  });
+      openStudyDrawer({
+        title: node.label,
+        phaseBreadCrumb: phaseBreadcrumb,
+        items: node.items || []
+      }, leafEl);
+    });
+  }
 
   return leafEl;
 }
@@ -1352,6 +1359,49 @@ function parseStudyPlan(text) {
     }
 
     if (!currentPhase) continue;
+
+    const dayMatch = line.match(/^### Day\s+(\d+):\s*(.+?)\s*—\s*(.+)/);
+    if (dayMatch) {
+      const num = dayMatch[1];
+      const date = dayMatch[2].trim();
+      const topic = dayMatch[3].trim();
+      const label = 'Day ' + num + ' · ' + date;
+      currentGroup = {
+        label: label,
+        topic: topic,
+        kind: 'day',
+        number: num,
+        date: date,
+        items: []
+      };
+      currentPhase.weeks.push(currentGroup);
+      currentItem = null;
+      continue;
+    }
+
+    const restDayMatch = line.match(/^### Rest Day:\s*(.+)/);
+    if (restDayMatch) {
+      const dateAndTopic = restDayMatch[1].trim();
+      const separatorIndex = dateAndTopic.indexOf('—');
+      let date, topic;
+      if (separatorIndex !== -1) {
+        date = dateAndTopic.slice(0, separatorIndex).trim();
+        topic = dateAndTopic.slice(separatorIndex + 1).trim();
+      } else {
+        date = dateAndTopic;
+        topic = 'Review & Recovery';
+      }
+      currentGroup = {
+        label: 'Rest Day',
+        topic: topic,
+        kind: 'rest',
+        date: date,
+        items: []
+      };
+      currentPhase.weeks.push(currentGroup);
+      currentItem = null;
+      continue;
+    }
 
     const weekMatch = line.match(/^### (Week|Project)\s+(\d+):\s*(.+)/);
     if (weekMatch) {
@@ -1417,13 +1467,23 @@ function parseStudyPlan(text) {
   result.pct = result.total > 0 ? Math.round((result.done / result.total) * 100) : 0;
 
   if (!result.focus && result.total > 0 && result.done === result.total) {
-    const lastGroup = result.phases[result.phases.length - 1];
-    if (lastGroup && lastGroup.weeks.length > 0) {
-      const lastWeek = lastGroup.weeks[lastGroup.weeks.length - 1];
+    let lastNonRestGroup = null;
+    let lastNonRestPhase = null;
+    for (let p = result.phases.length - 1; p >= 0; p--) {
+      const phase = result.phases[p];
+      if (!phase) continue;
+      const nonRestWeeks = phase.weeks.filter(week => week.kind !== 'rest');
+      if (nonRestWeeks.length > 0) {
+        lastNonRestGroup = nonRestWeeks[nonRestWeeks.length - 1];
+        lastNonRestPhase = phase;
+        break;
+      }
+    }
+    if (lastNonRestGroup && lastNonRestPhase) {
       result.focus = {
-        phase: lastGroup.name,
-        label: lastWeek.label,
-        topic: lastWeek.items[lastWeek.items.length - 1]?.text || ''
+        phase: lastNonRestPhase.name,
+        label: lastNonRestGroup.label,
+        topic: lastNonRestGroup.items[lastNonRestGroup.items.length - 1]?.text || ''
       };
     }
   }
@@ -1465,6 +1525,7 @@ function buildWordTree(plan) {
     let phaseDone = 0;
     let phaseTotal = 0;
     for (const week of phase.weeks) {
+      if (week.kind === 'rest') continue;
       if (!week.items) continue;
       phaseDone += week.items.filter(item => item.done).length;
       phaseTotal += week.items.length;
@@ -1480,6 +1541,7 @@ function buildWordTree(plan) {
 
     const branchLine = document.createElement('span');
     branchLine.className = 'wt-branch-line';
+    branchLine.textContent = phase.name.replace(/^Phase\s+/, '');
 
     const leaves = document.createElement('div');
     leaves.className = 'wt-leaves';

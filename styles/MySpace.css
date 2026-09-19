@@ -1102,7 +1102,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 3.5rem;
+  gap: 5rem;
   padding: 0.5rem 0;
 }
 
@@ -1173,7 +1173,24 @@
 }
 
 .wt-branch-line {
-  display: none;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: calc(25% - 0.5rem);
+  transform: translate(-50%, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+  border: 0.15rem solid var(--borderColor);
+  border-radius: 50%;
+  font-family: var(--theme-heading-font);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1;
 }
 
 .wt-leaves {
@@ -1192,8 +1209,8 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 0.1rem;
-  background-color: var(--shadowColor);
-  color: var(--backgroundColor);
+  background-color: var(--contentColor);
+  color: var(--shadowColor);
   border: 0.15rem solid var(--shadowColor);
   border-top: 0.25rem solid var(--linkColor);
   border-radius: 0.35rem;
@@ -1206,14 +1223,16 @@
   justify-self: start;
   max-width: 100%;
   box-sizing: border-box;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0.2rem 0.2rem var(--shadowColor);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .wt-leaf:hover {
-  background-color: var(--backgroundColor);
+  background-color: var(--contentColor);
   color: var(--shadowColor);
   border-color: var(--borderColor);
   border-top-color: var(--linkColor);
+  box-shadow: 0.3rem 0.3rem var(--shadowColor);
   transform: translateY(-0.15rem);
 }
 
@@ -1233,6 +1252,26 @@
   text-decoration: line-through;
   text-decoration-color: var(--shadowColor);
   text-decoration-thickness: 0.2rem;
+}
+
+.wt-leaf.is-rest {
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+  border-color: var(--shadowColor);
+  border-top-color: var(--shadowColor);
+  cursor: default;
+  opacity: 0.6;
+  box-shadow: none;
+  transition: none;
+}
+
+.wt-leaf.is-rest:hover {
+  background-color: var(--shadowColor);
+  color: var(--backgroundColor);
+  border-color: var(--shadowColor);
+  border-top-color: var(--shadowColor);
+  box-shadow: none;
+  transform: none;
 }
 
 .wt-leaf-kicker {
@@ -1471,6 +1510,12 @@
     bottom: 0;
   }
 
+  .wt-branch-line {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
   .wt-branch::after {
     display: none;
   }
@@ -1603,18 +1648,20 @@
   }
 
   .wt-leaf:hover {
-    background-color: var(--shadowColor);
-    color: var(--backgroundColor);
+    background-color: var(--contentColor);
+    color: var(--shadowColor);
     border-color: var(--shadowColor);
     border-top-color: var(--linkColor);
+    box-shadow: 0.2rem 0.2rem var(--shadowColor);
     transform: none;
   }
 
   .wt-leaf.tapped {
-    background-color: var(--backgroundColor);
+    background-color: var(--contentColor);
     color: var(--shadowColor);
     border-color: var(--borderColor);
     border-top-color: var(--linkColor);
+    box-shadow: 0.3rem 0.3rem var(--shadowColor);
     transform: translateY(-0.15rem);
   }
 
