@@ -1,6 +1,6 @@
 ---
 name: quick-study-plan
-description: Create a dated day-breakdown study plan markdown file (src/StudyPlans/<slug>.md), register its week groups in scripts/myspace.js, and append it to src/StudyPlans/plans.json, based on the src/StudyPlans/template.md structure. Use when the user wants to create a study plan by providing either a URL/link or a local file (PDF/EPUB/MOBI/etc.), then get interviewed on the details before the plan is written. Use e.g. "/quick-study-plan https://...", "/quick-study-plan path/to/book.pdf".
+description: Create a dated day-breakdown study plan markdown file (src/StudyPlans/<slug>.md), register its week groups in scripts/shared.js, and append it to src/StudyPlans/plans.json, based on the src/StudyPlans/template.md structure. Use when the user wants to create a study plan by providing either a URL/link or a local file (PDF/EPUB/MOBI/etc.), then get interviewed on the details before the plan is written. Use e.g. "/quick-study-plan https://...", "/quick-study-plan path/to/book.pdf".
 ---
 
 # Quick Study Plan Creator
@@ -12,7 +12,7 @@ dated example in `src/StudyPlans/algorithms-and-leetcode.md`.
 Plans use **dated day-breakdown nodes**, not numbered weeks: every study item
 lives under a `### Day N:` heading carrying a real calendar date, and rest days
 are `### Rest Day:` headings. Content weeks are derived in JS via a
-`datedPlanWeekGroups` entry in `scripts/myspace.js`, so no `### Week N:`
+`datedPlanWeekGroups` entry in `scripts/shared.js`, so no `### Week N:`
 headings appear in the markdown.
 
 The user provides either a **link** (URL) or a **local file** that describes or
@@ -92,7 +92,7 @@ skip any question. Gather the answers conversationally, then write the plan.
 1. Confirm the **input** (link or file path) and run the appropriate extraction
    above.
 2. Run the **strict interview** above and collect every answer.
-3. **Read `scripts/myspace.js`** (`datedPlanWeekGroups`, ~line 1508) and
+3. **Read `scripts/shared.js`** (`datedPlanWeekGroups`, ~line 813) and
    `src/StudyPlans/plans.json` to learn the existing plan keys/format.
 4. **Read `src/StudyPlans/template.md`** as the structure reference and
    `src/StudyPlans/algorithms-and-leetcode.md` as the dated style example
@@ -115,7 +115,7 @@ skip any question. Gather the answers conversationally, then write the plan.
    - **Projects**: dated study days as well, heading topic `Project: <name>`.
    - Tasks under days should be concise, non-redundant, and derived from the
      source content and the interview.
-6. **Add the `datedPlanWeekGroups` entry** in `scripts/myspace.js` — append a
+6. **Add the `datedPlanWeekGroups` entry** in `scripts/shared.js` — append a
    new keyed array after the existing entries (never edit existing keys/weeks):
    - Key = the plan filename (e.g. `'<slug>.md'`).
    - Value = array of one object per content week:
@@ -126,7 +126,7 @@ skip any question. Gather the answers conversationally, then write the plan.
      content (matching the days written in the markdown).
 7. Append the new filename to `src/StudyPlans/plans.json` (keep existing
    order).
-8. **Verify**: run `node --check scripts/myspace.js` after editing the JS.
+8. **Verify**: run `node --check scripts/shared.js` after editing the JS.
    Catch any date/weekday mistakes (e.g. a `## Phase` starting on a rest day)
    by re-reading the generated markdown.
 9. **Confirm** by showing the user the created file path, the number of
@@ -138,7 +138,7 @@ skip any question. Gather the answers conversationally, then write the plan.
 - Follow `src/StudyPlans/template.md`; do not invent a different structure.
 - The markdown file must contain **no `### Week N:` or `### Project N:`**
   headings — weeks and projects are dated days; week grouping lives only in
-  `datedPlanWeekGroups` in `scripts/myspace.js`.
+  `datedPlanWeekGroups` in `scripts/shared.js`.
 - Use **real calendar dates** with the correct weekday abbreviation (Sun, Mon,
   Tue, Wed, Thu, Fri, Sat) and month abbreviation (Jan–Dec). Verify every
   date's weekday matches the actual calendar.

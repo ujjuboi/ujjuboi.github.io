@@ -9,7 +9,7 @@ The "Currently Studying" section renders each study plan from `src/StudyPlans/` 
 | Section builder | `buildStudySection()` (`scripts/myspace.js:27`) |
 | Loading | `loadStudyPlans()` (`scripts/myspace.js:1520`) — fetches `src/StudyPlans/plans.json`, parses each `.md`, then applies week groups |
 | Parsing | `parseStudyPlan(text)` (`scripts/shared.js:652`) — shared, parses dated Day/Rest headings |
-| Week grouping | `datedPlanWeekGroups` (`scripts/shared.js:813`) + `applyDatedWeekGroups(plan, fileName)` (`shared.js:869`) |
+| Week grouping | `datedPlanWeekGroups` (`scripts/shared.js:813`) + `applyDatedWeekGroups(plan, fileName)` (`shared.js:885`) |
 | Rendering | `renderStudyPlans()` (`:1548`), `showStudyPlan()` (`:1603`), `buildWordTree()` (`:1345`) |
 | Node render | `renderStudyNode(phase, node, isActive, plan, treeEl)` (`scripts/myspace.js:1276`) |
 | Week drill-down | `openWeekDetail()` (`:1415`), `closeWeekDetail()` (`:1492`) |

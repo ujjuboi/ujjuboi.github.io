@@ -857,11 +857,27 @@ const datedPlanWeekGroups = {
 };
 
 /**
+ * Returns the week group entry whose day range contains the given day number.
+ * Falls back to the last group when the day exceeds every group's range, so
+ * late days land in the final week rather than being dropped.
+ *
+ * @param {Array<Object>} weekGroups Week group entries (each with `week`,
+ *   `topic`, and `lastDay`) keyed to the plan's day numbering.
+ * @param {number} dayNumber Day number to locate.
+ * @returns {Object} Matching week group entry.
+ */
+function findWeekGroup(weekGroups, dayNumber) {
+  const matchingGroup = weekGroups.find(group => dayNumber <= group.lastDay);
+  return matchingGroup || weekGroups[weekGroups.length - 1];
+}
+
+/**
  * Rebuilds a dated plan's day/rest leaves into week nodes so the overview
  * shows one leaf per week instead of every dated day. Rest days ride along in
- * the week they fall in. Only applies when the plan matches a week group
- * entry and the phase carries day/rest leaves; other plans and phases are
- * left untouched.
+ * the week they fall in; a rest day that opens a phase (unusual) rides along
+ * in the last week built instead of spawning its own. Only applies when the
+ * plan matches a week group entry and the phase carries day/rest leaves;
+ * other plans and phases are left untouched.
  *
  * @param {Object} plan Parsed study plan object.
  * @param {string} fileName Plan filename used to look up the week groups.
@@ -870,7 +886,8 @@ function applyDatedWeekGroups(plan, fileName) {
   const weekGroups = datedPlanWeekGroups[fileName];
   if (!weekGroups) return;
 
-  let weekIndex = 0;
+  let lastWeek = null;
+
   for (const phase of plan.phases) {
     const hasDatedLeaves = phase.weeks.some(node => node.kind === 'day' || node.kind === 'rest');
     if (!hasDatedLeaves) continue;
@@ -879,25 +896,32 @@ function applyDatedWeekGroups(plan, fileName) {
     let currentWeek = null;
 
     for (const node of phase.weeks) {
-      if (node.kind === 'day' && weekIndex < weekGroups.length && Number(node.number) > weekGroups[weekIndex].lastDay) {
-        weekIndex++;
-        currentWeek = null;
-      }
-      if (!currentWeek) {
-        const group = weekGroups[Math.min(weekIndex, weekGroups.length - 1)];
-        currentWeek = {
-          kind: 'week',
-          number: group.week,
-          topic: group.topic,
-          label: 'Week ' + group.week + ' · ' + group.topic,
-          children: [],
-          items: []
-        };
-        rebuiltWeeks.push(currentWeek);
-      }
-      currentWeek.children.push(node);
-      if (node.items && node.items.length > 0) {
-        currentWeek.items.push(...node.items);
+      if (node.kind === 'day') {
+        const targetGroup = findWeekGroup(weekGroups, Number(node.number));
+        if (!currentWeek || currentWeek.number !== targetGroup.week) {
+          currentWeek = {
+            kind: 'week',
+            number: targetGroup.week,
+            topic: targetGroup.topic,
+            label: 'Week ' + targetGroup.week + ' · ' + targetGroup.topic,
+            children: [],
+            items: []
+          };
+          rebuiltWeeks.push(currentWeek);
+          lastWeek = currentWeek;
+        }
+        currentWeek.children.push(node);
+        if (node.items && node.items.length > 0) {
+          currentWeek.items.push(...node.items);
+        }
+      } else {
+        const targetWeek = currentWeek || lastWeek;
+        if (targetWeek) {
+          targetWeek.children.push(node);
+          if (node.items && node.items.length > 0) {
+            targetWeek.items.push(...node.items);
+          }
+        }
       }
     }
 
