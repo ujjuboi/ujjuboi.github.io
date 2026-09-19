@@ -82,7 +82,7 @@ Rest days keep their calendar position inside the week they fall in.
 
 ## Out of scope / untouched
 
-- `src/StudyPlans/*.md`, `.ics`, `plans.json` — no content edits.
+- `src/StudyPlans/*.md`, `plans.json` — no content edits.
 - Other plans' rendering behavior (unchanged).
 - `README.md` (protected); git workflow (handled by user).
 

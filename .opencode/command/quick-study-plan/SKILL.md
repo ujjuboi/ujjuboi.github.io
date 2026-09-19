@@ -83,10 +83,6 @@ skip any question. Gather the answers conversationally, then write the plan.
    custom schedule.
 8. **Checkbox state** — All tasks are written `[ ]` (unchecked) for a new plan.
    Only mark `[x]` if the user says they have already completed an item.
-9. **Day-1 calendar invite (.ics)** — Whether to also generate a small `.ics`
-   file for Day 1 (convention: `src/StudyPlans/<slug>-day1-<YYYY-MM-DD>.ics`,
-   see `algorithms-day1-2026-09-20.ics`). Default yes when a real study
-   subject is involved.
 
 > Notes are intentionally **not** part of the questionnaire. The user may add
 > personal notes to the markdown file manually after it is created.
@@ -130,15 +126,11 @@ skip any question. Gather the answers conversationally, then write the plan.
      content (matching the days written in the markdown).
 7. Append the new filename to `src/StudyPlans/plans.json` (keep existing
    order).
-8. If the user confirmed the Day-1 `.ics`, create
-   `src/StudyPlans/<slug>-day1-<YYYY-MM-DD>.ics` for Day 1 (all-day event,
-   `DTSTART;VALUE=DATE`, `SUMMARY:Day 1 — <day topic>`, `UID` unique to this
-   plan; mirror `algorithms-day1-2026-09-20.ics`).
-9. **Verify**: run `node --check scripts/myspace.js` after editing the JS.
+8. **Verify**: run `node --check scripts/myspace.js` after editing the JS.
    Catch any date/weekday mistakes (e.g. a `## Phase` starting on a rest day)
    by re-reading the generated markdown.
-10. **Confirm** by showing the user the created file path, the number of
-    phases/weeks and days, the start date, and the `.ics` path if created.
+9. **Confirm** by showing the user the created file path, the number of
+   phases/weeks and days, and the start date.
 
 ## Rules
 

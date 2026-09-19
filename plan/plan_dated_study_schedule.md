@@ -2,9 +2,8 @@
 
 Convert `src/StudyPlans/algorithms-and-leetcode.md` from 6 weekly blocks into a
 concrete dated schedule (25 study days + 8 rest days, 3-on/1-rest rhythm
-starting **Sun, Sep 20 2026**), update the "Currently Studying" word-tree
-renderer to display dated Day/Rest nodes, and ship an all-day `.ics` invite for
-the next study day (Day 1).
+starting **Sun, Sep 20 2026**), and update the "Currently Studying" word-tree
+renderer to display dated Day/Rest nodes.
 
 Note: `plan_studying_section.md` references a nonexistent `src/study-plan.md`;
 the live data source is `src/StudyPlans/plans.json` → `myspace.js` word-tree.
@@ -16,9 +15,6 @@ Keep that pipeline.
 - **Rest rhythm**: 3 study days on, 1 rest day off, repeated through the plan.
 - **Scope**: markdown restructure *and* renderer update (parser + word-tree show
   dated Day/Rest nodes).
-- **Calendar invite**: single all-day `.ics` for the next study day only (Day 1).
-- **ICS location**: `src/StudyPlans/algorithms-day1-2026-09-20.ics`, all-day
-  events (no start/end time).
 
 ## 1. `src/StudyPlans/algorithms-and-leetcode.md` — restructure
 
@@ -102,15 +98,6 @@ One small addition in the `.wt-leaf` cluster (~`:1120`):
 `.wt-leaf.is-rest` — muted tone via `--contentColor`/opacity, `cursor: default`,
 no hover lift. All colors from existing `:root` vars.
 
-## 4. Calendar invite — all-day `.ics` for Day 1
-
-New file `src/StudyPlans/algorithms-day1-2026-09-20.ics`:
-- `DTSTART;VALUE=DATE:20260920` / `DTEND;VALUE=DATE:20260921`
-- `SUMMARY:Day 1 — Algorithm Foundations`
-- `DESCRIPTION` = Day 1's checklist + Book/Site links; no invented resources.
-- Plain VCALENDAR (VERSION 2.0, METHOD:PUBLISH), importable into Apple/Google
-  Calendar. `plans.json` untouched since it only lists `.md` files.
-
 ## Verification
 
 - `node --check scripts/myspace.js`.
@@ -119,7 +106,6 @@ New file `src/StudyPlans/algorithms-day1-2026-09-20.ics`:
   rest nodes are inert; focus readout shows
   "Phase 1 · Day 1 · Sun, Sep 20 — Introduction to algorithms…"; ticking a box
   in the `.md` updates progress.
-- Import the `.ics` in a calendar → all-day event appears for Sep 20.
 
 ## Out of scope
 
