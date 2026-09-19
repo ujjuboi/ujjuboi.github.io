@@ -33,6 +33,21 @@ Making my own dynamic blogging website!
 │   │       ├── SKILL.md
 │   │       └── test.mjs
 │   └── opencode.json
+├── docs/
+│   ├── blog.md
+│   ├── books-reading.md
+│   ├── eye-tracking-banner.md
+│   ├── github-issues-activity.md
+│   ├── leetcode-submissions.md
+│   ├── myspace-page.md
+│   ├── professional-markdown-preview.md
+│   ├── professional-page.md
+│   ├── quick-test-skill.md
+│   ├── responsive-mobile.md
+│   ├── resume-cv-sync.md
+│   ├── shared-scripts.md
+│   ├── shared-styles.md
+│   └── studying-section.md
 ├── Images/
 │   ├── Books/
 │   │   ├── architecture-patterns-with-python.png
@@ -142,6 +157,23 @@ Making my own dynamic blogging website!
 | `pages/MySpace/MySpace.html` | `styles.css` + `Home.css` + `MySpace.css` | `marked.min.js`, `constants.js`, `shared.js`, `myspace.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
 | `pages/Professional/Professional.html` | `styles.css` + `Home.css` + `Professional.css` | `constants.js`, `shared.js`, `professional.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
 | `pages/Resume/Resume.html` | `styles.css` + `Home.css` + `Resume.css` | `marked.min.js`, `constants.js`, `shared.js`, `resume.js` | `shared.js` (footer `menuIcon` toggle via `initMenuToggle()`) |
+
+## Feature docs
+
+- [blog.md](docs/blog.md)
+- [books-reading.md](docs/books-reading.md)
+- [eye-tracking-banner.md](docs/eye-tracking-banner.md)
+- [github-issues-activity.md](docs/github-issues-activity.md)
+- [leetcode-submissions.md](docs/leetcode-submissions.md)
+- [myspace-page.md](docs/myspace-page.md)
+- [professional-markdown-preview.md](docs/professional-markdown-preview.md)
+- [professional-page.md](docs/professional-page.md)
+- [quick-test-skill.md](docs/quick-test-skill.md)
+- [responsive-mobile.md](docs/responsive-mobile.md)
+- [resume-cv-sync.md](docs/resume-cv-sync.md)
+- [shared-scripts.md](docs/shared-scripts.md)
+- [shared-styles.md](docs/shared-styles.md)
+- [studying-section.md](docs/studying-section.md)
 
 ## Key details / conventions
 
