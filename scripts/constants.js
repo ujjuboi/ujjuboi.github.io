@@ -62,7 +62,7 @@ const LEETCODE_PROBLEM_BASE = 'https://leetcode.com/problems/';
  * Candidate repos for the "Currently Working On" section.
  * The first repo that loads successfully is displayed.
  */
-const CURRENT_PROJECT_REPOS = ['ujjuboi/EMBER'];
+const CURRENT_PROJECT_REPOS = ['ujjuboi/jobhunt'];
 
 /**
  * How many trailing months of commit/issue activity the chart shows.
