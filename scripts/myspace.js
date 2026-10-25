@@ -686,7 +686,7 @@ function buildCommitTooltip(month, totalCount) {
  */
 function buildIssueTooltip(month, count, label) {
   const monthLabel = MONTH_NAMES[month.date.getMonth()] + ' ' + month.date.getFullYear();
-  const action = label === 'closed' ? 'closed' : 'currently open';
+  const action = label === 'closed' ? 'closed' : 'opened';
   return `
     <span class="lc-tooltip-date">${monthLabel}</span>
     <span class="lc-tooltip-count">${count} issue${count === 1 ? '' : 's'} ${action}</span>`;
