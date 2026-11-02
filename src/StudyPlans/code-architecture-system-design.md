@@ -2,7 +2,7 @@
 
 ## Phase 1: Foundations — Domain Modeling & Scaling Basics
 
-### Day 1: Sun, Sep 20 — Domain Modeling & Scaling
+### Day 1: Domain Modeling & Scaling
 
 - [ ] Domain Modeling — ubiquitous language, domain events, mapping domain to code
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
@@ -11,7 +11,7 @@
 - [ ] Scaling from zero to millions — the 6 dimensions of scaling
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 2: Mon, Sep 21 — Capacity Estimation
+### Day 2: Capacity Estimation
 
 - [ ] Back-of-the-envelope estimation — request rates, storage, bandwidth calculations
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
@@ -20,7 +20,7 @@
 - [ ] Workload analysis — read-heavy, write-heavy, compute-intensive
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 3: Tue, Sep 22 — Design Practice: URL Shortener & Key-Value Store
+### Day 3: Design Practice: URL Shortener & Key-Value Store
 
 - [ ] Design a URL shortener — requirements, capacity estimation, API design
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
@@ -28,11 +28,11 @@
 - [ ] Design a key-value store — requirements, data model, scaling strategy
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Rest Day: Wed, Sep 23 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 4: Thu, Sep 24 — Repository & Unit of Work
+### Day 4: Repository & Unit of Work
 
 - [ ] Repository Pattern — abstraction over data access, separation of persistence logic
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
@@ -41,7 +41,7 @@
 - [ ] Aggregate Roots and Consistency Boundaries
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 
-### Day 5: Fri, Sep 25 — Data Modeling & Storage Options
+### Day 5: Data Modeling & Storage Options
 
 - [ ] Data modeling for scale — relational vs document vs columnar stores
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
@@ -50,18 +50,18 @@
 - [ ] Relational databases for scale — partitioning, sharding, read replicas
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 6: Sat, Sep 26 — Storage Design & Implementation
+### Day 6: Storage Design & Implementation
 
 - [ ] Storage design interview question — Google Drive file storage
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Implement a Repository pattern in Python with SQLAlchemy
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 
-### Rest Day: Sun, Sep 27 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 7: Mon, Sep 28 — Coupling, Dependency Injection & Microservices
+### Day 7: Coupling, Dependency Injection & Microservices
 
 - [ ] Coupling and Abstractions — high cohesion, loose coupling, dependency inversion
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
@@ -70,7 +70,7 @@
 - [ ] Microservices — when to split, when not to, service boundaries
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 
-### Day 8: Tue, Sep 29 — Scaling, Consistent Hashing & Caching
+### Day 8: Scaling, Consistent Hashing & Caching
 
 - [ ] Scaling basics — vertical vs horizontal, stateless services, session management
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
@@ -79,20 +79,20 @@
 - [ ] Caching fundamentals — CDN, in-memory cache, cache-aside, write-through
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 9: Wed, Sep 30 — Load Balancing & Web Crawler
+### Day 9: Load Balancing & Web Crawler
 
 - [ ] Load balancing — L4 vs L7, round-robin, least connections, sticky sessions
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Design a web crawler — URL frontier, deduplication, politeness, distributed crawling
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Rest Day: Thu, Oct 1 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
 ## Phase 2: Architecture at Scale — APIs, Testing & Frameworks
 
-### Day 10: Fri, Oct 2 — Service Layer & Flask API
+### Day 10: Service Layer & Flask API
 
 - [ ] Service Layer Pattern — orchestrating use cases, transaction coordination
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
@@ -101,7 +101,7 @@
 - [ ] RESTful API design — resource modeling, HTTP semantics, pagination, filtering
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 11: Sat, Oct 3 — gRPC, Versioning & News Feed
+### Day 11: gRPC, Versioning & News Feed
 
 - [ ] gRPC and protobuf — when to use RPC vs REST, streaming, service discovery
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
@@ -110,17 +110,17 @@
 - [ ] News Feed System — fan-out on write vs fan-out on read, hybrid approaches
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 12: Sun, Oct 4 — Chat System & Service Layer Implementation
+### Day 12: Chat System & Service Layer Implementation
 
 - [ ] Chat System — real-time messaging, WebSocket architecture, presence, offline delivery
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Build a service layer with Flask that coordinates Repository and Unit of Work
 
-### Rest Day: Mon, Oct 5 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 13: Tue, Oct 6 — TDD in High & Low Gear
+### Day 13: TDD in High & Low Gear
 
 - [ ] TDD in High Gear — fast, isolated unit tests, test doubles, assertions
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
@@ -129,7 +129,7 @@
 - [ ] Testing infrastructure — mocking external services, test containers, CI pipelines
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 
-### Day 14: Wed, Oct 7 — System Design Framework & CAP
+### Day 14: System Design Framework & CAP
 
 - [ ] System Design Interview Framework — clarification, estimation, interface design, deep dive
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
@@ -138,17 +138,17 @@
 - [ ] Distributed caching — Redis clustering, Memcached, invalidation strategies
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 15: Thu, Oct 8 — Autocomplete & Integration Tests
+### Day 15: Autocomplete & Integration Tests
 
 - [ ] Design a search autocomplete system — trie structures, prefix search, latency optimization
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Write integration tests for a Flask service with database and external API calls
 
-### Rest Day: Fri, Oct 9 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 16: Sat, Oct 10 — Message Bus Fundamentals
+### Day 16: Message Bus Fundamentals
 
 - [ ] Events and the Message Bus — pub/sub pattern, event routing, subscriber management
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
@@ -157,26 +157,26 @@
 - [ ] Commands and Command Handlers — CQS, command validation, idempotent handlers
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 
-### Day 17: Sun, Oct 11 — Message Queues & Notification System
+### Day 17: Message Queues & Notification System
 
 - [ ] Message queues in distributed systems — Kafka, RabbitMQ, SQS
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Design a notification system — multi-channel (email, push, SMS), delivery guarantees, queuing
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 18: Mon, Oct 12 — YouTube Deep Dive & Message Bus Implementation
+### Day 18: YouTube Deep Dive & Message Bus Implementation
 
 - [ ] Design YouTube — video ingest, transcoding pipeline, CDN distribution, streaming
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Build a simple message bus in Python with RabbitMQ and pub/sub subscribers
 
-### Rest Day: Tue, Oct 13 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
 ## Phase 3: Advanced Patterns — Events, CQRS & End-to-End System Design
 
-### Day 19: Wed, Oct 14 — Event-Driven Architecture, Sourcing & Sagas
+### Day 19: Event-Driven Architecture, Sourcing & Sagas
 
 - [ ] Event-Driven Architecture — using events to integrate microservices, event sourcing basics
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
@@ -185,25 +185,25 @@
 - [ ] Saga Pattern — choreography vs orchestration, compensating transactions
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 
-### Day 20: Thu, Oct 15 — Event Streaming at Scale
+### Day 20: Event Streaming at Scale
 
 - [ ] Event streaming at scale — Kafka architecture, partitioning, consumer groups, replay
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] YouTube deep dive — content delivery network architecture, adaptive bitrate streaming
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 21: Fri, Oct 16 — Google Drive Deep Dive & Task Scheduler
+### Day 21: Google Drive Deep Dive & Task Scheduler
 
 - [ ] Google Drive deep dive — file sync, conflict resolution, delta sync, storage deduplication
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Design a distributed task scheduler — job queues, retry logic, distributed locking
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Rest Day: Sat, Oct 17 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 22: Sun, Oct 18 — CQRS & Query-Side Patterns
+### Day 22: CQRS & Query-Side Patterns
 
 - [ ] Command-Query Responsibility Segregation (CQRS) — separating read and write models
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
@@ -212,48 +212,48 @@
 - [ ] Eventual consistency — caveats, anti-patterns, handling stale reads
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 
-### Day 23: Mon, Oct 19 — Replication & Search Architecture
+### Day 23: Replication & Search Architecture
 
 - [ ] Database replication strategies — synchronous vs asynchronous, replication lag
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Search architecture — Elasticsearch, full-text search, faceting, ranking
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 24: Tue, Oct 20 — Graph Databases & Social Feed Design
+### Day 24: Graph Databases & Social Feed Design
 
 - [ ] Graph databases and social feeds — relationship queries, graph traversals
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Design a social media news feed — ranking algorithms, personalization, feed generation
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Rest Day: Wed, Oct 21 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 25: Thu, Oct 22 — End-to-End Process & Requirements
+### Day 25: End-to-End Process & Requirements
 
 - [ ] End-to-end system design — taking a problem statement from requirements to architecture
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Requirements clarification — functional vs non-functional, constraints, edge cases
 - [ ] Capacity estimation from requirements — traffic estimation, storage sizing, bandwidth
 
-### Day 26: Fri, Oct 23 — High-Level Design & Data Model
+### Day 26: High-Level Design & Data Model
 
 - [ ] High-level design — component diagram, data flow, service boundaries
 - [ ] Deep dive on data model — schema design, indexing strategy, partitioning
 - [ ] Deep dive on scalability — horizontal scaling, caching strategy, load balancing
 
-### Day 27: Sat, Oct 24 — Trade-offs & Practice Repo
+### Day 27: Trade-offs & Practice Repo
 
 - [ ] Trade-off analysis — consistency vs availability, latency vs throughput, cost vs performance
 - [ ] System Design Interview Questions repo — practice questions on distributed systems, scalability
   - Site: [System Design Questions (Arpit B Bhayani)](https://github.com/arpitbbhayani/system-design-questions)
 
-### Rest Day: Sun, Oct 25 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 28: Mon, Oct 26 — Mock Interviews
+### Day 28: Mock Interviews
 
 - [ ] Mock interview: Design a URL shortener (full lifecycle from requirements to architecture)
 - [ ] Mock interview: Design a chat system with real-time messaging and history
@@ -261,7 +261,7 @@
 
 ## Phase 4: Hands-On Projects
 
-### Day 29: Tue, Oct 27 — Project: Domain Modeling & Persistence
+### Day 29: Project: Domain Modeling & Persistence
 
 - [ ] Model the blogging domain — Post, Author, Comment, Tag aggregates with domain events
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
@@ -270,45 +270,45 @@
 - [ ] Implement Unit of Work for transactional CRUD operations
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 
-### Day 30: Wed, Oct 28 — Project: Flask API & Caching Layer
+### Day 30: Project: Flask API & Caching Layer
 
 - [ ] Build a Flask API service layer with CRUD endpoints and pagination
 - [ ] Add caching layer for post listings (cache-aside pattern)
 
-### Rest Day: Thu, Oct 29 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 31: Fri, Oct 30 — Project: Integration Tests & Redis
+### Day 31: Project: Integration Tests & Redis
 
 - [ ] Write integration tests with real database using test containers
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 - [ ] Add Redis caching for hot posts and per-user feed segments
 
-### Day 32: Sat, Oct 31 — Project: Key-Value Store & Consistent Hashing
+### Day 32: Project: Key-Value Store & Consistent Hashing
 
 - [ ] Design and implement a distributed key-value store with replication
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Implement consistent hashing for node assignment and rebalancing
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 
-### Day 33: Sun, Nov 1 — Project: TTL, Replication & Load Balancing
+### Day 33: Project: TTL, Replication & Load Balancing
 
 - [ ] Add support for TTL (time-to-live) on keys
 - [ ] Implement leader-based replication with failover
 - [ ] Build a load balancer for read/write traffic distribution
 
-### Rest Day: Mon, Nov 2 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 34: Tue, Nov 3 — Project: Load Testing & Caching Layer
+### Day 34: Project: Load Testing & Caching Layer
 
 - [ ] Test with simulated high read/write workloads and measure latency
   - Site: [System Design Questions (Arpit B Bhayani)](https://github.com/arpitbbhayani/system-design-questions)
 - [ ] Implement distributed caching layer with cache-aside and write-through strategies
 
-### Day 35: Wed, Nov 4 — Project: Event Model & Message Bus
+### Day 35: Project: Event Model & Message Bus
 
 - [ ] Design the event model — UserRegistered, PaymentCompleted, OrderShipped domain events
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
@@ -317,40 +317,40 @@
 - [ ] Build command handlers for user-triggered actions (send, schedule, cancel notifications)
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 
-### Day 36: Thu, Nov 5 — Project: Multi-Channel Delivery & Dead Letter Queue
+### Day 36: Project: Multi-Channel Delivery & Dead Letter Queue
 
 - [ ] Implement multi-channel delivery — email, push notifications, SMS with retry logic
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Add dead letter queue for failed deliveries and monitoring dashboards
 
-### Rest Day: Fri, Nov 6 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 37: Sat, Nov 7 — Project: Idempotency & Saga Pattern
+### Day 37: Project: Idempotency & Saga Pattern
 
 - [ ] Implement Idempotent notification handlers to prevent duplicates
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 - [ ] Design a Saga pattern for order completion → notifications → audit logging
 
-### Day 38: Sun, Nov 8 — Project: Read/Write Models & CQRS
+### Day 38: Project: Read/Write Models & CQRS
 
 - [ ] Design separate read and write models — upload pipeline vs image gallery queries
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 - [ ] Implement CQRS — write side with Unit of Work, read side with denormalized view models
   - Book: "Architecture Patterns with Python" by Harry Percival & Bob Gregory
 
-### Day 39: Mon, Nov 9 — Project: Upload, CDN & Transcoding
+### Day 39: Project: Upload, CDN & Transcoding
 
 - [ ] Build an image/video upload service with CDN distribution
   - Book: "System Design Interview – An Insider's Guide" by Alex Xu
 - [ ] Implement video transcoding pipeline with multiple quality levels
 
-### Rest Day: Tue, Nov 10 — Review & Recovery
+### Rest Day: Review & Recovery
 
 > Rest — no study tasks. Optional: reread the week's chapters and review notes.
 
-### Day 40: Wed, Nov 11 — Project: Search Index, Sync & Streaming
+### Day 40: Project: Search Index, Sync & Streaming
 
 - [ ] Build a search index using Elasticsearch for image metadata and tags
 - [ ] Implement event-driven sync between write model and read projections

@@ -691,7 +691,7 @@ function parseStudyPlan(text) {
 
     if (!currentPhase) continue;
 
-    const dayMatch = line.match(/^### Day\s+(\d+):\s*(.+?)\s*—\s*(.+)/);
+    const dayMatch = line.match(/^### Day\s+(\d+):\s*([A-Z][a-z]{2}, [A-Z][a-z]{2} \d{1,2})\s*—\s*(.+)/);
     if (dayMatch) {
       const num = dayMatch[1];
       const date = dayMatch[2].trim();
@@ -710,18 +710,28 @@ function parseStudyPlan(text) {
       continue;
     }
 
+    const undatedDayMatch = line.match(/^### Day\s+(\d+):\s*(.+)/);
+    if (undatedDayMatch) {
+      const num = undatedDayMatch[1];
+      currentGroup = {
+        label: 'Day ' + num,
+        topic: undatedDayMatch[2].trim(),
+        kind: 'day',
+        number: num,
+        date: '',
+        items: []
+      };
+      currentPhase.weeks.push(currentGroup);
+      currentItem = null;
+      continue;
+    }
+
     const restDayMatch = line.match(/^### Rest Day:\s*(.+)/);
     if (restDayMatch) {
       const dateAndTopic = restDayMatch[1].trim();
-      const separatorIndex = dateAndTopic.indexOf('—');
-      let date, topic;
-      if (separatorIndex !== -1) {
-        date = dateAndTopic.slice(0, separatorIndex).trim();
-        topic = dateAndTopic.slice(separatorIndex + 1).trim();
-      } else {
-        date = dateAndTopic;
-        topic = 'Review & Recovery';
-      }
+      const restDateMatch = dateAndTopic.match(/^([A-Z][a-z]{2}, [A-Z][a-z]{2} \d{1,2})\s*—\s*(.+)$/);
+      const date = restDateMatch ? restDateMatch[1].trim() : '';
+      const topic = restDateMatch ? restDateMatch[2].trim() : dateAndTopic;
       currentGroup = {
         label: 'Rest Day',
         topic: topic,
@@ -853,6 +863,20 @@ const datedPlanWeekGroups = {
     { week: 16, topic: 'Agentic Customization', lastDay: 32 },
     { week: 17, topic: 'Build a Claude API Application', lastDay: 34 },
     { week: 18, topic: 'Set Up a Claude Code Workspace', lastDay: 36 }
+  ],
+  'system-programming.md': [
+    { week: 1, topic: 'Systems Programming in C & Rust', lastDay: 3 },
+    { week: 2, topic: 'Computer Architecture', lastDay: 6 },
+    { week: 3, topic: 'x86-64 Assembly', lastDay: 9 },
+    { week: 4, topic: 'Lexing & Parsing', lastDay: 12 },
+    { week: 5, topic: 'Tree-Walk Interpreter & Bytecode VM', lastDay: 15 },
+    { week: 6, topic: 'LLVM, JIT & VM Internals', lastDay: 18 },
+    { week: 7, topic: 'Binary Exploitation Basics', lastDay: 21 },
+    { week: 8, topic: 'ROP, Heap & Mitigation Bypass', lastDay: 24 },
+    { week: 9, topic: 'Real-World RE & CTF Practice', lastDay: 27 },
+    { week: 10, topic: 'OS Fundamentals', lastDay: 30 },
+    { week: 11, topic: 'Project: Minimal Kernel', lastDay: 33 },
+    { week: 12, topic: 'Project: Chip-8 Emulator & JIT', lastDay: 36 }
   ]
 };
 

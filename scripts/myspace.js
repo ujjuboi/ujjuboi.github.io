@@ -1294,9 +1294,10 @@ function renderStudyNode(phase, node, isActive, plan, treeEl) {
   const kicker = document.createElement('span');
   kicker.className = 'wt-leaf-kicker';
   if (node.kind === 'day') {
-    kicker.textContent = 'Day ' + node.number + ' · ' + node.date + (total > 0 ? ' · ' + done + '/' + total : '');
+    const dateSuffix = node.date ? ' · ' + node.date : '';
+    kicker.textContent = 'Day ' + node.number + dateSuffix + (total > 0 ? ' · ' + done + '/' + total : '');
   } else if (node.kind === 'rest') {
-    kicker.textContent = 'Rest Day · ' + node.date;
+    kicker.textContent = node.date ? 'Rest Day · ' + node.date : 'Rest Day';
   } else {
     kicker.textContent = 'Week ' + node.number + (total > 0 ? ' · ' + done + '/' + total : '');
   }
@@ -1547,11 +1548,122 @@ async function loadStudyPlans() {
 }
 
 /**
+ * Parses a short study-plan date label such as 'Tue, Nov 3' into a Date,
+ * inferring the year from its weekday so plans can be compared against the
+ * real calendar even though day headings omit the year.
+ *
+ * @param {string} dateLabel Short date label from a day or rest heading.
+ * @returns {Date|null} Parsed date, or null when the label is missing/invalid.
+ */
+function parseStudyPlanDate(dateLabel) {
+  if (!dateLabel) return null;
+  const match = /^(\w{3}), (\w{3}) (\d{1,2})$/.exec(dateLabel.trim());
+  if (!match) return null;
+
+  const weekdayIndex = WEEKDAY_NAMES.indexOf(match[1]);
+  const monthIndex = MONTH_NAMES.indexOf(match[2]);
+  if (weekdayIndex === -1 || monthIndex === -1) return null;
+
+  const dayOfMonth = Number(match[3]);
+  const currentYear = new Date().getFullYear();
+  const now = Date.now();
+  let closestDate = null;
+
+  for (const year of [currentYear - 1, currentYear, currentYear + 1]) {
+    const candidate = new Date(year, monthIndex, dayOfMonth);
+    if (candidate.getDay() !== weekdayIndex) continue;
+    if (!closestDate || Math.abs(candidate.getTime() - now) < Math.abs(closestDate.getTime() - now)) {
+      closestDate = candidate;
+    }
+  }
+
+  return closestDate;
+}
+
+/**
+ * Finds a plan's first and last dated leaf, including leaves grouped inside
+ * dated week nodes. Plans whose headings carry no dates return null.
+ *
+ * @param {Object} plan Parsed study plan object.
+ * @returns {{start: Date, end: Date}|null} Date range of the plan.
+ */
+function studyPlanDateRange(plan) {
+  let start = null;
+  let end = null;
+
+  for (const phase of plan.phases) {
+    for (const node of phase.weeks) {
+      const leaves = node.children && node.children.length > 0 ? node.children : [node];
+      for (const leaf of leaves) {
+        const nodeDate = parseStudyPlanDate(leaf.date);
+        if (!nodeDate) continue;
+        if (!start || nodeDate < start) start = nodeDate;
+        if (!end || nodeDate > end) end = nodeDate;
+      }
+    }
+  }
+
+  return start ? { start, end } : null;
+}
+
+/**
+ * Picks the active plan: the dated plan whose range covers today, otherwise
+ * the soonest upcoming dated plan. Undated plans are never active.
+ *
+ * @param {Object[]} plans Parsed study plan objects in manifest order.
+ * @returns {number} Index of the active plan, or -1 when none qualifies.
+ */
+function findActiveStudyPlanIndex(plans) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let upcomingIndex = -1;
+  let upcomingStart = null;
+
+  for (let index = 0; index < plans.length; index++) {
+    const range = studyPlanDateRange(plans[index]);
+    if (!range) continue;
+
+    const start = new Date(range.start);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(range.end);
+    end.setHours(0, 0, 0, 0);
+
+    if (start <= today && today <= end) return index;
+
+    if (start > today && (!upcomingStart || start < upcomingStart)) {
+      upcomingStart = start;
+      upcomingIndex = index;
+    }
+  }
+
+  return upcomingIndex;
+}
+
+/**
+ * Moves the active plan to the front of the grid, keeping the manifest order
+ * of every other plan.
+ *
+ * @param {Object[]} plans Parsed study plan objects in manifest order.
+ * @returns {Object[]} The reordered plans array.
+ */
+function sortStudyPlansByActivity(plans) {
+  const activeIndex = findActiveStudyPlanIndex(plans);
+  if (activeIndex > 0) {
+    const [activePlan] = plans.splice(activeIndex, 1);
+    plans.unshift(activePlan);
+  }
+  return plans;
+}
+
+/**
  * Renders the list of study plan cards into the plans grid.
  */
 function renderStudyPlans() {
   const container = document.getElementById('study-plans-grid');
   container.innerHTML = '';
+
+  sortStudyPlansByActivity(studyPlans);
 
   const loading = document.getElementById('study-loading');
   if (loading) {
