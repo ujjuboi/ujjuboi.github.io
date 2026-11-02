@@ -101,6 +101,11 @@ const MYSPACE_CATEGORIES = ['Currently Studying', 'Currently Working On', 'LeetC
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /**
+ * Weekday names used to resolve short study-plan date labels.
+ */
+const WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+/**
  * Month lookup used to build sortable keys from "Month YYYY" dates.
  */
 const SORT_MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
