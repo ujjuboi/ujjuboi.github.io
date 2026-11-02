@@ -865,18 +865,20 @@ const datedPlanWeekGroups = {
     { week: 18, topic: 'Set Up a Claude Code Workspace', lastDay: 36 }
   ],
   'system-programming.md': [
-    { week: 1, topic: 'Systems Programming in C & Rust', lastDay: 3 },
-    { week: 2, topic: 'Computer Architecture', lastDay: 6 },
-    { week: 3, topic: 'x86-64 Assembly', lastDay: 9 },
-    { week: 4, topic: 'Lexing & Parsing', lastDay: 12 },
-    { week: 5, topic: 'Tree-Walk Interpreter & Bytecode VM', lastDay: 15 },
-    { week: 6, topic: 'LLVM, JIT & VM Internals', lastDay: 18 },
-    { week: 7, topic: 'Binary Exploitation Basics', lastDay: 21 },
-    { week: 8, topic: 'ROP, Heap & Mitigation Bypass', lastDay: 24 },
-    { week: 9, topic: 'Real-World RE & CTF Practice', lastDay: 27 },
-    { week: 10, topic: 'OS Fundamentals', lastDay: 30 },
-    { week: 11, topic: 'Project: Minimal Kernel', lastDay: 33 },
-    { week: 12, topic: 'Project: Chip-8 Emulator & JIT', lastDay: 36 }
+    { week: 1, topic: 'C & Rust Foundations', lastDay: 3 },
+    { week: 2, topic: 'Nand2Tetris, Arch & Assembly', lastDay: 6 },
+    { week: 3, topic: 'Assembly Practice & Exploitation Basics', lastDay: 9 },
+    { week: 4, topic: 'Compilers: Language Design & Parsing', lastDay: 12 },
+    { week: 5, topic: 'Language Patterns & Bytecode VM', lastDay: 15 },
+    { week: 6, topic: 'VM Internals, JIT & Chip-8 Emulator', lastDay: 18 },
+    { week: 7, topic: 'LLVM, ROP & Heap Exploitation', lastDay: 21 },
+    { week: 8, topic: 'Malware & OS Fundamentals', lastDay: 24 },
+    { week: 9, topic: 'Project: Minimal Kernel', lastDay: 27 },
+    { week: 10, topic: 'Project: Chip-8 Completion & Language Compiler', lastDay: 30 },
+    { week: 11, topic: 'RE Practice, Malware Analysis & Advanced Topics', lastDay: 33 },
+    { week: 12, topic: 'CTF, Arch Capstone & Integrated Review', lastDay: 36 },
+    { week: 13, topic: 'CTF Challenge & Final Kernel Milestone', lastDay: 39 },
+    { week: 14, topic: 'Where to Go Next', lastDay: 42 }
   ]
 };
 
