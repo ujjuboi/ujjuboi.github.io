@@ -134,6 +134,7 @@ Making my own dynamic blogging website!
 │   │   ├── claude-certified-developer-foundations.md
 │   │   ├── code-architecture-system-design.md
 │   │   ├── plans.json
+│   │   ├── system-programming.md
 │   │   └── template.md
 │   └── cv.md
 ├── styles/
